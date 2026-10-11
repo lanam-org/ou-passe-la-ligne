@@ -1,0 +1,17 @@
+{
+  "name": "ou-passe-la-ligne",
+  "private": true,
+  "description": "Où passe la ligne (Forillon, 1970) — un jeu de géographie en équipe pour le 1er cycle du secondaire",
+  "type": "module",
+  "scripts": {
+    "verifier": "node outils/verifier_site.mjs",
+    "verifier:images": "node outils/verifier_site.mjs images",
+    "verifier:firebase": "node outils/verifier_site.mjs firebase",
+    "verifier:mesure": "node outils/verifier_site.mjs firebase mesure",
+    "verifier:contrastes": "python3 outils/verifier_contrastes.py",
+    "verifier:tout": "npm run verifier && npm run verifier:images && npm run verifier:firebase && npm run verifier:mesure && npm run verifier:contrastes"
+  },
+  "devDependencies": {
+    "playwright": "1.56.0"
+  }
+}

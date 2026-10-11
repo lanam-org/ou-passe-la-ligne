@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="fr-CA">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Page introuvable — Où passe la ligne</title>
+<style>
+  /* autonome : cette page peut s'afficher à n'importe quelle adresse, sans la feuille du site */
+  :root{color-scheme:light dark;--fond:#F6F4EF;--encre:#1B2A33;--doux:#4A5963;--primaire:#1B5E8F}
+  @media (prefers-color-scheme: dark){:root{--fond:#10191F;--encre:#E8EEF1;--doux:#A9B7BF;--primaire:#6FB1E3}}
+  @media (prefers-contrast: more){:root{--fond:#FFFFFF;--encre:#000000;--doux:#000000;--primaire:#0B3F66}}
+  body{margin:0;background:var(--fond);color:var(--encre);
+    font:18px/1.5 "Atkinson Hyperlegible Next","Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif}
+  main{max-width:560px;margin:0 auto;padding:64px 16px}
+  h1{font-size:30px;line-height:1.2;margin:0 0 12px}
+  p{color:var(--doux);margin:0 0 20px}
+  a{color:var(--primaire);font-weight:700;text-underline-offset:3px}
+  a:focus-visible{outline:3px solid var(--primaire);outline-offset:3px;border-radius:4px}
+</style>
+</head>
+<body>
+<main>
+  <h1>Cette page n'existe pas</h1>
+  <p>L'adresse est peut-être mal recopiée. Le code d'une séance s'entre sur la page des équipes, pas dans l'adresse.</p>
+  <p><a id="accueil" href="/">Retour à l'accueil d'Où passe la ligne</a></p>
+</main>
+<script>
+  // Sur GitHub Pages, le site vit sous /nom-du-depot/ : on y renvoie.
+  (function () {
+    var p = location.pathname.split('/').filter(Boolean);
+    if (/\.github\.io$/.test(location.hostname) && p.length) document.getElementById('accueil').href = '/' + p[0] + '/';
+  })();
+</script>
+</body>
+</html>

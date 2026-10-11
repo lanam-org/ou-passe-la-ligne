@@ -1,0 +1,93 @@
+rules_version = '2';
+
+// Règles de sécurité de « Où passe la ligne ».
+// Ce qui n'est pas autorisé explicitement est refusé.
+//
+// Qui est qui :
+//   · les élèves se connectent en ANONYME : Firebase donne un identifiant
+//     technique, sans nom ni courriel ;
+//   · l'enseignant·e est anonyme OU connecté·e avec Google ; c'est l'identifiant
+//     qui a créé la séance (enseignantId). Son nom et son courriel restent dans
+//     Firebase Authentication : ils ne sont jamais écrits dans la base ;
+//   · une équipe est l'identifiant du Chromebook qui l'a créée (appareil).
+//
+// Ce que ça garantit :
+//   · une équipe ne lit et ne modifie que SA fiche ; elle ne voit pas les réponses des autres ;
+//   · l'enseignant·e lit tout dans sa séance, et peut tout effacer ;
+//   · seuls les champs prévus sont acceptés (listes blanches) : personne ne peut
+//     ajouter un champ « prénom » par erreur ;
+//   · la version du jeu de l'enseignant·e (ses réglages) n'est lue et écrite que par elle ou lui.
+//
+// À coller dans la console Firebase → Firestore Database → Règles → Publier,
+// ou à déployer avec : firebase deploy --only firestore:rules
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function connecte() { return request.auth != null; }
+    function seance(code) { return get(/databases/$(database)/documents/seances/$(code)).data; }
+    function enseignant(code) { return connecte() && seance(code).enseignantId == request.auth.uid; }
+
+    match /seances/{code} {
+      // Lire UNE séance par son code : toute personne connectée (une équipe qui la rejoint).
+      // Lister des séances : seulement les siennes (la liste « Tes séances » de l'enseignant·e).
+      allow get: if connecte();
+      allow list: if connecte() && resource.data.enseignantId == request.auth.uid;
+      allow create: if connecte()
+        && code.matches('^[A-HJ-KM-NP-Z2-9]{5}$')
+        && request.resource.data.enseignantId == request.auth.uid
+        && request.resource.data.keys().hasOnly(['enseignantId', 'creeLe', 'etat', 'questionnaire', 'signal', 'config', 'chrono'])
+        && request.resource.data.etat == 'ouverte';
+      allow update: if connecte()
+        && resource.data.enseignantId == request.auth.uid
+        && request.resource.data.enseignantId == resource.data.enseignantId
+        && request.resource.data.keys().hasOnly(['enseignantId', 'creeLe', 'etat', 'questionnaire', 'signal', 'config', 'chrono']);
+      allow delete: if connecte() && resource.data.enseignantId == request.auth.uid;
+
+      // La fiche d'une équipe. L'identifiant du document est le nom de l'équipe :
+      // deux Chromebooks ne peuvent donc pas prendre le même nom.
+      match /equipes/{equipe} {
+        allow read: if connecte()
+          && (resource == null || resource.data.appareil == request.auth.uid || enseignant(code));
+        allow create: if connecte()
+          && seance(code).etat == 'ouverte'
+          && request.resource.data.appareil == request.auth.uid
+          && request.resource.data.keys().hasOnly(['nom', 'appareil', 'creeLe', 'maj', 'etape', 'atteinte', 'entree',
+               'temps', 'releves', 'docs', 'juge', 'zones', 'comps', 'gespeg', 'gespegVu', 'historique',
+               'corridorRompu', 'mentions', 'reponses', 'fini', 'compteurs'])
+          && request.resource.data.nom is string && request.resource.data.nom.size() <= 30;
+        allow update: if connecte()
+          && resource.data.appareil == request.auth.uid
+          && request.resource.data.appareil == resource.data.appareil
+          && request.resource.data.nom == resource.data.nom
+          && request.resource.data.keys().hasOnly(['nom', 'appareil', 'creeLe', 'maj', 'etape', 'atteinte', 'entree',
+               'temps', 'releves', 'docs', 'juge', 'zones', 'comps', 'gespeg', 'gespegVu', 'historique',
+               'corridorRompu', 'mentions', 'reponses', 'fini', 'compteurs'])
+          && request.resource.data.reponses.size() <= 40;
+        allow delete: if enseignant(code);
+      }
+
+      // Le questionnaire « Ton avis » : une réponse par élève, sans nom.
+      // On peut en ajouter seulement si l'enseignant·e l'a activé ; seul·e
+      // l'enseignant·e les lit. Aucun identifiant n'y entre.
+      match /avis/{id} {
+        allow create: if connecte()
+          && seance(code).questionnaire == true
+          && request.resource.data.keys().hasOnly(['q1', 'q2', 'q3', 'q4', 'q5', 'q6', 'q7', 'q8', 't']);
+        allow read, delete: if enseignant(code);
+        allow update: if false;
+      }
+    }
+
+    // La version du jeu d'un·e enseignant·e : ses questions ajoutées, ses
+    // corrections, ses minutes. Personne d'autre ne la lit.
+    match /enseignants/{uid} {
+      allow read, delete: if connecte() && request.auth.uid == uid;
+      allow create, update: if connecte() && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['reglages', 'maj']);
+    }
+
+    // Tout le reste est refusé.
+    match /{document=**} { allow read, write: if false; }
+  }
+}
