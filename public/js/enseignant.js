@@ -82,7 +82,7 @@ async function ecranAccueil(erreur = '') {
   const fmt = v?.format || 'standard';
   const google = MOI && !MOI.anonyme;
   const compte = donnees.mode === 'local'
-    ? '<p class="hint">Mode démonstration : pas de compte. La connexion Google sera proposée une fois le site branché sur Firebase.</p>'
+    ? '<p class="hint">Version de démonstration : pas de compte. Tes séances restent dans ce navigateur.</p>'
     : !googleEnseignant ? '<p class="hint">Sans compte : tes séances restent liées à ce navigateur.</p>'
     : google ? `<p>Connecté·e avec Google : <b>${esc(MOI.nom || '')}</b> ${MOI.courriel ? `· ${esc(MOI.courriel)}` : ''}</p>
         <p class="hint">Tu retrouves tes séances sur n'importe quel ordinateur. Ni ton nom ni ton courriel ne sont écrits dans la base.</p>
@@ -90,50 +90,54 @@ async function ecranAccueil(erreur = '') {
     : `<p>Sans compte, tes séances restent liées à <b>ce navigateur</b>. Avec Google, tu les retrouves sur n'importe quel ordinateur.</p>
         <p class="hint">Les élèves, eux, n'ont jamais de compte. Ni ton nom ni ton courriel ne sont écrits dans la base.</p>
         <div class="p-actions"><button class="btn" data-google="1">Se connecter avec Google</button></div>`;
-  $('#prof').innerHTML = typo(`<div class="p-tete creer">
+  const demo = donnees.mode === 'local' ? `<section class="p-sect" id="demo"><div class="p-sect-h"><h3>Séance de démonstration</h3></div>
+      <p class="p-txt">Une séance de 75 minutes en cours depuis 40 minutes, avec quatre équipes à des étapes différentes.
+        Pour explorer le suivi en direct, le débrief et le rapport.</p>
+      <div class="p-actions"><button class="btn btn--f" data-demo="1">Ouvrir la démonstration →</button></div>
+    </section>` : '';
+  $('#prof').innerHTML = typo(`<div class="p-tete">
       <h2>Tes séances</h2>
       <p>Une séance = un code de cinq caractères. Tu l'affiches au tableau ; chaque équipe l'entre sur
         son Chromebook. Tu suis ensuite les équipes ici, en direct.</p>
     </div>
     ${erreur ? `<p class="erreur" role="alert">${esc(erreur)}</p>` : ''}
-    <section class="p-sect creer"><div class="p-sect-h"><h3>Ton compte</h3></div>${compte}</section>
+    <div class="accueil-g">
+    <div class="accueil-m">
     <section class="p-sect creer"><div class="p-sect-h"><h3>Nouvelle séance</h3></div>
       <fieldset class="formats" id="formats"><legend>La durée</legend>
         ${Object.entries(Rg.FORMATS).map(([k, f]) => `<label class="case-l"><input type="radio" name="format" value="${k}" ${k === fmt ? 'checked' : ''}>
           <span>${esc(f.nom)}<br><span class="hint">${esc(f.resume)}</span></span></label>`).join('')}
       </fieldset>
-      <p class="hint">${v ? `Ta version du jeu sert de départ (${esc(resumeReglages(v))}). Choisir un autre format reprend ses minutes et ses questions ; tes questions ajoutées et tes corrections restent.`
+      <p class="hint formats-n">${v ? `Ta version du jeu sert de départ (${esc(resumeReglages(v))}). Choisir un autre format reprend ses minutes et ses questions ; tes questions ajoutées et tes corrections restent.`
         : 'Les minutes de chaque étape, les questions et les corrections se changent ensuite dans l\'onglet « Réglages », même pendant la séance.'}</p>
       <label class="case-l"><input type="checkbox" id="opt-avis" ${mesure ? '' : 'disabled'}>
         <span>Proposer le questionnaire « Ton avis » à la fin (séances d'essai, hors du temps de la séance).
-        ${mesure ? '' : '<br><span class="hint">Désactivé : la collecte pour la recherche est éteinte dans config.js, en attendant le certificat d\'éthique.</span>'}</span></label>
+        ${mesure ? '' : '<br><span class="hint">Désactivé : la collecte pour la recherche attend le certificat d\'éthique.</span>'}</span></label>
       <div class="p-actions"><button class="btn" id="creer">Créer la séance →</button></div>
     </section>
-    ${donnees.mode === 'local' ? `<section class="p-sect creer" id="demo"><div class="p-sect-h"><h3>Séance de démonstration</h3></div>
-      <p>Une séance de 75 minutes déjà en cours depuis 40 minutes, avec quatre équipes à des endroits différents :
-        une au retour sur la démarche, une aux points de vue, une bloquée à « Se questionner » au-delà du temps prévu,
-        une arrivée en retard. Pour voir le suivi en direct, le débrief et le rapport sans faire jouer quatre onglets.</p>
-      <p class="hint">Réponses inventées. Une vraie équipe peut aussi la rejoindre avec son code, dans un autre onglet.</p>
-      <div class="p-actions"><button class="btn btn--f" data-demo="1">Ouvrir une séance de démonstration →</button></div>
-    </section>` : ''}
-    <section class="p-sect creer"><div class="p-sect-h"><h3>Ta version du jeu</h3></div>
-      <p>${v ? esc(resumeReglages(v)) : 'Aucune pour l\'instant : chaque séance part de la version d\'origine.'}</p>
-      <p class="hint">Tes corrections, tes questions ajoutées, tes minutes : reprises à chaque nouvelle séance. Les séances déjà créées ne changent pas.</p>
-      <div class="p-actions"><button class="btn btn--f" data-ma-version="1">${v ? 'Modifier ma version' : 'Créer ma version'}</button></div>
-    </section>
-    <section class="p-sect"><div class="p-sect-h"><h3>Séances déjà créées (${liste.length})</h3>
-      <span class="hint">Les réponses des équipes restent en ligne tant que la séance existe : imprime le rapport, puis efface.</span></div>
+    <section class="p-sect"><div class="p-sect-h"><h3>Séances déjà créées (${liste.length})</h3></div>
+      <p class="hint">Les réponses des équipes restent en ligne tant que la séance existe : imprime le rapport, puis efface.</p>
       ${liste.length ? `<div class="tab-w"><table class="tab" id="mes-seances"><thead><tr><th>Créée le</th><th>Code</th><th>État</th><th></th></tr></thead>
         <tbody>${liste.map((x) => `<tr><td>${esc(dateCourte(x.creeLe))}${Date.now() - x.creeLe > 30 * JOUR
           ? ' <span class="badge badge--reprise">plus de 30 jours</span>' : ''}</td>
           <td class="mono">${esc(x.id)}${x.demo ? ' <span class="badge">démonstration</span>' : ''}</td><td>${x.etat === 'ouverte' ? 'ouverte' : 'fermée'}</td>
-          <td><div class="signaux"><button class="btn btn--f" data-ouvrir="${esc(x.id)}">Ouvrir</button>
-            ${ui.effacerListe === x.id
-              ? `<button class="btn btn--danger" data-effacer-liste="${esc(x.id)}" data-confirme="1">Oui, effacer</button>
-                 <button class="btn btn--f" data-effacer-liste="">Annuler</button>`
-              : `<button class="btn btn--f danger" data-effacer-liste="${esc(x.id)}">Effacer</button>`}</div></td></tr>`).join('')}</tbody></table></div>`
+          <td><div class="signaux"><button class="btn btn--f btn--s" data-ouvrir="${esc(x.id)}">Ouvrir</button>${ui.effacerListe === x.id
+              ? `<button class="btn btn--danger btn--s" data-effacer-liste="${esc(x.id)}" data-confirme="1">Oui, effacer</button>
+                 <button class="btn btn--f btn--s" data-effacer-liste="">Annuler</button>`
+              : `<button class="btn btn--f btn--s danger" data-effacer-liste="${esc(x.id)}">Effacer</button>`}</div></td></tr>`).join('')}</tbody></table></div>`
         : '<p class="vide">Aucune séance pour l\'instant.</p>'}
-    </section>`);
+    </section>
+    </div>
+    <aside class="accueil-a">
+    ${demo}
+    <section class="p-sect"><div class="p-sect-h"><h3>Ta version du jeu</h3></div>
+      <p class="p-txt">${v ? esc(resumeReglages(v)) : 'Aucune pour l\'instant : chaque séance part de la version d\'origine.'}</p>
+      <p class="hint">Tes corrections, tes questions ajoutées, tes minutes : reprises à chaque nouvelle séance. Les séances déjà créées ne changent pas.</p>
+      <div class="p-actions"><button class="btn btn--f" data-ma-version="1">${v ? 'Modifier ma version' : 'Créer ma version'}</button></div>
+    </section>
+    ${donnees.mode === 'local' ? '' : `<section class="p-sect"><div class="p-sect-h"><h3>Ton compte</h3></div>${compte}</section>`}
+    </aside>
+    </div>`);
 }
 
 function ouvrir(cd) {
@@ -181,7 +185,7 @@ function etatTemps(e) {
   const x = etapeDe(e);
   const prevu = x.min * 60000;
   const t = prevu - Rg.resteEtape(c, e, chronoDe());
-  return { cls: t > 1.5 * prevu ? 't--alerte' : t > prevu ? 't--att' : 't--ok', txt: `${mmss(t)} / ${x.min} min` };
+  return { cls: t > 1.5 * prevu ? 't--alerte' : t > prevu ? 't--att' : 't--ok', txt: `${Math.floor(t / 60000)} / ${x.min} min` };
 }
 
 function segments(e) {
@@ -197,7 +201,7 @@ function puces(e) {
   if (e.atteinte >= 3) p.push(`villages vidés ${r.vides.length}/${J.nbVillages(c)}`, `corridor ${r.corridor}`);
   if (e.comps) p.push(`points de vue ${e.comps}/4`);
   p.push(`réponses ${ecrites.filter((q) => J.repondu(e, q.id)).length}/${ecrites.length}`);
-  if (e.mentions.length) p.push(`✦ ${e.mentions.length}`);
+  if (e.mentions.length) p.push(`✦ ${e.mentions.length} geste${e.mentions.length > 1 ? 's' : ''} reconnu${e.mentions.length > 1 ? 's' : ''}`);
   return `<div class="puces">${p.map((x) => `<span class="puce">${esc(x)}</span>`).join('')}</div>`;
 }
 
@@ -210,27 +214,34 @@ function vueDirect() {
   const sg = S?.signal;
   const eq = [...EQ].sort((a, b) => a.creeLe - b.creeLe);
   const sel = eq.find((e) => e.id === choisie);
+  const ecouleMin = ch.debut ? Math.floor(Rg.ecoule(ch) / 60000) : 0;
   return `<div class="p-tete">
-      <p style="margin-bottom:10px"><button class="lien" data-retour="1">← Tes séances</button></p>
-      <div class="code-g">
-        <div><p class="sur">Code de la séance</p><p class="code-v" id="code-seance">${esc(code)}</p></div>
-        <div><p class="sur">Chrono de la classe${ch.pause ? ' · en pause' : ''}</p>
-          <p class="chrono" id="chrono">${ch.debut ? mmss(Rg.ecoule(ch)) : '—'}</p>
-          <p class="hint">${ch.debut ? '' : 'Il démarre avec la première équipe. '}Prévu : ${total} min en tout, ${c.miseEnRoute.min} de mise en route, puis
-            ${etapesJeu.map((x) => x.min).join(' + ')} min.</p>
-          <div class="signaux">${!ch.debut ? '<button class="btn btn--f" data-chrono="demarrer">Démarrer maintenant</button>'
-            : ch.pause ? '<button class="btn" data-chrono="reprendre">Reprendre</button>'
-              : '<button class="btn btn--f" data-chrono="pause">Pause</button>'}
-            ${ch.debut ? '<button class="btn btn--f" data-chrono="zero">Remettre à zéro</button>' : ''}</div></div>
+      <p class="retour"><button class="lien" data-retour="1">← Tes séances</button></p>
+      <div class="tete-g">
+        <section class="p-sect tete-code">
+          <p class="sur">Code de la séance</p>
+          <p class="code-v" id="code-seance">${esc(code)}</p>
+          <p class="code-u">À afficher au tableau.</p>
+          <p class="code-u">Lien direct : <b>${esc(lienEleve())}</b></p>
+        </section>
+        <section class="p-sect tete-chrono">
+          <p class="sur">Chrono de la classe${ch.pause ? ' <span class="badge badge--pause">en pause</span>' : ''}</p>
+          <p class="chrono${ch.debut ? '' : ' chrono--attente'}" id="chrono">${ecouleMin} min <span>sur ${total} prévues</span></p>
+          <p class="hint">${ch.debut ? '' : 'Démarre avec la première équipe. '}${c.miseEnRoute.min} min de mise en route, puis
+            ${etapesJeu.map((x) => x.min).join(' + ')}.</p>
+          <div class="signaux">${!ch.debut ? '<button class="btn btn--f btn--s" data-chrono="demarrer">Démarrer maintenant</button>'
+            : ch.pause ? '<button class="btn btn--s" data-chrono="reprendre">Reprendre</button>'
+              : '<button class="btn btn--f btn--s" data-chrono="pause">Pause</button>'}
+            ${ch.debut ? '<button class="btn btn--f btn--s" data-chrono="zero">Remettre à zéro</button>' : ''}</div>
+        </section>
       </div>
-      <p class="code-u" style="margin-top:10px">Les équipes ouvrent <b>${esc(lienEleve())}</b></p>
     </div>
     <section class="p-sect">
       <div class="p-sect-h"><h3>Message à toute la classe</h3>
         <span class="hint">${sg && SIGNAUX[sg.type] ? `Affiché : « ${esc(SIGNAUX[sg.type].t)} »` : 'Aucun message affiché.'}</span></div>
       <div class="signaux">
-        ${Object.entries(SIGNAUX).map(([k, v]) => `<button class="btn btn--f" data-signal="${k}">${esc(v.court)}</button>`).join('')}
-        <button class="btn btn--f" data-signal="">Retirer le message</button>
+        ${Object.entries(SIGNAUX).map(([k, v]) => `<button class="btn btn--f" data-signal="${k}" aria-pressed="${sg?.type === k}">${esc(v.court)}</button>`).join('')}
+        ${sg && SIGNAUX[sg.type] ? '<button class="lien" data-signal="">Retirer le message</button>' : ''}
       </div>
     </section>
     <section class="p-sect">
@@ -270,9 +281,9 @@ function vueDetail(e) {
     <div class="p-sect-h"><h3>Équipe ${esc(e.nom)}</h3><button class="lien" data-equipe="">Fermer ✕</button></div>
     <div class="detail-g">
       <div>${carte(c, e, { cliquable: false })}<div style="margin-top:12px">${blocReleve(c, e, true)}</div>
-        ${e.juge ? `<p class="sur" style="margin-top:14px">Documents retenus</p><ul class="carnet-l">${e.docs.map((id) => {
+        ${e.juge ? `<p class="sur" style="margin-top:14px">Documents retenus</p><ul class="docs-r">${e.docs.map((id) => {
           const d = c.documents.find((x) => x.id === id);
-          return `<li>${d.utile ? '✓' : '—'} ${esc(d.t)}</li>`; }).join('')}</ul>` : ''}</div>
+          return `<li class="${d.utile ? 'ok' : 'hs'}"><span aria-hidden="true">${d.utile ? '✓' : '—'}</span> ${esc(d.t)}${d.utile ? '' : ' <small>(hors sujet)</small>'}</li>`; }).join('')}</ul>` : ''}</div>
       <div class="rep-l">${ecrites.map((q) => {
         const r = String(e.reponses?.[q.id] || '').trim();
         return `<div class="rep${r ? '' : ' rep--vide'}"><p class="k">${esc(qid(q))} · ${esc(c.etapes.find((x) => x.id === q.etape).t)}${q.requise ? '' : ' · facultative'}</p>
@@ -444,7 +455,7 @@ function vueMesures() {
   return `<div class="p-tete"><h2>Mesures</h2>
       <p>Ce que le site enregistre pour chaque équipe, et le plan de mesure pour étudier l'efficacité du jeu.</p></div>
     <div class="garde"><b>Vie privée.</b> Aucun prénom, aucun courriel : une équipe n'est qu'un nom d'animal.
-      L'export pour la recherche ${mesure ? 'est activé (config.js).' : "est désactivé tant que le certificat d'éthique n'est pas obtenu (config.js)."}</div>
+      L'export pour la recherche ${mesure ? 'est activé.' : "est désactivé tant que le certificat d'éthique n'est pas obtenu."}</div>
     <section class="p-sect"><div class="p-sect-h"><h3>Par équipe</h3><span class="hint">${eq.length} équipe${eq.length > 1 ? 's' : ''}</span></div>
       ${eq.length ? `<div class="tab-w"><table class="tab"><thead><tr><th>Indicateur</th>${eq.map((e) => `<th>${esc(e.nom)}</th>`).join('')}</tr></thead>
         <tbody>${lignes.map((l, i) => `<tr><td>${i === 0 || lignes[i - 1].g !== l.g ? `<b>${esc(l.g)}</b> · ` : ''}${esc(l.k)}</td>${
@@ -493,7 +504,7 @@ function vueQuestionnaire() {
   return `<div class="p-tete"><h2>Questionnaire élève</h2>
       <p>Huit questions, trois minutes, après le débrief. Chaque élève répond seul, sans nom, sur le Chromebook de
         l'équipe ou sur papier. ${mesure ? (S?.questionnaire ? 'Activé pour cette séance.' : 'Non activé pour cette séance.')
-          : "Désactivé à l'écran tant que la collecte pour la recherche est éteinte (config.js) ; la version papier reste disponible."}</p></div>
+          : "Désactivé à l'écran tant que la collecte pour la recherche attend le certificat d'éthique ; la version papier reste disponible."}</p></div>
     <section class="p-sect"><div class="tab-w"><table class="tab">
       <thead><tr><th>#</th><th>Question posée à l'élève</th><th>Forme</th><th>Ce qu'elle mesure</th><th>Repère</th>${mesure ? '<th>Résultat</th>' : ''}</tr></thead>
       <tbody>${c.avis.map((q, i) => {
@@ -501,7 +512,7 @@ function vueQuestionnaire() {
         if (mesure && q.type === 'echelle') {
           const n = AV.map((a) => Number(a[q.id])).filter(Boolean);
           res = n.length ? `${dec(n.reduce((x, y) => x + y, 0) / n.length)} / 4 (${n.length})` : '';
-        } else if (mesure) res = `${AV.filter((a) => String(a[q.id] || '').trim()).length} réponse(s)`;
+        } else if (mesure) { const n = AV.filter((a) => String(a[q.id] || '').trim()).length; res = `${n} réponse${n > 1 ? 's' : ''}`; }
         return `<tr><td class="mono">Q${i + 1}</td><td><b>${esc(q.t)}</b></td>
           <td>${q.type === 'echelle' ? 'échelle 1 à 4' : q.type === 'choix' ? 'un choix' : 'une phrase'}</td>
           <td>${esc(q.mesure)}</td><td>${esc(q.cible)}</td>${mesure ? `<td>${esc(res)}</td>` : ''}</tr>`;

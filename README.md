@@ -57,9 +57,10 @@ les relevés et les sept secteurs deviennent de simples boutons, avec les mêmes
 
 ## L'affichage : clair, sombre, contraste élevé
 
-En haut de chaque page, le menu « Affichage » : Automatique (suit l'ordinateur, y compris
-« plus de contraste »), Clair, Sombre, Contraste élevé. Le choix reste dans ce navigateur
-seulement ; rien n'est envoyé. Le rapport s'imprime toujours en clair.
+En haut de chaque page, le menu « Affichage » : Clair (par défaut, même si l'ordinateur est en
+mode sombre), Sombre, Contraste élevé, Comme l'ordinateur (suit le mode sombre et « plus de
+contraste »). Le choix reste dans ce navigateur seulement ; rien n'est envoyé. Le rapport
+s'imprime toujours en clair.
 
 - Clair et sombre : tout texte ≥ 4,5:1 (WCAG AA). Contraste élevé : noir sur blanc, tout texte ≥ 7:1 (AAA).
 - Contours des champs et boutons ≥ 3:1 dans les trois affichages.
@@ -153,7 +154,7 @@ On peut aussi tout héberger chez Firebase (`firebase deploy`).
 | `public/js/dossierdoc.js` | Le dossier documentaire, à l'écran et sur papier ; le lien de source dans le jeu |
 | `public/js/dossier.js` | La page de la version devoir |
 | `public/js/donnees.js` | La seule porte vers le stockage (Firestore ou local) |
-| `public/js/theme.js` | Le menu « Affichage » : clair, sombre, contraste élevé, automatique |
+| `public/js/theme.js` | Le menu « Affichage » : clair, sombre, contraste élevé, comme l'ordinateur |
 | `public/js/local.js` | Le stockage local, pour la démonstration |
 | `public/js/config.js` | Le seul fichier à modifier pour passer en ligne |
 | `public/js/demo.js` | La séance de démonstration (mode local) |
@@ -205,7 +206,7 @@ npm run verifier:tout                          tout, comme GitHub avant chaque m
 Le test crée une séance, fait jouer une équipe de bout en bout, vérifie le suivi en
 direct, le message à la classe, les réglages changés en pleine partie (question ajoutée, question
 rendue facultative, correction, minutes, rattrapage, pause du chrono, « +5 min »), l'export des
-réglages, le dossier documentaire (complet, devoir, pastilles, corrections), les trois affichages (et l'automatique qui suit l'ordinateur), la reprise après un rafraîchissement, le rapport, l'effacement, la version du jeu reprise
+réglages, le dossier documentaire (complet, devoir, pastilles, corrections), les trois affichages (clair par défaut, et « Comme l'ordinateur » qui le suit), la reprise après un rafraîchissement, le rapport, l'effacement, la version du jeu reprise
 dans une nouvelle séance, la séance de démonstration, les bulles d'aide, le hors-ligne (serveur éteint, page rechargée,
 séance créée et rejointe sans réseau), et l'absence d'erreur, puis la connexion Google de l'enseignant·e (séances
 retrouvées sur un autre ordinateur, compte relié, rien de personnel dans la base). Les captures vont

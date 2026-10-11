@@ -674,28 +674,28 @@
  "mentions": {
   "releves": {
    "nom": "Relevés complets",
-   "court": "Tu as lu le terrain avant de décider.",
-   "q": "Les six relevés faits avant d'ouvrir le dossier. Tu as lu le terrain avant de décider."
+   "court": "Vous avez lu le terrain avant de décider.",
+   "q": "Les six relevés faits avant d'ouvrir le dossier. Vous avez lu le terrain avant de décider."
   },
   "couches": {
    "nom": "Deux cartes en une",
    "court": "Une carte montre ce qu'on choisit d'y mettre.",
-   "q": "Tu as regardé la carte avec et sans Gespe'gewa'gi. Une carte montre ce qu'on choisit d'y mettre."
+   "q": "Vous avez regardé la carte avec et sans Gespe'gewa'gi. Une carte montre ce qu'on choisit d'y mettre."
   },
   "tri": {
    "nom": "Tri net",
-   "court": "Aucun document hors sujet dans ton choix.",
+   "court": "Aucun document hors sujet dans votre choix.",
    "q": "Trois documents retenus, aucun hors sujet. C'est la compétence la plus difficile du jeu."
   },
   "sources": {
    "nom": "Deux sources confrontées",
    "court": "Deux sources, deux nombres : c'est là qu'il faut regarder.",
-   "q": "Tu as gardé le document où deux sources sérieuses donnent deux nombres. Elles ne comptent pas la même chose : c'est exactement là qu'il faut aller voir."
+   "q": "Vous avez gardé le document où deux sources sérieuses donnent deux nombres. Elles ne comptent pas la même chose : c'est exactement là qu'il faut aller voir."
   },
   "temoin": {
    "nom": "Une voix, pas qu'un chiffre",
    "court": "Un témoignage dit ce qu'un chiffre tait.",
-   "q": "Tu as gardé un témoignage. « 1 900 $ » ne dit rien tout seul ; quelqu'un qui raconte ce que ça permettait de racheter, si."
+   "q": "Vous avez gardé un témoignage. « 1 900 $ » ne dit rien tout seul ; quelqu'un qui raconte ce que ça permettait de racheter, si."
   },
   "zonage": {
    "nom": "Parc zoné",
@@ -704,28 +704,28 @@
   },
   "arbitrage": {
    "nom": "Protéger ou habiter",
-   "court": "Tu as comparé le prix des deux avant de choisir.",
-   "q": "Tu as essayé, sur un même secteur habité, une zone sans habitants puis un village. Tu as regardé le prix des deux avant de choisir."
+   "court": "Vous avez comparé le prix des deux avant de choisir.",
+   "q": "Vous avez essayé, sur un même secteur habité, une zone sans habitants puis un village. Vous avez regardé le prix des deux avant de choisir."
   },
   "repare": {
    "nom": "Corridor rétabli",
    "court": "Voir la conséquence, puis corriger.",
-   "q": "Tu as rompu le corridor, tu l'as vu, et tu l'as réparé. Voir la conséquence, puis corriger : c'est tout le jeu."
+   "q": "Vous avez rompu le corridor, vous l'avez vu, et vous l'avez réparé. Voir la conséquence, puis corriger : c'est tout le jeu."
   },
   "corridor": {
    "nom": "Corridor tenu",
-   "court": "Ta ligne ne coupe pas le corridor.",
-   "q": "Ta ligne arrêtée laisse le corridor continu. Une aire coupée en deux protège moins que sa superficie ne le dit."
+   "court": "Votre ligne ne coupe pas le corridor.",
+   "q": "Votre ligne arrêtée laisse le corridor continu. Une aire coupée en deux protège moins que sa superficie ne le dit."
   },
   "rouverte": {
    "nom": "Ligne rouverte",
    "court": "Changer d'avis devant un fait nouveau.",
-   "q": "Tu as rezoné après qu'une information nouvelle soit arrivée. Changer d'avis devant un fait nouveau, c'est le geste le plus difficile et le plus utile."
+   "q": "Vous avez rezoné après l'arrivée d'une information nouvelle. Changer d'avis devant un fait nouveau, c'est le geste le plus difficile et le plus utile."
   },
   "origine": {
    "nom": "D'où ça vient",
    "court": "Savoir où trouver les chiffres.",
-   "q": "Tu es allé voir d'où viennent les chiffres. On n'a pas à les retenir — il faut savoir où les trouver."
+   "q": "Vous êtes allés voir d'où viennent les chiffres. On n'a pas à les retenir — il faut savoir où les trouver."
   }
  },
  "banque": [

@@ -9,7 +9,7 @@
 
 import * as donnees from './donnees.js';
 import { mesure } from './config.js';
-import { $, esc, typo, chargerContenu, retarder, GARDE } from './outils.js';
+import { $, esc, typo, chargerContenu, retarder, GARDE, IMAGES } from './outils.js';
 import * as J from './jeu.js';
 import * as Rg from './reglages.js';
 import { carte, blocReleve, effetRecent } from './carte.js';
@@ -125,16 +125,24 @@ function entrer(cd, id, etat) {
 const CHAMPS = ['maj', 'etape', 'atteinte', 'entree', 'temps', 'releves', 'docs', 'juge', 'zones',
   'comps', 'gespeg', 'gespegVu', 'historique', 'corridorRompu', 'mentions', 'reponses', 'fini', 'compteurs'];
 
+/** Le voyant en haut à droite : enregistré, ou en attente du réseau. */
+function etatEnvoi(ok) {
+  const z = $('#etat-envoi');
+  if (!z) return;
+  z.setAttribute('data-ok', ok ? '1' : '0');
+  z.textContent = ok ? 'Enregistré' : 'En attente du réseau';
+}
+
 async function envoyer() {
   if (!E) return;
   E.maj = Date.now();
   const champs = Object.fromEntries(CHAMPS.map((k) => [k, E[k] ?? null]));
   try {
     await donnees.majPartielle(cheminEquipe(code, idEq), champs);
-    $('#etat-envoi')?.setAttribute('data-ok', '1');
+    etatEnvoi(true);
   } catch (e) {
     console.warn('Envoi impossible pour le moment', e);
-    $('#etat-envoi')?.setAttribute('data-ok', '0');
+    etatEnvoi(false);
   }
 }
 const sauver = retarder(envoyer, 1200);   // un envoi par pause de 1,2 s : peu d'écritures, suivi presque en direct
@@ -187,6 +195,9 @@ const ECRANS = {
       ${blocQuestions('arrivee')}
       <p class="avert">Le lieu est réel : parc national Forillon, en Gaspésie, créé le 8 juin 1970,
         sur Gespe'gewa'gi. La limite que vous tracerez est la vôtre, pas la sienne.</p>`,
+    carnet: [{ t: 'Le parcours', h: `<ol class="parcours">${etapesVisibles().filter((x) => x.id !== 'avis')
+      .map((x) => `<li><span>${esc(x.t)}</span><small>${x.min} min</small></li>`).join('')}</ol>
+      <p class="avert">Le temps est un repère : il reste affiché en haut de chaque étape.</p>` }],
     btn: 'Marcher avec la garde-parc', peut: ok('arrivee'),
     hint: ok('arrivee') ? '' : "Notez d'abord votre hypothèse."
   }),
@@ -206,12 +217,12 @@ const ECRANS = {
             <p class="sur">Relevé ${E.releves.length} sur ${c.releves.length}</p>
             <h3>${esc(dernier.t)}</h3><p class="serif">${esc(dernier.x)}</p>
             <p class="trouve-s">${esc(dernier.s)}</p>${lienSource(dernier)}</div>`
-          : `<p class="hint" style="margin-bottom:12px">Touchez une pastille numérotée pour vous arrêter.</p>`)
+          : (IMAGES ? `<p class="hint" style="margin-bottom:12px">Touchez une pastille numérotée pour vous arrêter.</p>` : ''))
         + carte(c, E, { releves: true, cliquable: false })
         + blocQuestions('marche'),
       carnet: [{ t: 'Carnet de terrain', h: `
         <div class="jauge-c"><div class="jauge-r" style="width:${(E.releves.length / c.releves.length) * 100}%"></div></div>
-        <p class="mono" style="font-size:19px;font-weight:600;margin-top:9px">${E.releves.length} / ${c.releves.length}</p>
+        <p class="compte">${E.releves.length} <span>sur ${c.releves.length}</span></p>
         ${E.releves.length ? `<ul class="carnet-l">${E.releves.map((i) => `<li>${esc(c.releves[i].t)}</li>`).join('')}</ul>` : ''}
         <p class="avert" style="margin-top:11px">Ce carnet n'est pas un score.</p>` }],
       btn: 'Ouvrir le dossier',
@@ -296,7 +307,7 @@ const ECRANS = {
       guide: `Je ne vais pas vous dire si c'est bien. Je vais vous dire ce que ça fait — <b>et ce que la vraie ligne a fait.</b>`,
       h: `<h3 class="sous" style="margin-top:0;padding-top:0;border:0">Votre ligne</h3>
         ${paires([[`${r.dans} / ${r.total}`, 'secteurs dans la ligne'], [`${r.vides.length} / ${nv}`, 'villages à vider'],
-          [String(r.gardes.length), 'village(s) gardé(s) dans le parc'], [r.corridor, 'le corridor écologique']])}
+          [String(r.gardes.length), r.gardes.length > 1 ? 'villages gardés dans le parc' : 'village gardé dans le parc'], [r.corridor, 'le corridor écologique']])}
         <p class="serif texte">${r.vides.length === nv ? 'Vous videz les six secteurs habités : c\'est ce qu\'a fait la ligne de 1970. '
           : r.vides.length ? `Vous videz ${liste(r.vides)}. ` : ''}${r.gardes.length ? `Vous gardez ${liste(r.gardes)} dans le parc, en zone village. ` : ''}${
           r.dehors.length ? `Vous laissez dehors ${liste(r.dehors)}, non ${r.dehors.length > 1 ? 'protégés' : 'protégé'}. ` : ''}</p>
@@ -380,10 +391,12 @@ const GABARIT = `
 
 function rendreFin() {
   $('#prog').innerHTML = '';
-  $('#app').innerHTML = `<section class="scene"><div class="scene-c merci">
+  $('#app').innerHTML = typo(`<section class="scene fin"><div class="scene-c merci">
     <p class="merci-t">Partie terminée</p>
-    <p>Merci, équipe ${esc(E.nom)}. Votre ligne et vos réponses sont envoyées à votre enseignant·e.</p>
-    <p class="avert">Vous pouvez fermer cette page.</p></div></section>`;
+    <p>Merci, équipe ${esc(E.nom)}. ${donnees.mode === 'local'
+      ? 'Votre ligne et vos réponses sont gardées dans ce navigateur.'
+      : 'Votre ligne et vos réponses sont envoyées à votre enseignant·e.'}</p>
+    <p class="avert">Vous pouvez fermer cette page.</p></div></section>`);
 }
 
 function rendre() {
@@ -423,7 +436,7 @@ function rendre() {
   $('#carnet').hidden = !$('#carnet').innerHTML.trim();
   $('#corps').classList.toggle('seul', $('#carnet').hidden);
   majPied(v);
-  $('#retour').style.visibility = E.etape === 0 ? 'hidden' : 'visible';
+  $('#retour').hidden = E.etape === 0;
   annoncer(ui.nouvelles);
   ui.nouvelles = [];
 }

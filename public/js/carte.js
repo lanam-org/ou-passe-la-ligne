@@ -115,9 +115,8 @@ export function carte(c, e, o = {}) {
         <i style="border-top:3px dashed var(--gespeg);width:16px"></i>
         Gespe'gewa'gi : ${e.gespeg ? 'affiché' : 'masqué'}</button>
     </div>
-    <p class="avert">Choisis une zone, puis touche un secteur. Les six secteurs habités sont les
-      principaux secteurs expropriés en 1970, selon Parcs Canada. ${IMAGES ? `Carte schématique : les
-      positions sont justes, pas les formes ni les tailles.` : 'La carte est à venir : pour l\'instant, chaque secteur est un bouton.'}</p>`;
+    <p class="avert">Les six secteurs habités sont les principaux secteurs expropriés en 1970, selon Parcs Canada.${IMAGES ? ` Carte schématique : les
+      positions sont justes, pas les formes ni les tailles.` : ''}</p>`;
 
   return palette + svg + legende;
 }
@@ -182,7 +181,7 @@ export function blocReleve(c, e, court = false) {
 
 /** La conséquence du dernier geste, en clair et tout de suite — avec un fait réel. */
 export function effetRecent(c, effet) {
-  if (!effet) return `<p class="avert">Chaque secteur que tu zones affiche ici, tout de suite, ce que ça change.</p>`;
+  if (!effet) return `<p class="avert">Chaque secteur que vous zonez affiche ici, tout de suite, ce que ça change.</p>`;
   const bouts = [];
   const signe = (n) => (n > 0 ? '+' : '−') + Math.abs(n);
   if (effet.dans) bouts.push(`<span class="ch ${effet.dans > 0 ? 'ch--p' : 'ch--m'}">${signe(effet.dans)} secteur protégé</span>`);

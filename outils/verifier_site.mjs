@@ -298,10 +298,13 @@ await prof.click('[data-onglet="direct"]');
 
 // ---------------------------------------------------------------- l'affichage : clair, sombre, contraste élevé
 const theme = (p) => p.evaluate(() => document.documentElement.dataset.theme);
-dit(await theme(autre) === 'light' && await autre.inputValue('[data-theme-select]') === 'auto', 'affichage automatique par défaut (ordinateur en clair)');
+dit(await theme(autre) === 'light' && await autre.inputValue('[data-theme-select]') === 'light', 'affichage clair par défaut');
 await autre.emulateMedia({ colorScheme: 'dark' });
+await autre.waitForTimeout(150);
+dit(await theme(autre) === 'light', 'clair par défaut, même quand l’ordinateur est en sombre');
+await autre.selectOption('[data-theme-select]', 'auto');
 await autre.waitForFunction(() => document.documentElement.dataset.theme === 'dark');
-dit(true, 'en automatique, l’ordinateur passe en sombre : la page aussi');
+dit(true, '« Comme l’ordinateur » : l’ordinateur est en sombre, la page aussi');
 await autre.emulateMedia({ colorScheme: 'light', contrast: 'more' });
 await autre.waitForFunction(() => document.documentElement.dataset.theme === 'contrast');
 dit(true, 'en automatique, l’ordinateur demande plus de contraste : contraste élevé');
@@ -327,7 +330,7 @@ await prof.evaluate(() => window.dispatchEvent(new Event('afterprint')));
 dit(await prof.evaluate(() => window.__printTheme) === 'light' && await theme(prof) === 'contrast',
   'le rapport s’imprime en clair, puis l’écran revient au contraste élevé');
 await prof.evaluate(() => { window.print = window.__printAvant; });
-for (const p of [autre, prof]) await p.selectOption('[data-theme-select]', 'auto');
+for (const p of [autre, prof]) await p.selectOption('[data-theme-select]', 'light');
 await autre.emulateMedia({ colorScheme: 'light' });
 
 // ---------------------------------------------------------------- étape 6, puis rafraîchissement : la partie reprend
@@ -494,7 +497,7 @@ if (MODE === 'local') {
 
 // ---------------------------------------------------------------- l'enseignant·e et son compte Google
 if (MODE === 'local') {
-  dit((await prof.textContent('#prof')).includes('pas de compte. La connexion Google'), 'en local, pas de connexion Google proposée');
+  dit(!(await prof.locator('[data-google]').count()) && !(await prof.textContent('#prof')).includes('Ton compte'), 'en local, pas de connexion Google proposée');
 } else {
   const ctxA = await contexte(), ctxB = await contexte(), ctxC = await contexte();
   const pa = await page(ctxA, '/enseignant.html', 'ordinateur 1');
@@ -553,11 +556,7 @@ if (MODE === 'local') {
   dit(!(await pa.locator('.aide-bulle:not([hidden]), [data-aide]').count()), 'aide : l’accueil s’explique seul, ni bulle ni bouton « ? »');
   await pa.goto(BASE + '/enseignant.html');
   const bulle = (id) => pa.waitForSelector(`.aide-bulle[data-bulle="${id}"]:not([hidden])`, { timeout: 5000 });
-  await bulle('aide');           // « Créer la séance » est plus bas : d'abord le bouton « ? », visible
-  dit((await pa.textContent('.aide-t')).includes('ce bouton'), 'aide : la première bulle montre le bouton « ? » qui les ramène');
-  await pa.click('.aide-ok');
-  await pa.locator('#creer').scrollIntoViewIfNeeded();
-  await bulle('en-creer');       // elle attend que l'élément soit à l'écran
+  await bulle('en-creer');       // la première bulle : le bouton principal, visible dès l'arrivée
   const [b, cr] = await Promise.all([pa.locator('.aide-bulle').boundingBox(), pa.locator('#creer').boundingBox()]);
   const chevauche = !(b.y >= cr.y + cr.height || b.y + b.height <= cr.y || b.x >= cr.x + cr.width || b.x + b.width <= cr.x);
   dit(!chevauche && (await pa.textContent('.aide-t')).split(/\s+/).length <= 8,

@@ -1,17 +1,18 @@
-// theme.js — l'affichage : automatique, clair, sombre ou contraste élevé.
+// theme.js — l'affichage : clair (par défaut), sombre, contraste élevé, ou comme l'ordinateur.
 //
 // Chargé dans <head>, avant le reste : la page s'affiche tout de suite dans le
 // bon thème, sans éclair blanc. Script classique (pas un module) pour cette raison.
 //
-// « Automatique » suit l'ordinateur : sombre s'il est en mode sombre, contraste
-// élevé s'il demande plus de contraste, clair sinon. Le choix reste dans ce
+// Par défaut : clair, même si l'ordinateur est en mode sombre (choix d'Ana).
+// « Comme l'ordinateur » (auto) suit l'ordinateur : sombre s'il est en mode sombre,
+// contraste élevé s'il demande plus de contraste, clair sinon. Le choix reste dans ce
 // navigateur seulement (localStorage) : rien n'est envoyé, rien n'est lié à l'équipe.
 //
 // Le thème effectif est posé sur <html data-theme="light|dark|contrast"> ;
 // le choix de la personne sur <html data-theme-choix="auto|light|dark|contrast">.
 (function () {
   var CLE = 'forillon:theme';
-  var CHOIX = [['auto', 'Automatique'], ['light', 'Clair'], ['dark', 'Sombre'], ['contrast', 'Contraste élevé']];
+  var CHOIX = [['light', 'Clair'], ['dark', 'Sombre'], ['contrast', 'Contraste élevé'], ['auto', 'Comme l\u2019ordinateur']];
   var mm = function (q) { try { return window.matchMedia(q); } catch (e) { return null; } };
   var sombre = mm('(prefers-color-scheme: dark)');
   var plus = mm('(prefers-contrast: more)');
@@ -21,7 +22,7 @@
     var t = memoire;
     if (t == null) try { t = localStorage.getItem(CLE); } catch (e) { /* stockage bloqué : automatique */ }
     for (var i = 0; i < CHOIX.length; i++) if (CHOIX[i][0] === t) return t;
-    return 'auto';
+    return 'light';   // par défaut : clair, quel que soit l'ordinateur
   }
   function effectif(choix) {
     if (choix !== 'auto') return choix;
