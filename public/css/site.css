@@ -610,17 +610,19 @@ body.avec-signal .bravo-zone{top:150px}
 @media (max-width:700px){body.avec-signal .bravo-zone{top:auto}}
 .champ input::placeholder{letter-spacing:.12em;opacity:.45}
 
-/* le rapport de séance, sur papier ou en PDF */
+/* le rapport de séance, sur papier ou en PDF.
+   Style d'impression neutre : noir et gris, filets fins, aucun aplat de couleur.
+   La seule couleur imprimée est celle qui porte un sens (zones de la carte, avec leur motif). */
 @media print{
   @page{size:letter;margin:16mm 15mm}
   html,body.imprime{background:#fff !important}
-  .papier{font-size:11pt;line-height:1.4}
-  .papier h1{font-weight:400;color:#760000}
-  .papier h2{font-size:13pt;font-weight:400;text-transform:uppercase;letter-spacing:.04em;margin:16pt 0 6pt;padding:3pt 7pt;background:#FFC8C8;color:#000;
-    -webkit-print-color-adjust:exact;print-color-adjust:exact;break-after:avoid}
+  .papier{font-size:11pt;line-height:1.4;color:#000}
+  .papier h1{font-size:18pt;font-weight:700;color:#000;margin:0 0 4pt}
+  .papier h2{font-size:12.5pt;font-weight:700;color:#000;margin:16pt 0 6pt;padding:0 0 2pt;
+    border-bottom:.75pt solid #000;break-after:avoid}
   .papier table{width:100%;border-collapse:collapse;font-size:9.5pt;margin-top:4pt}
-  .papier th,.papier td{border:1px solid #BFBFBF;padding:3pt 5pt;text-align:left;vertical-align:top}
-  .papier th{font-weight:400;background:#EE0000;color:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .papier th,.papier td{border-bottom:.5pt solid #9A9A9A;padding:3pt 5pt;text-align:left;vertical-align:top}
+  .papier th{font-weight:700;color:#000;border-bottom:1pt solid #000}
   .papier tr{break-inside:avoid}
   .papier .r-tete p{margin:3pt 0}
   .papier .r-note{font-size:9pt;color:#595959;margin-top:4pt}
@@ -629,9 +631,11 @@ body.avec-signal .bravo-zone{top:150px}
   .papier .r-eq-g p{margin:0 0 5pt}
   .papier .r-carte .carte{max-height:none;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   .papier .r-rep{margin:10pt 0 0}
-  .papier .r-k{color:#760000}
-  .papier .r-rep dt{font-weight:400;color:#760000;margin-top:8pt;break-after:avoid}
-  .papier .r-rep dd{margin:2pt 0 0 0;padding-left:8pt;border-left:2px solid #EE0000}
+  .papier h3{font-size:11pt;font-weight:700;color:#000;margin:12pt 0 4pt;break-after:avoid}
+  .papier ul{margin:2pt 0 0;padding-left:16pt}
+  .papier .r-k{color:#000;font-weight:700}
+  .papier .r-rep dt{font-weight:700;color:#000;margin-top:8pt;break-after:avoid}
+  .papier .r-rep dd{margin:2pt 0 0 0;padding-left:8pt;border-left:1.5pt solid #9A9A9A}
 }
 
 /* ------------------------------------------------------------ réglages : temps et rattrapage */
@@ -788,18 +792,20 @@ body[data-espace="prof"] .dd-opt{color:var(--encre)}
   body[data-espace="dossier"] .barre{display:none}
   body[data-espace="dossier"] .dd-page{padding:0;max-width:none}
   .dossier{color:#000;font-size:10.5pt}
-  .dossier h1{font-size:17pt;font-weight:400;color:#760000}
-  .dossier h2{font-size:12.5pt;font-weight:400;text-transform:uppercase;letter-spacing:.04em;border:0;padding:3pt 7pt;
-    background:#FFC8C8;color:#000;-webkit-print-color-adjust:exact;print-color-adjust:exact;break-after:avoid}
+  .dossier h1{font-size:17pt;font-weight:700;color:#000}
+  .dossier h2{font-size:12.5pt;font-weight:700;color:#000;border:0;border-bottom:.75pt solid #000;padding:0 0 2pt;
+    background:none;break-after:avoid}
   .dd-g{display:block}
-  .dd-item{border:1px solid #BFBFBF;border-radius:0;margin:0 0 8pt;padding:7pt 9pt;background:#fff;break-inside:avoid}
+  .dd-item{border:.5pt solid #9A9A9A;border-radius:0;margin:0 0 8pt;padding:7pt 9pt;background:#fff;break-inside:avoid}
   .dd-item--surprise{border-style:dashed}
   .dd-x{font-size:10.5pt}
   .dd-q,.dd-trad,.dd-cite{font-size:9.5pt;color:#000}
   .dd-cite a,.dd-lien a{color:#000;text-decoration:none}
   .dd-cite a::after,.dd-lien a::after{content:" — " attr(href);font-size:8.5pt;word-break:break-all}
   .pastille{-webkit-print-color-adjust:exact;print-color-adjust:exact}
-  .dd-leg{border:1px solid #BFBFBF}
+  .dd-leg{border:.5pt solid #9A9A9A;border-radius:0;background:#fff}
+  .dossier .dd-k,.dossier .dd-sur,.dossier .dd-surprise,.dossier .dd-question span{color:#000}
+  .dossier .dd-s,.dossier .dd-pied,.dossier .dd-aide{color:#404040}
 }
 .dd-fam-t .pastille{font-family:var(--f);font-size:13.5px}
 

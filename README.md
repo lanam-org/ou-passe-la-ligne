@@ -62,6 +62,10 @@ mode sombre), Sombre, Contraste élevé, Comme l'ordinateur (suit le mode sombre
 contraste »). Le choix reste dans ce navigateur seulement ; rien n'est envoyé. Le rapport
 s'imprime toujours en clair.
 
+À l'impression (rapport de séance, dossier documentaire, questionnaire papier) : un style neutre,
+noir et gris, filets fins, aucun aplat de couleur. Seules restent les couleurs qui portent un sens
+(zones de la carte, avec leur motif ; familles de questions du dossier, avec leur identifiant écrit).
+
 - Clair et sombre : tout texte ≥ 4,5:1 (WCAG AA). Contraste élevé : noir sur blanc, tout texte ≥ 7:1 (AAA).
 - Contours des champs et boutons ≥ 3:1 dans les trois affichages.
 - Windows en contraste élevé (couleurs forcées) : la carte garde ses zones.
