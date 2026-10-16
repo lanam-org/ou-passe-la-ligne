@@ -1248,7 +1248,7 @@
    "p": "Huit questions courtes, chacune sur son écran, sans nom. Elles mesurent la clarté, la charge de lecture, l'engagement et la collaboration — et une question ouverte vérifie si l'élève peut nommer le fait qui l'a fait changer d'avis.",
    "l": [
     "Hors des 75 minutes : à utiliser pendant les séances d'essai seulement.",
-    "Les réponses restent dans ce navigateur. L'onglet Mesures les exporte."
+    "Les réponses, sans nom, vont dans la séance et s'effacent avec elle. L'onglet Questionnaire en montre les résultats."
    ]
   },
   "debrief": {

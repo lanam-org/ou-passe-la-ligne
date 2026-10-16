@@ -19,6 +19,10 @@
 import { esc } from './outils.js';
 
 const domaine = (u) => { try { return new URL(u).hostname.replace(/^www\./, ''); } catch { return u; } };
+/** Seulement un vrai lien web (https ou http) : jamais « javascript: », « data: »… */
+const lienWeb = (u) => { try { return ['https:', 'http:'].includes(new URL(u).protocol) ? u : ''; } catch { return ''; } };
+// noreferrer : le site d'une source ne voit pas de quelle page (ni de quelle séance) on arrive
+const A = (u, classe = '') => `<a${classe ? ` class="${classe}"` : ''} href="${esc(u)}" target="_blank" rel="noopener noreferrer">`;
 
 /**
  * Les questions de la séance (réglages appliqués), par identifiant. En version
@@ -43,14 +47,18 @@ function pastilles(c, item, actives) {
 function copie(item) {
   const l = item.copie || [];
   if (!l.length) {
-    return item.url ? `<div class="dd-src"><p class="dd-sur">La source</p>
-      <p class="dd-lien"><a href="${esc(item.url)}" target="_blank" rel="noopener">${esc(domaine(item.url))}</a></p></div>` : '';
+    const u = lienWeb(item.url);
+    return u ? `<div class="dd-src"><p class="dd-sur">La source</p>
+      <p class="dd-lien">${A(u)}${esc(domaine(u))}</a></p></div>` : '';
   }
-  return `<div class="dd-src"><p class="dd-sur">Ce que dit la source</p>${l.map((q) => `<blockquote>
+  return `<div class="dd-src"><p class="dd-sur">Ce que dit la source</p>${l.map((q) => {
+    const u = lienWeb(q.url);
+    return `<blockquote>
       <p class="dd-q">« ${esc(q.q)} »</p>
       ${q.trad ? `<p class="dd-trad">Traduction libre : « ${esc(q.trad)} »</p>` : ''}
-      <p class="dd-cite">— ${esc(q.src)} · <a href="${esc(q.url)}" target="_blank" rel="noopener">${esc(domaine(q.url))}</a></p>
-    </blockquote>`).join('')}</div>`;
+      <p class="dd-cite">— ${esc(q.src)}${u ? ` · ${A(u)}${esc(domaine(u))}</a>` : ''}</p>
+    </blockquote>`;
+  }).join('')}</div>`;
 }
 
 function article(c, item, o) {
@@ -122,6 +130,6 @@ export function dossierHTML(c, { version = 'devoir', pastilles: avec = true, ens
 
 /** Le premier lien d'un relevé, d'un document ou d'un point de vue, pour le jeu. */
 export function lienSource(item) {
-  const u = item?.copie?.[0]?.url || item?.url;
-  return u ? `<a class="src-l" href="${esc(u)}" target="_blank" rel="noopener">Voir la source · ${esc(domaine(u))}</a>` : '';
+  const u = lienWeb(item?.copie?.[0]?.url || item?.url);
+  return u ? `${A(u, 'src-l')}Voir la source · ${esc(domaine(u))}</a>` : '';
 }

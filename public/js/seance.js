@@ -6,7 +6,18 @@
 // l'équipe est le seul nom que le site connaisse.
 
 import * as donnees from './donnees.js';
+import * as config from './config.js';
 import { nouvelEtat } from './jeu.js';
+
+/**
+ * La date d'effacement automatique (Loi 25 : on ne garde pas plus longtemps que
+ * nécessaire). Chaque séance, fiche d'équipe et avis porte un champ `expireLe` ;
+ * la politique TTL de Firestore (à activer une fois, voir le README) efface le
+ * document après cette date. Les fiches et les avis prennent la date de leur
+ * séance : tout part ensemble. Une date JavaScript devient un Timestamp dans Firestore.
+ */
+export const JOURS_CONSERVATION = Number(config.conservationJours) || 30;
+export const expiration = (seance) => seance?.expireLe || new Date(Date.now() + JOURS_CONSERVATION * 86400000);
 
 // sans 0/O, 1/I/L : un code qui se lit au tableau sans se tromper
 const ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
@@ -50,7 +61,8 @@ export async function creerSeance({ questionnaire = false, reglages = null } = {
     await donnees.ecrire(cheminSeance(code), {
       enseignantId: moi.uid, creeLe: Date.now(), etat: 'ouverte',
       questionnaire: !!questionnaire, signal: null,
-      config: reglages ? JSON.parse(JSON.stringify(reglages)) : null, chrono: chronoNeuf()
+      config: reglages ? JSON.parse(JSON.stringify(reglages)) : null, chrono: chronoNeuf(),
+      expireLe: expiration(null)
     });
     return code;
   }
@@ -106,7 +118,7 @@ export async function rejoindre(c, code, nom) {
   if (deja && deja.appareil !== moi.uid) throw new Error(`« ${nom} » est déjà pris. Choisis un autre nom.`);
   if (deja) return { code, id, etat: deja, reprise: true };
   const etat = nouvelEtat(c, nom, moi.uid);
-  try { await donnees.ecrire(chemin, etat); }
+  try { await donnees.ecrire(chemin, { ...etat, expireLe: expiration(s) }); }
   catch { throw new Error(`« ${nom} » vient d'être pris. Choisis un autre nom.`); }
   return { code, id, etat, reprise: false };
 }

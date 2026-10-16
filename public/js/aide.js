@@ -36,7 +36,8 @@
   };
   // une page sans bulle n'a pas non plus de bouton « ? » : rien à revoir
   if (!(BULLES[espace] || []).length) return;
-  var liste = BULLES[espace].concat([['aide', '[data-aide]', 'L’aide de cette page : ce bouton.']]);
+  // pas de bulle pour expliquer le bouton « ? » lui-même : c'était souvent la première vue, avant ce qui compte
+  var liste = BULLES[espace];
 
   /* ---- ce qui est déjà vu (et le stockage peut être bloqué : on garde en mémoire) */
   var etat = { vus: [], off: false };
@@ -128,7 +129,7 @@
   document.addEventListener('click', function (e) {
     if (!e.target.closest || !e.target.closest('[data-aide]')) return;
     var ici = liste.map(function (b) { return b[0]; });
-    etat.vus = etat.vus.filter(function (id) { return ici.indexOf(id) < 0 || id === 'aide'; });
+    etat.vus = etat.vus.filter(function (id) { return ici.indexOf(id) < 0; });
     etat.off = false; garder();
     fermer(false); prochaine = 0; plusTard(50);
   });

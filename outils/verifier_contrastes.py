@@ -13,7 +13,11 @@ import re
 import sys
 from pathlib import Path
 
-CSS = (Path(__file__).resolve().parent.parent / 'public' / 'css' / 'site.css').read_text(encoding='utf-8')
+# la console de Windows n'écrit pas « ✓ » par défaut
+if hasattr(sys.stdout, 'reconfigure'):
+    sys.stdout.reconfigure(encoding='utf-8')
+
+CSS =(Path(__file__).resolve().parent.parent / 'public' / 'css' / 'site.css').read_text(encoding='utf-8')
 
 
 def blocs(selecteur):
@@ -72,7 +76,7 @@ THEMES = {
 FONDS = ['--fond', '--fond-2', '--surface', '--fond-prof', 'color-mix(in srgb,var(--primaire) 9%,var(--surface))']
 TEXTES = ['--encre', '--doux', '--pale']
 SENS = [  # couleur de sens, et les fonds où elle s'écrit
-    ('--primaire', ['--fond', '--surface', 'color-mix(in srgb,var(--primaire) 9%,var(--surface))']),
+    ('--primaire', ['--fond', '--fond-2', '--surface', 'color-mix(in srgb,var(--primaire) 9%,var(--surface))']),
     ('--env', ['--fond', '--surface']),
     ('--eco', ['--fond', '--surface', 'color-mix(in srgb,var(--eco) 7%,var(--surface))', 'color-mix(in srgb,var(--eco) 8%,var(--surface))']),
     ('--action', ['--fond', '--surface', 'color-mix(in srgb,var(--action) 6%,var(--surface))', 'color-mix(in srgb,var(--action) 8%,var(--surface))']),

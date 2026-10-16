@@ -72,4 +72,5 @@ const DESSIN_GARDE = `<svg viewBox="0 0 52 52" aria-hidden="true">
 export const imageVide = (quoi, o = {}) => `<span class="image-vide${o.rond ? ' image-vide--rond' : ''}" role="img"
   aria-label="Image à venir : ${esc(quoi)}" title="Image à venir : ${esc(quoi)}">${o.court ? '' : `<span>Image à venir</span>`}</span>`;
 
-export const GARDE = IMAGES ? DESSIN_GARDE : imageVide('la garde-parc', { rond: true, court: true });
+// Sans images, pas de cadre vide à côté de la garde-parc : son nom suffit, la bulle prend la place.
+export const GARDE = IMAGES ? DESSIN_GARDE : '';

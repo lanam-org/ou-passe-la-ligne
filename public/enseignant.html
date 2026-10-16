@@ -1,20 +1,21 @@
 <!doctype html>
-<html lang="fr">
+<html lang="fr-CA">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.gstatic.com https://apis.google.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://*.googleapis.com https://*.firebaseapp.com; frame-src https://*.firebaseapp.com https://*.web.app https://apis.google.com https://accounts.google.com; worker-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
 <meta name="robots" content="noindex">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231B5E8F'/%3E%3Cpath d='M5 22 L12 12 L17 18 L21 13 L27 22 Z' fill='%23F6F4EF'/%3E%3C/svg%3E">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:ital,wght@0,400;0,600;0,700;0,800;1,400&family=Atkinson+Hyperlegible+Mono:wght@400;600&display=swap">
 <link rel="stylesheet" href="css/site.css">
 <script src="js/theme.js"></script>
+<script src="js/secours.js" defer></script>
 <script src="js/horsligne.js" defer></script>
 <script src="js/aide.js" defer></script>
 <title>Où passe la ligne — espace enseignant·e</title>
 </head>
 <body data-espace="prof">
+<a class="evitement" href="#contenu">Aller au contenu</a>
 <p class="mode-local" id="mode-local" hidden>Version de démonstration : tout reste dans ce navigateur.
   Pour jouer une équipe, ouvre la <a href="eleve.html" target="_blank" rel="noopener">page des équipes</a> dans un autre onglet.</p>
 <header class="barre" id="barre">
@@ -24,8 +25,9 @@
   </div>
   <nav class="onglets" id="onglets" aria-label="Sections de l'espace enseignant·e"></nav>
 </header>
-<div class="page"><section class="espace-prof" id="prof"><p class="hint">Chargement…</p></section></div>
+<main class="page" id="contenu"><section class="espace-prof" id="prof"><p class="hint" data-chargement>Chargement…</p></section></main>
 <div class="papier" id="papier"></div>
+<footer class="pied-site"><a href="confidentialite.html">Confidentialité et à propos</a></footer>
 <script type="module" src="js/enseignant.js"></script>
 </body>
 </html>

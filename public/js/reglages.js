@@ -17,6 +17,7 @@
 // calculent exactement la même chose.
 
 import { esc } from './outils.js';
+import { repondu } from './jeu.js';
 
 const copie = (o) => JSON.parse(JSON.stringify(o));
 
@@ -70,7 +71,8 @@ function etatStandard(q) {
 
 /** Réglages complets d'un format, prêts à être enregistrés. */
 export function reglagesDuFormat(base, format = 'standard', garder = {}) {
-  const f = FORMATS[format] || FORMATS.standard;
+  // hasOwn : un format « __proto__ » venu d'un fichier importé ne tombe pas sur Object.prototype
+  const f = Object.hasOwn(FORMATS, format) ? FORMATS[format] : FORMATS.standard;
   const questions = {};
   for (const q of base.banque) {
     if (etatStandard(q) === 'fixe') continue;
@@ -103,24 +105,33 @@ export function completer(base, r) {
 // chez les élèves.
 const BRUTS = new Set(['complications.x', 'complications.quoi']);
 
+// Les SEULS champs qu'une correction peut toucher : [clé, libellé, texte long].
+// Une correction venue d'ailleurs (un fichier importé, la base) qui viserait un
+// autre champ — un lien, le tracé d'un secteur, un identifiant — est ignorée.
+const CHAMPS = {
+  releves: [['t', 'Titre'], ['x', 'Texte', 1], ['s', 'Source']],
+  documents: [['t', 'Titre'], ['x', 'Texte', 1], ['s', 'Source'], ['v', 'Verdict affiché après le tri', 1]],
+  complications: [['t', 'Titre'], ['x', 'Texte', 1], ['s', 'Source'], ['quoi', 'Consigne', 1]],
+  secteurs: [['fait', 'Fait affiché', 1], ['src', 'Source']],
+  bilan: [['texte', 'Texte', 1], ['src', 'Source', 1]],
+  banque: [['eleve', 'Question posée aux élèves', 1], ['reponse', 'Réponse attendue', 1]]
+};
+const corrigeable = (groupe, champ) => Object.hasOwn(CHAMPS, groupe) && CHAMPS[groupe].some(([k]) => k === champ);
+
 /** Ce qui se corrige, groupé comme à l'écran. Clé : « groupe|identifiant|champ ». */
 export function corrigeables(base) {
   const sansBalises = (t) => String(t || '').replace(/<[^>]+>/g, '');
-  const item = (groupe, id, titre, champs, src) => ({ groupe, id, titre,
-    champs: champs.map(([k, label, long]) => ({ cle: `${groupe}|${id}|${k}`, k, label, long: !!long,
+  const item = (groupe, id, titre, src) => ({ groupe, id, titre,
+    champs: CHAMPS[groupe].map(([k, label, long]) => ({ cle: `${groupe}|${id}|${k}`, k, label, long: !!long,
       origine: sansBalises(src[k]) })) });
   return [
-    { t: 'Relevés de terrain', items: base.releves.map((r, i) => item('releves', i, `Relevé ${i + 1} · ${r.t}`,
-      [['t', 'Titre'], ['x', 'Texte', 1], ['s', 'Source']], r)) },
-    { t: 'Documents du dossier', items: base.documents.map((d) => item('documents', d.id, d.t,
-      [['t', 'Titre'], ['x', 'Texte', 1], ['s', 'Source'], ['v', 'Verdict affiché après le tri', 1]], d)) },
-    { t: 'Points de vue', items: base.complications.map((x) => item('complications', x.id, x.t,
-      [['t', 'Titre'], ['x', 'Texte', 1], ['s', 'Source'], ['quoi', 'Consigne', 1]], x)) },
-    { t: 'Secteurs de la carte', items: base.secteurs.map((s) => item('secteurs', s.id, s.nom,
-      [['fait', 'Fait affiché', 1], ['src', 'Source']], s)) },
-    { t: 'Bilan', items: base.bilan.map((b, i) => item('bilan', i, b.t, [['texte', 'Texte', 1], ['src', 'Source', 1]], b)) },
+    { t: 'Relevés de terrain', items: base.releves.map((r, i) => item('releves', i, `Relevé ${i + 1} · ${r.t}`, r)) },
+    { t: 'Documents du dossier', items: base.documents.map((d) => item('documents', d.id, d.t, d)) },
+    { t: 'Points de vue', items: base.complications.map((x) => item('complications', x.id, x.t, x)) },
+    { t: 'Secteurs de la carte', items: base.secteurs.map((s) => item('secteurs', s.id, s.nom, s)) },
+    { t: 'Bilan', items: base.bilan.map((b, i) => item('bilan', i, b.t, b)) },
     { t: 'Questions de la banque', items: base.banque.map((q) => item('banque', q.id, `${q.id} · ${q.eleve || q.q}`,
-      [['eleve', 'Question posée aux élèves', 1], ['reponse', 'Réponse attendue', 1]], { ...q, eleve: q.eleve || q.q })) }
+      { ...q, eleve: q.eleve || q.q })) }
   ];
 }
 
@@ -131,6 +142,7 @@ export function appliquer(base, reglages) {
   // corrections
   for (const [cle, corr] of Object.entries(r.corrections || {})) {
     const [groupe, id, champ] = cle.split('|');
+    if (!corrigeable(groupe, champ)) continue;
     const liste = c[groupe];
     if (!Array.isArray(liste)) continue;
     const cible = /^\d+$/.test(id) && groupe !== 'banque' ? liste[Number(id)] : liste.find((x) => x.id === id);
@@ -189,8 +201,6 @@ export function debloquee(q, e, c) {
   if (n === 5) return e.comps >= k;
   return true;
 }
-
-export const repondu = (e, id) => String(e.reponses?.[id] || '').trim().length >= 2;
 
 /** Les questions écrites d'une étape, déjà visibles pour cette équipe. */
 export const questionsVisibles = (c, e, etapeId) =>

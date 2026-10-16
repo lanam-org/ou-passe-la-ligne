@@ -16,6 +16,7 @@ démonstration : tout reste dans le navigateur de la personne qui essaie, rien n
 | `eleve.html` | une équipe, un Chromebook | Entrer le code, choisir un nom d'animal, jouer les 7 étapes : Arriver, Faire le portrait du territoire, Se questionner, Prendre position, D'autres points de vue, La décision de 1970, Revenir sur sa démarche |
 | `dossier.html` | les élèves, avant la séance | La version devoir du dossier documentaire : le portrait et les documents, sans les surprises ; imprimable |
 | `enseignant.html` | l'enseignant·e | Se connecter (Google, facultatif), retrouver ses séances, en créer une, suivre en direct, chrono de classe, envoyer un message, réglages, débrief, questions, dossier documentaire, mesures, rapport imprimable |
+| `confidentialite.html` | tout le monde (parents, écoles, service informatique) | Ce que le site enregistre, pourquoi, où, combien de temps ; la responsable et ses coordonnées ; les droits ; les adresses à autoriser dans le filtre de l'école. Liée en bas de chaque page |
 
 ## Le dossier documentaire
 
@@ -71,6 +72,12 @@ noir et gris, filets fins, aucun aplat de couleur. Seules restent les couleurs q
 - Windows en contraste élevé (couleurs forcées) : la carte garde ses zones.
 - `python outils/verifier_contrastes.py` recalcule chaque paire texte / fond depuis `site.css`.
 
+## Les polices : sur le site
+
+Atkinson Hyperlegible Next et Mono vivent dans `public/polices/` (66 Ko, licence libre OFL : `polices/OFL.txt`),
+déclarées en tête de `site.css`. Aucune page ne demande rien à Google Fonts : l'adresse IP d'un élève ne part
+pas chez Google juste pour afficher du texte. Le test vérifie qu'aucune page n'y fait appel.
+
 ## Lancer le site sur ton ordinateur
 
 Double-clique `demarrer.bat`. Le site s'ouvre sur `http://localhost:8080`.
@@ -100,12 +107,22 @@ faire jouer quatre onglets. Les états sont produits par les vraies règles du j
 les réponses sont inventées. En ligne avec Firebase, ce bouton n'apparaît pas : les règles interdisent,
 avec raison, à l'enseignant·e d'écrire la fiche d'une équipe.
 
+## Un écran, une chose à faire
+
+Règle de mise en page côté équipe : **ce qu'il y a à faire maintenant se voit sans défiler**, sur un
+Chromebook (1366 × 768). La carte reste à gauche, toujours au même endroit ; ce qui arrive (un relevé, un
+point de vue, la conséquence d'un geste) s'affiche à droite, dans le carnet ; les questions viennent sous la
+carte, et la phrase sous « Continuer » mène à la réponse qui manque. Les textes longs s'ouvrent à la demande
+(« Lire » sur chaque document, les trois derniers blocs de la décision de 1970). Les gestes reconnus
+s'annoncent d'un « Bravo » en jouant ; leur liste attend le retour sur la démarche. Sans images
+(`images = false`), la garde-parc n'a pas de cadre vide. Le test vérifie la règle à chaque étape.
+
 ## Les bulles d'aide, la première fois
 
 La première fois qu'un élément important apparaît à l'écran, une petite bulle l'explique en une phrase
 (`public/js/aide.js`). Une seule à la fois, sans voile ni blocage : on peut jouer sans la lire. Un clic
 n'importe où, « OK » ou Échap la ferme ; « Arrêter l'aide » les coupe toutes ; le bouton « ? » en haut de la
-page les ramène. Seulement ce qui ne se devine pas (5 bulles côté équipe, 7 côté enseignant·e, plus celle du bouton « ? »),
+page les ramène. Seulement ce qui ne se devine pas (5 bulles côté équipe, 7 côté enseignant·e),
 et rien qui gâche un geste à découvrir. Retenu dans ce navigateur seulement ; rien n'est envoyé.
 Pour changer un texte : la liste `BULLES` en haut de `aide.js`.
 
@@ -123,6 +140,10 @@ Pour changer un texte : la liste `BULLES` en haut de `aide.js`.
 
 ### Sur GitHub Pages (maintenant : démonstration et prévalidation)
 
+Dépôt : [lanam-org/ou-passe-la-ligne](https://github.com/lanam-org/ou-passe-la-ligne) ;
+site : <https://lanam-org.github.io/ou-passe-la-ligne/>. Travailler dans un clone du dépôt, pas dans un
+ZIP téléchargé : un dossier sans `.git` perd le lien avec GitHub (et le dossier caché `.github/`).
+
 Chaque envoi sur `main` lance `.github/workflows/publier.yml` : les quatre parcours de test et les
 contrastes tournent dans un vrai navigateur, et `public/` n'est mis en ligne que si tout passe.
 Sinon, la version d'avant reste en ligne et les captures d'écran sont jointes à l'exécution
@@ -137,6 +158,20 @@ où chaque Chromebook doit voir la même séance.
 Tout est dans le guide d'hébergement (document Word, à part). En bref : un projet Firebase gratuit
 (plan Spark), connexion anonyme, base Firestore à Montréal, les valeurs de la console collées dans
 `public/js/config.js`, les règles publiées. Aucun autre fichier ne change.
+
+- **La région se choisit à la création de la base et ne se change plus** : `northamerica-northeast1` (Montréal).
+  La page Confidentialité dit que les données sont à Montréal : c'est ce choix qui le rend vrai.
+- **Effacement automatique (une fois)** : Firestore → *Durée de vie (TTL)* → trois politiques sur le champ
+  `expireLe`, pour les groupes de collections `seances`, `equipes` et `avis`. Ou, avec la CLI Google Cloud :
+
+  ```
+  gcloud firestore fields ttls update expireLe --collection-group=seances --enable-ttl
+  gcloud firestore fields ttls update expireLe --collection-group=equipes --enable-ttl
+  gcloud firestore fields ttls update expireLe --collection-group=avis --enable-ttl
+  ```
+
+  Firestore efface les documents expirés peu après la date (en général dans les 24 heures).
+  Sans ces politiques, rien ne s'efface tout seul et la page Confidentialité ne dit plus vrai.
 
 Le site peut rester sur GitHub Pages et parler à Firebase : dans la console Firebase,
 Authentication → Paramètres → Domaines autorisés, ajouter `<compte>.github.io`. Les valeurs de
@@ -164,6 +199,9 @@ On peut aussi tout héberger chez Firebase (`firebase deploy`).
 | `public/js/demo.js` | La séance de démonstration (mode local) |
 | `public/sw.js`, `public/js/horsligne.js` | La copie hors ligne et le bandeau « Hors ligne » |
 | `public/js/aide.js` | Les bulles d'aide, la première fois, et le bouton « ? » |
+| `public/js/secours.js` | Le message clair quand une page ne peut pas démarrer ou qu'une action échoue |
+| `public/confidentialite.html` | Confidentialité et à propos (Loi 25) |
+| `public/polices/` | Les polices, hébergées sur le site, et leur licence OFL |
 | `.github/workflows/publier.yml` | Vérifier, puis mettre en ligne sur GitHub Pages |
 | `firestore.rules` | Les règles de sécurité de la base |
 | `outils/verifier_site.mjs` | Le test de bout en bout |
@@ -193,6 +231,41 @@ sans toucher au code. Garde les guillemets et les virgules du format JSON. Un fi
 - « Effacer la séance » supprime ensuite les équipes, leurs réponses et la séance.
 - `mesure = false` dans `config.js` : pas de questionnaire à l'écran, pas d'export CSV.
   À passer à `true` seulement avec le certificat d'éthique et les autorisations en main.
+- **Effacement automatique** (Loi 25 : on ne garde pas plus longtemps que nécessaire) : chaque séance, fiche
+  d'équipe et avis porte un champ `expireLe` (création + `conservationJours`, 30 par défaut, dans `config.js`).
+  La politique TTL de Firestore efface le document après cette date, même si personne ne clique « Effacer ».
+  Elle s'active une fois dans la console (voir « Avec Firebase »). Changer le nombre de jours : `config.js`
+  **et** le texte de `confidentialite.html` (et la phrase de `index.html`).
+- **La page « Confidentialité et à propos »** (`confidentialite.html`) répond à la Loi 25 : responsable et
+  coordonnées, ce qui est recueilli et pourquoi, où (Firestore à Montréal, Firebase Authentication chez Google,
+  hors Québec), combien de temps, les droits, la plainte à la Commission d'accès à l'information. À mettre à jour
+  si le site change (nouveau champ, nouvel hébergeur, collecte allumée).
+- La consigne aux équipes le dit : pas de prénom, ni dans le nom de l'équipe, ni dans les réponses.
+- « Ta version du jeu » se supprime d'un bouton (« Supprimer ma version »).
+
+## La sécurité, tenue dans le code
+
+- **Une politique de sécurité du contenu (CSP)** dans chaque page (`<meta http-equiv="Content-Security-Policy">`) :
+  le navigateur n'exécute que les scripts du site et ceux de Firebase (`www.gstatic.com`, et `apis.google.com`
+  pour la connexion Google), ne se connecte qu'au site et à `*.googleapis.com`, et refuse tout script glissé
+  dans le texte. `index.html` et `confidentialite.html`, sans base de données, ont une politique plus stricte.
+  Si la connexion Google échoue un jour avec, dans la console, « Refused to … because it violates the
+  Content Security Policy », l'adresse refusée est à ajouter à la directive nommée, dans les trois pages qui
+  ont un module (`eleve.html`, `enseignant.html`, `dossier.html` : la même ligne partout). Avec un `authDomain`
+  personnalisé (autre que `…firebaseapp.com`), l'ajouter à `frame-src` et `connect-src`.
+- `404.html` garde un petit script dans la page : sa CSP l'autorise par son empreinte (`sha256-…`). Changer ce
+  script change l'empreinte (le navigateur donne la bonne dans la console).
+- **Les corrections ne touchent que les champs prévus** (`CHAMPS` dans `reglages.js`) : une correction venue
+  d'un fichier importé ou de la base qui viserait un lien, le tracé d'un secteur ou un identifiant est ignorée,
+  et le texte des points de vue reste échappé. Les liens de sources ne sont suivis que s'ils sont en
+  `https:` ou `http:`, et s'ouvrent avec `noopener noreferrer`.
+- Les règles Firestore limitent aussi la taille : 40 réponses au plus par équipe, 300 caractères par réponse au
+  questionnaire, et `expireLe` est toujours une vraie date.
+- `js/secours.js` : si la page ne peut pas démarrer (fichier bloqué par le filtre de l'école, réseau coupé),
+  « Chargement… » devient un message clair, avec un bouton « Recharger » et le lien vers la liste des adresses à
+  autoriser ; une action qui échoue plus tard le dit dans une bande discrète. Rien n'est envoyé.
+- Avec Firebase Hosting, `firebase.json` ajoute les en-têtes que GitHub Pages ne permet pas (`frame-ancestors`,
+  `X-Frame-Options`, `Permissions-Policy`).
 
 ## Vérifier que tout marche
 
@@ -222,6 +295,12 @@ se vérifient dans la console Firebase (Firestore → Règles → Terrain de jeu
 ## Ce qui reste à faire
 
 - [ ] Brancher Firebase avant la première classe (et ajouter le domaine github.io aux domaines autorisés)
+- [ ] Créer la base Firestore à Montréal (`northamerica-northeast1`)
+- [ ] Activer les trois politiques TTL sur `expireLe` (voir « Avec Firebase ») : sans elles, rien ne s'efface tout seul
+- [ ] Firebase branché : se connecter une fois avec Google sur le site en ligne, et vérifier dans la console
+      du navigateur qu'aucune ligne « Refused to … Content Security Policy » n'apparaît
+- [ ] Proposer à l'école ou au centre de services scolaire les détails pour son ÉFVP (évaluation des facteurs
+      relatifs à la vie privée), avant la version en classe
 - [ ] Essayer sur un vrai Chromebook d'école, sur le Wi-Fi de l'école
 - [ ] Vérifier les règles dans le terrain de jeu de la console (quatre cas listés dans le guide)
 - [ ] Après chaque nouvelle version du site : republier les règles (`firebase deploy`)

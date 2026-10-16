@@ -4,8 +4,8 @@
 //   · Les fichiers du site (pages, code, contenu) : le réseau d'abord, pour
 //     toujours servir la dernière version ; la copie gardée si le réseau ne
 //     répond pas en 3 secondes ou plus du tout.
-//   · Les polices et le code Firebase (adresses versionnées, qui ne changent
-//     jamais) : la copie gardée d'abord.
+//   · Le code Firebase (adresses versionnées, qui ne changent jamais) : la
+//     copie gardée d'abord. Les polices, elles, font partie du site (polices/).
 //   · Firestore et la connexion : jamais touchés. Firestore a sa propre file
 //     d'attente hors ligne (donnees.js) : les réponses partent au retour du réseau.
 //
@@ -21,15 +21,16 @@ const DELAI = 3000;
 // Tout le site, gardé dès la première visite. Un fichier ajouté à public/ doit
 // figurer ici : le test (outils/verifier_site.mjs) le vérifie.
 const COQUILLE = [
-  './', 'index.html', 'eleve.html', 'enseignant.html', 'dossier.html', '404.html',
+  './', 'index.html', 'eleve.html', 'enseignant.html', 'dossier.html', 'confidentialite.html', '404.html',
   'css/site.css', 'contenu/forillon.json',
+  'polices/atkinson-hyperlegible-next.woff2', 'polices/atkinson-hyperlegible-next-italique.woff2',
+  'polices/atkinson-hyperlegible-mono.woff2', 'polices/OFL.txt',
   'js/aide.js', 'js/carte.js', 'js/config.js', 'js/demo.js', 'js/donnees.js', 'js/dossier.js', 'js/dossierdoc.js',
   'js/eleve.js', 'js/enseignant.js', 'js/horsligne.js', 'js/jeu.js', 'js/local.js', 'js/outils.js',
-  'js/reglages.js', 'js/seance.js', 'js/theme.js'
+  'js/reglages.js', 'js/seance.js', 'js/secours.js', 'js/theme.js'
 ];
 
-const IMMUABLE = /^https:\/\/(www\.gstatic\.com\/firebasejs\/|fonts\.gstatic\.com\/)/;
-const POLICES = /^https:\/\/fonts\.googleapis\.com\//;
+const IMMUABLE = /^https:\/\/www\.gstatic\.com\/firebasejs\//;
 
 self.addEventListener('install', (ev) => {
   ev.waitUntil((async () => {
@@ -56,8 +57,6 @@ self.addEventListener('fetch', (ev) => {
     ev.respondWith(reseauDabord(ev, CACHE, new Request(u.origin + u.pathname)));
   } else if (IMMUABLE.test(r.url)) {
     ev.respondWith(gardeDabord(r));
-  } else if (POLICES.test(r.url)) {
-    ev.respondWith(reseauDabord(ev, EXTERNE, r));
   }
   // tout le reste (Firestore, connexion Google) passe sans être touché
 });

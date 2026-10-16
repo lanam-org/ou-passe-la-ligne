@@ -131,7 +131,17 @@ dit(true, 'la deuxième équipe entre sous un autre nom');
 // ---------------------------------------------------------------- étape 1
 const suivant = async (p) => { await p.click('#suivant'); await p.waitForTimeout(120); };
 const ecrire = async (p, id, texte) => { await p.fill(`[data-rep="${id}"]`, texte); await p.waitForTimeout(60); };
+// L'action toujours visible : en haut de la page, sans défiler, au-dessus de la barre « Continuer ».
+const sansDefiler = (p, sel) => p.evaluate((s) => {
+  window.scrollTo(0, 0);
+  const e = document.querySelector(s);
+  if (!e) return false;
+  const haut = e.getBoundingClientRect().top, pied = document.querySelector('.pied')?.getBoundingClientRect().top ?? innerHeight;
+  return haut >= 0 && haut + 32 <= pied;
+}, sel);
 dit(await eleve.isDisabled('#suivant'), "étape 1 : on ne passe pas sans l'hypothèse");
+dit(await sansDefiler(eleve, '[data-rep="F1.2"]'), "étape 1 : la case de l'hypothèse se voit sans défiler");
+dit(await eleve.locator('#hint [data-aller="F1.2"]').count() === 1, 'étape 1 : la phrase sous « Continuer » mène à la réponse qui manque');
 await ecrire(eleve, 'F1.2', 'Non, des familles y vivaient sûrement.');
 dit(!(await eleve.isDisabled('#suivant')), "étape 1 : l'hypothèse écrite débloque la suite");
 await capture(eleve, '03-arrivee');
@@ -141,8 +151,10 @@ await suivant(eleve);
 for (let i = 0; i < 6; i++) { await eleve.click(`[data-releve="${i}"]`); await eleve.waitForTimeout(50); }
 dit(/^https:\/\//.test(await eleve.getAttribute('.trouve .src-l', 'href') || ''), 'étape 2 : chaque relevé donne le lien de sa source');
 dit(IMAGES ? await eleve.locator('svg.carte').count() === 1
-  : await eleve.locator('.carte--vide').count() === 1 && !(await eleve.locator('svg.carte').count()) && await eleve.locator('.guide .image-vide').count() === 1,
-  IMAGES ? 'images : la carte dessinée est là' : 'images à venir : cadres vides pour la carte et la garde-parc, relevés en boutons');
+  : await eleve.locator('.carte--vide').count() === 1 && !(await eleve.locator('svg.carte').count()) && !(await eleve.locator('.guide .image-vide').count()),
+  IMAGES ? 'images : la carte dessinée est là' : 'images à venir : cadre vide pour la carte, relevés en boutons, pas de cadre vide à côté de la garde-parc');
+dit(await sansDefiler(eleve, '[data-releve="0"]') && await sansDefiler(eleve, '#carnet .trouve'),
+  'étape 2 : la carte reste en place, le relevé trouvé s’affiche à côté, sans défiler');
 dit(await eleve.isDisabled('#suivant'), 'étape 2 : six relevés ne suffisent pas sans les deux réponses');
 await ecrire(eleve, 'F2.1', "Gespe'gewa'gi, le territoire des Mi'gmaq.");
 await ecrire(eleve, 'F2.4', 'Des maisons, des chalets, des commerces, des églises et des écoles.');
@@ -153,7 +165,7 @@ await suivant(eleve);
 // ---------------------------------------------------------------- étape 3
 for (const d of ['d2', 'd3', 'd5']) await eleve.click(`[data-doc="${d}"]`);
 await suivant(eleve);
-dit(await eleve.locator('.verdict').count() === 3, 'étape 3 : trois verdicts affichés');
+dit(await eleve.locator('.verdict').count() === 3 && !(await eleve.locator('.doc').count()), 'étape 3 : les trois verdicts, et seulement eux');
 dit(await eleve.locator('.bravo').count() === 1, 'étape 3 : un « bravo » nomme le geste, sans score');
 await ecrire(eleve, 'F3.2', 'Les deux : elles ne comptent pas la même chose.');
 await capture(eleve, '05-dossier');
@@ -165,6 +177,7 @@ await eleve.click('[data-sect="rosiers"]');
 await eleve.click('[data-outil="sauvage"]');
 await eleve.click('[data-sect="foret"]');
 dit(await eleve.locator('.effet').count() === 1, 'étape 4 : le geste affiche aussitôt sa conséquence');
+dit(await sansDefiler(eleve, '.effet'), 'étape 4 : la conséquence se voit à côté de la carte, sans défiler');
 await ecrire(eleve, 'F4.3', 'On garde Cap-des-Rosiers en zone village, le corridor reste continu.');
 await capture(eleve, '06-trace');
 await suivant(eleve);
@@ -173,6 +186,8 @@ await suivant(eleve);
 await suivant(eleve); // complication 1
 dit(!(await eleve.textContent('#app')).toLowerCase().includes('complication')
   && (await eleve.textContent('.comp .sur')).includes('points de vue'), 'étape 5 : « D\'autres points de vue », le mot « complication » n\'apparaît plus');
+dit(await sansDefiler(eleve, '#carnet .comp') && await sansDefiler(eleve, '[data-sect]'),
+  'étape 5 : le point de vue arrive à droite, la carte à retoucher reste visible sans défiler');
 dit(await eleve.isDisabled('#suivant'), 'étape 5 : la question de la route bloque la complication suivante');
 await ecrire(eleve, 'F5.1', 'Moins bien : la route coupe les passages des animaux.');
 await suivant(eleve); await suivant(eleve); await suivant(eleve); // complications 2 à 4
@@ -604,6 +619,32 @@ if (MODE === 'local') {
   const oublis = fichiers.filter((f) => !coquille.has(f));
   dit(!oublis.length && fichiers.length + 1 === coquille.size,
     `chaque fichier du site est gardé pour le hors-ligne (sw.js)${oublis.length ? ' — manquent : ' + oublis.join(', ') : ''}`);
+
+  // Ce qui se publie dans une école : rien vers Google Fonts, une CSP, le lien vers la confidentialité.
+  const pages = fichiers.filter((f) => f.endsWith('.html'));
+  const lues = await Promise.all(pages.map(async (f) => [f, await readFile(join(PUBLIC, f), 'utf8')]));
+  const sansCsp = lues.filter(([, t]) => !/http-equiv="Content-Security-Policy"/.test(t)).map(([f]) => f);
+  dit(!sansCsp.length, `chaque page a sa politique de sécurité du contenu (CSP)${sansCsp.length ? ' — manque : ' + sansCsp.join(', ') : ''}`);
+  const google = lues.filter(([, t]) => /fonts\.(googleapis|gstatic)\.com/.test(t)).map(([f]) => f);
+  const cssGoogle = /fonts\.(googleapis|gstatic)\.com/.test(await readFile(join(PUBLIC, 'css', 'site.css'), 'utf8'));
+  dit(!google.length && !cssGoogle, `aucune page ne charge Google Fonts : les polices sont sur le site${google.length ? ' — ' + google.join(', ') : ''}`);
+  const sansLien = lues.filter(([f, t]) => f !== 'confidentialite.html' && !/confidentialite\.html/.test(t)).map(([f]) => f);
+  dit(!sansLien.length, `chaque page mène à « Confidentialité et à propos »${sansLien.length ? ' — manque : ' + sansLien.join(', ') : ''}`);
+}
+
+// ---------------------------------------------------------------- corrections : seulement les champs prévus
+{
+  const contenu = JSON.parse(await readFile(join(PUBLIC, 'contenu', 'forillon.json'), 'utf8'));
+  const { appliquer } = await import('../public/js/reglages.js');
+  const c = appliquer(contenu, { format: '__proto__', corrections: {
+    'releves|0|t': { valeur: 'Titre corrigé' },
+    'releves|0|url': { valeur: 'javascript:alert(1)' },
+    'secteurs|foret|d': { valeur: '"><img src=x onerror=alert(1)>' },
+    'complications|route|x': { valeur: '<img src=x onerror=alert(2)>' } } });
+  const foret = (x) => x.secteurs.find((s) => s.id === 'foret').d;
+  dit(c.releves[0].t === 'Titre corrigé' && !('url' in c.releves[0]) && foret(c) === foret(contenu)
+    && !c.complications[0].x.includes('<img'),
+    'une correction ne touche que les champs prévus : ni lien, ni tracé de la carte, ni HTML actif');
 }
 if (MODE === 'local') {
   // un serveur à part, qu'on éteint : la preuve que la page vient bien de la copie gardée

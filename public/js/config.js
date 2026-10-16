@@ -50,5 +50,15 @@ export const mesure = false;
  */
 export const images = false;
 
+/**
+ * Combien de jours une séance (ses équipes, leurs réponses) reste en ligne avant
+ * d'être effacée automatiquement, même si personne ne clique « Effacer ».
+ * Loi 25 : on ne garde pas un renseignement plus longtemps que nécessaire.
+ * L'effacement est fait par Firestore (politique TTL sur le champ `expireLe`,
+ * à activer une fois dans la console : voir le README). Si tu changes ce nombre,
+ * change aussi « 30 jours » dans confidentialite.html.
+ */
+export const conservationJours = 30;
+
 // Vrai si aucune configuration Firebase n'a été fournie.
 export const estLocal = Object.keys(firebase).length === 0;

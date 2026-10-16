@@ -147,8 +147,7 @@ function carteVide(c, e, { avecReleves, cliquable, mini }) {
   }).join('')}</div>`;
   return `<div class="carte carte--vide${mini ? ' carte--mini' : ''}" role="group" aria-label="Carte à venir : les sept secteurs">
     <svg width="0" height="0" aria-hidden="true" style="position:absolute">${MOTIFS}</svg>
-    ${mini ? '' : `<p class="vide-t">Carte à venir</p>
-      <p class="vide-s">Ce qui ira ici est à discuter.${avecReleves ? ' Touchez un relevé pour vous y arrêter.' : ''}</p>`}
+    ${mini ? '' : '<p class="vide-t">Carte à venir</p>'}
     ${releves}${avecReleves && !cliquable ? '' : secteurs}
     ${e.gespeg && !mini ? `<p class="vide-gespeg">Gespe'gewa'gi couvre les sept secteurs, dedans comme dehors de la ligne.</p>` : ''}
   </div>`;

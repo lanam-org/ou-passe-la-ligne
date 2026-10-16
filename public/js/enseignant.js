@@ -16,7 +16,7 @@ import { carte, blocReleve } from './carte.js';
 import { dossierHTML } from './dossierdoc.js';
 import { creerSeanceDemo } from './demo.js';
 import { creerSeance, cheminSeance, effacerSeance, mesSeances, SIGNAUX, lireMaVersion, enregistrerMaVersion,
-  reglerSeance, reglerChrono, chronoNeuf } from './seance.js';
+  effacerMaVersion, reglerSeance, reglerChrono, chronoNeuf, JOURS_CONSERVATION } from './seance.js';
 
 // Le contenu d'origine, puis le contenu réglé pour la séance ouverte.
 const base = await chargerContenu();
@@ -36,13 +36,15 @@ const CLE = 'forillon:seance-prof';
 
 let code = null, S = null, EQ = [], AV = [], choisie = null, onglet = 'direct', MOI = null;
 const ui = { cacheAttendu: false, effacer: false, projection: false, ouverts: new Set(), effacerListe: null,
-  maVersion: null, ed: null, chronoLance: '', pastilles: true };
+  effacerVersion: false, maVersion: null, ed: null, chronoLance: '', pastilles: true };
 let arrets = [];
 
+// Huit onglets, rangés en trois moments : ce qu'on fait en classe d'abord, puis préparer, puis après.
 const ONGLETS = [
-  { id: 'direct', t: 'En direct' }, { id: 'reglages', t: 'Réglages' }, { id: 'debrief', t: 'Débrief' },
-  { id: 'questions', t: 'Questions' }, { id: 'dossier', t: 'Dossier' }, { id: 'deroulement', t: 'Déroulement' }, { id: 'mesures', t: 'Mesures' },
-  { id: 'questionnaire', t: 'Questionnaire' }
+  { g: 'En classe', l: [{ id: 'direct', t: 'En direct' }, { id: 'debrief', t: 'Débrief' }] },
+  { g: 'Préparer', l: [{ id: 'reglages', t: 'Réglages' }, { id: 'questions', t: 'Questions' },
+    { id: 'dossier', t: 'Dossier' }, { id: 'deroulement', t: 'Déroulement' }] },
+  { g: 'Après', l: [{ id: 'mesures', t: 'Mesures' }, { id: 'questionnaire', t: 'Questionnaire' }] }
 ];
 const qid = (q) => (q.ajout ? 'ajout' : q.id);
 /** Comparer deux réglages sans dépendre de l'ordre des clés (Firestore les renvoie triées). */
@@ -116,7 +118,8 @@ async function ecranAccueil(erreur = '') {
       <div class="p-actions"><button class="btn" id="creer">Créer la séance →</button></div>
     </section>
     <section class="p-sect"><div class="p-sect-h"><h3>Séances déjà créées (${liste.length})</h3></div>
-      <p class="hint">Les réponses des équipes restent en ligne tant que la séance existe : imprime le rapport, puis efface.</p>
+      <p class="hint">Les réponses des équipes restent en ligne tant que la séance existe : imprime le rapport, puis efface.${
+        donnees.mode === 'local' ? '' : ` Sans action de ta part, chaque séance est effacée automatiquement ${JOURS_CONSERVATION} jours après sa création.`}</p>
       ${liste.length ? `<div class="tab-w"><table class="tab" id="mes-seances"><thead><tr><th>Créée le</th><th>Code</th><th>État</th><th></th></tr></thead>
         <tbody>${liste.map((x) => `<tr><td>${esc(dateCourte(x.creeLe))}${Date.now() - x.creeLe > 30 * JOUR
           ? ' <span class="badge badge--reprise">plus de 30 jours</span>' : ''}</td>
@@ -133,7 +136,11 @@ async function ecranAccueil(erreur = '') {
     <section class="p-sect"><div class="p-sect-h"><h3>Ta version du jeu</h3></div>
       <p class="p-txt">${v ? esc(resumeReglages(v)) : 'Aucune pour l\'instant : chaque séance part de la version d\'origine.'}</p>
       <p class="hint">Tes corrections, tes questions ajoutées, tes minutes : reprises à chaque nouvelle séance. Les séances déjà créées ne changent pas.</p>
-      <div class="p-actions"><button class="btn btn--f" data-ma-version="1">${v ? 'Modifier ma version' : 'Créer ma version'}</button></div>
+      <div class="p-actions"><button class="btn btn--f" data-ma-version="1">${v ? 'Modifier ma version' : 'Créer ma version'}</button>${
+        !v ? '' : ui.effacerVersion
+          ? `<button class="btn btn--danger" data-effacer-version="1" data-confirme="1">Oui, supprimer</button>
+             <button class="btn btn--f" data-effacer-version="">Annuler</button>`
+          : '<button class="btn btn--f danger" data-effacer-version="1">Supprimer ma version</button>'}</div>
     </section>
     ${donnees.mode === 'local' ? '' : `<section class="p-sect"><div class="p-sect-h"><h3>Ton compte</h3></div>${compte}</section>`}
     </aside>
@@ -884,7 +891,9 @@ function rendre(force = false) {
     if (ui.ed.modifie || stable(ailleurs) === stable(ui.ed.r)) return;
     ui.ed.r = ailleurs;
   }
-  $('#onglets').innerHTML = ONGLETS.map((x) => `<button data-onglet="${x.id}" aria-current="${onglet === x.id ? 'page' : 'false'}">${x.t}</button>`).join('');
+  $('#onglets').innerHTML = ONGLETS.map((g) => `<div class="onglets-g" role="group" aria-label="${g.g}">
+    <span class="onglets-t" aria-hidden="true">${g.g}</span>${g.l.map((x) =>
+      `<button data-onglet="${x.id}" aria-current="${onglet === x.id ? 'page' : 'false'}">${x.t}</button>`).join('')}</div>`).join('');
   const vues = { direct: vueDirect, reglages: vueReglages, debrief: vueDebrief, questions: vueQuestions, dossier: vueDossier, deroulement: vueDeroulement,
     mesures: vueMesures, questionnaire: vueQuestionnaire };
   $('#prof').innerHTML = typo(vues[onglet]());
@@ -984,6 +993,16 @@ document.addEventListener('click', async (ev) => {
       MOI = await donnees.attendreUtilisateur();
       return ouvrir(cd);
     } catch (e) { return ecranAccueil(e.message || 'Impossible de créer la démonstration.'); }
+  }
+  const efv = ev.target.closest('[data-effacer-version]');
+  if (efv) {
+    ui.effacerVersion = !!efv.dataset.effacerVersion && !efv.dataset.confirme;
+    if (efv.dataset.confirme && MOI) {
+      efv.disabled = true;
+      try { await effacerMaVersion(MOI.uid); ui.maVersion = null; }
+      catch (e) { console.warn('Version non supprimée', e); return ecranAccueil('Impossible de supprimer ta version pour le moment. Réessaie.'); }
+    }
+    return ecranAccueil();
   }
   if (ev.target.closest('[data-ma-version]')) {
     MOI = MOI || await donnees.identite();
@@ -1104,7 +1123,7 @@ document.addEventListener('click', async (ev) => {
   if (ev.target.closest('[data-imprimer]')) {
     return imprimer(`<h1>Où passe la ligne — ton avis</h1><p>Pas de nom. Il n'y a pas de bonne réponse.</p>
       ${c.avis.map((q, i) => `<div class="p-q"><b>${i + 1}. ${esc(q.t)}</b>${
-        q.type === 'echelle' ? `<div class="p-cases">${c.echelle.map((x) => `<span>${x}</span>`).join('')}</div>`
+        q.type === 'echelle' ? `<div class="p-cases">${c.echelle.map((x) => `<span>${esc(x)}</span>`).join('')}</div>`
         : q.type === 'choix' ? `<div class="p-cases">${q.options.map((x) => `<span>${esc(x)}</span>`).join('')}</div>`
         : '<div class="p-lignes"></div><div class="p-lignes"></div>'}</div>`).join('')}`);
   }

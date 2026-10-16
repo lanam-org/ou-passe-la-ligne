@@ -15,7 +15,7 @@ import * as Rg from './reglages.js';
 import { carte, blocReleve, effetRecent } from './carte.js';
 import { lienSource } from './dossierdoc.js';
 import { NOMS_EQUIPES, rejoindre, cheminSeance, cheminEquipe,
-  normaliserCode, codeValide, SIGNAUX } from './seance.js';
+  normaliserCode, codeValide, SIGNAUX, expiration } from './seance.js';
 
 // Le contenu d'origine, puis le contenu tel que la séance le règle (questions,
 // minutes, corrections). Les réglages arrivent avec la séance et peuvent
@@ -36,7 +36,8 @@ const idx = (id) => c.etapes.findIndex((x) => x.id === id);
 
 let code = null, idEq = null, E = null, S = null;   // S : la séance (signal, état)
 const ui = { outil: 'preservation', effet: null, nouvelles: [], avis: {}, avisEnvoye: false,
-  signalFerme: 0, rendue: -1, erreur: '' };
+  signalFerme: 0, rendue: -1, erreur: '', lus: new Set(),   // lus : les documents ouverts avec « Lire »
+  compVu: 0, compNeuf: false };
 const CLE_SIGNAL = 'forillon:signal-lu';
 const signalLu = (t) => { ui.signalFerme = t; try { localStorage.setItem(`${CLE_SIGNAL}:${E?.appareil}`, String(t)); } catch { /* vide */ } };
 const CLE = 'forillon:equipe';
@@ -68,7 +69,8 @@ function accueil(prerempli = '', erreur = '') {
     <div class="scene-c">
       <p class="sur">Géographie · 1<sup>er</sup> cycle · en équipe</p>
       <h2>Rejoindre la séance</h2>
-      <p class="hint" style="margin-top:6px">Un seul ordinateur par équipe. Pas de prénom : votre équipe porte le nom d'un animal de Forillon.</p>
+      <p class="hint" style="margin-top:6px">Un seul ordinateur par équipe. Pas de prénom, ni ici ni dans vos réponses :
+        votre équipe porte le nom d'un animal de Forillon.</p>
       <form id="f-rejoindre" autocomplete="off">
         <label class="champ"><span>Code de la séance (au tableau)</span>
           <input id="code" name="code" inputmode="text" maxlength="5" required
@@ -176,6 +178,9 @@ function rattrapage() {
 
 const MOTS = ['aucun', 'un', 'deux', 'trois', 'quatre', 'cinq', 'six'];
 
+/** Ce que le dernier geste vient de changer : en haut du carnet, à côté de la carte, toujours visible. */
+const blocEffet = () => ({ brut: `<div class="bloc bloc--effet">${effetRecent(c, ui.effet)}</div>` });
+
 /* ------------------------------------------------------------ les écrans */
 
 const ECRANS = {
@@ -183,21 +188,21 @@ const ECRANS = {
     guide: `Bienvenue sur la presqu'île. Ce que vous voyez est réel — le territoire, les chiffres,
       les documents. <b>La décision, elle, est la vôtre.</b> On vous demande de tracer la limite
       d'une aire protégée. Ça a l'air simple. Ça ne le restera pas.`,
+    // la question tout de suite sous la garde-parc : c'est ce qu'il y a à faire ; le reste se lit après
     h: `<p class="serif lead">En 1970, le gouvernement a tracé une ligne sur cette carte. À l'intérieur :
         un parc national. À l'extérieur : la vie qui continue.</p>
-      <p class="serif lead" style="margin-top:12px">Vous n'êtes pas des camps qui s'affrontent.
+      ${blocQuestions('arrivee')}
+      <p class="serif lead" style="margin-top:22px">Vous n'êtes pas des camps qui s'affrontent.
         Vous êtes <b>une équipe</b>, et vous avez la même question devant vous.</p>
       <div class="paires">
         <div class="paire"><span class="v">7</span><span class="k">secteurs réels à zoner</span></div>
         <div class="paire"><span class="v">12</span><span class="k">documents, dont quatre qui ne servent pas</span></div>
         <div class="paire"><span class="v">1</span><span class="k">ligne à tracer : la vôtre</span></div>
       </div>
-      ${blocQuestions('arrivee')}
       <p class="avert">Le lieu est réel : parc national Forillon, en Gaspésie, créé le 8 juin 1970,
         sur Gespe'gewa'gi. La limite que vous tracerez est la vôtre, pas la sienne.</p>`,
     carnet: [{ t: 'Le parcours', h: `<ol class="parcours">${etapesVisibles().filter((x) => x.id !== 'avis')
-      .map((x) => `<li><span>${esc(x.t)}</span><small>${x.min} min</small></li>`).join('')}</ol>
-      <p class="avert">Le temps est un repère : il reste affiché en haut de chaque étape.</p>` }],
+      .map((x) => `<li><span>${esc(x.t)}</span><small>${x.min} min</small></li>`).join('')}</ol>` }],
     btn: 'Marcher avec la garde-parc', peut: ok('arrivee'),
     hint: ok('arrivee') ? '' : "Notez d'abord votre hypothèse."
   }),
@@ -213,18 +218,13 @@ const ECRANS = {
         ? `Vous avez tout relevé. <b>Chacune de ces six choses va servir.</b> On rentre au bureau ouvrir le dossier.`
         : `On marche. <b>Six relevés à faire, numérotés sur la carte.</b> Je vous dis où aller${
            nq === 1 ? ' ; l\'un d\'entre eux pose une question' : nq > 1 ? ` ; ${MOTS[nq] || nq} d'entre eux posent une question` : ''}.`,
-      h: (dernier ? `<div class="trouve" style="margin:0 0 16px">
+      // la carte d'abord, toujours au même endroit ; ce qu'on y trouve s'affiche à côté, dans le carnet
+      h: carte(c, E, { releves: true, cliquable: false }) + blocQuestions('marche'),
+      carnet: [{ t: 'Carnet de terrain', h: dernier ? `<div class="trouve">
             <p class="sur">Relevé ${E.releves.length} sur ${c.releves.length}</p>
             <h3>${esc(dernier.t)}</h3><p class="serif">${esc(dernier.x)}</p>
             <p class="trouve-s">${esc(dernier.s)}</p>${lienSource(dernier)}</div>`
-          : (IMAGES ? `<p class="hint" style="margin-bottom:12px">Touchez une pastille numérotée pour vous arrêter.</p>` : ''))
-        + carte(c, E, { releves: true, cliquable: false })
-        + blocQuestions('marche'),
-      carnet: [{ t: 'Carnet de terrain', h: `
-        <div class="jauge-c"><div class="jauge-r" style="width:${(E.releves.length / c.releves.length) * 100}%"></div></div>
-        <p class="compte">${E.releves.length} <span>sur ${c.releves.length}</span></p>
-        ${E.releves.length ? `<ul class="carnet-l">${E.releves.map((i) => `<li>${esc(c.releves[i].t)}</li>`).join('')}</ul>` : ''}
-        <p class="avert" style="margin-top:11px">Ce carnet n'est pas un score.</p>` }],
+        : `<p class="hint">Touchez ${IMAGES ? 'une pastille numérotée' : 'un relevé'} sur la carte : ce que vous y trouvez s'affiche ici.</p>` }],
       btn: 'Ouvrir le dossier',
       peut: reste === 0 && ok('marche'),
       hint: manque.length ? manque.join(' · ').replace(/^./, (x) => x.toUpperCase()) + '.' : ''
@@ -237,20 +237,22 @@ const ECRANS = {
          Savoir mettre de côté, c'est la moitié du travail.`
       : `Douze documents. <b>Retenez-en trois</b> : ceux qui aident vraiment à dire qui a le droit
          d'habiter ici. Certains sont vrais et ne servent à rien. Ce n'est pas un piège.`,
-    h: `${E.juge ? `<div class="verdicts">${E.docs.map((id) => {
+    // Avant le tri : chaque document tient en deux lignes (sa nature, son titre) ; « Lire » ouvre le
+    // reste. Après le tri : seulement les verdicts des trois retenus, et la question.
+    h: E.juge ? `<div class="verdicts">${E.docs.map((id) => {
         const d = c.documents.find((x) => x.id === id);
         return `<div class="verdict verdict--${d.utile ? 'util' : 'hors'}"><i aria-hidden="true">${d.utile ? '✓' : '—'}</i>
           <span><b>${esc(d.t)}</b>${esc(d.v)}${lienSource(d)}</span></div>`;
-      }).join('')}</div>${blocQuestions('dossier')}<h3 class="sous">Le dossier</h3>` : ''}
-      <div class="docs">${c.documents.map((d) => `<button class="doc" data-doc="${d.id}"
-          aria-pressed="${E.docs.includes(d.id)}" ${E.juge ? 'disabled' : ''}>
-          <span class="doc-k">${esc(d.genre)}</span><span class="doc-t">${esc(d.t)}</span>
-          <span class="doc-x">${esc(d.x)}</span><span class="doc-s">${esc(d.s)}</span></button>`).join('')}</div>`,
-    carnet: [{ t: 'Retenus', h: E.docs.length
+      }).join('')}</div>${blocQuestions('dossier')}`
+      : `<div class="docs">${c.documents.map((d) => `<div class="doc-c">
+          <button class="doc" data-doc="${d.id}" aria-pressed="${E.docs.includes(d.id)}">
+            <span class="doc-k">${esc(d.genre)}</span><span class="doc-t">${esc(d.t)}</span></button>
+          <details class="doc-plus" data-lire="${d.id}" ${ui.lus.has(d.id) ? 'open' : ''}><summary>Lire</summary>
+            <p class="doc-x">${esc(d.x)}</p><p class="doc-s">${esc(d.s)}</p></details></div>`).join('')}</div>`,
+    carnet: E.juge ? [] : [{ t: 'Retenus', h: E.docs.length
       ? `<ol class="carnet-l">${E.docs.map((id) => `<li>${esc(c.documents.find((x) => x.id === id).t)}</li>`).join('')}</ol>`
       : '<p class="hint">Aucun pour l\'instant. Trois au plus.</p>' },
-    { t: 'La consigne', h: `<p class="serif" style="font-size:15px;line-height:1.6">${esc(B['F3.1'].eleve)}</p>
-      <p class="avert" style="margin-top:9px">On ne demande pas de calculer : on demande de choisir, et de savoir dire pourquoi.</p>` }],
+    { t: 'La consigne', h: `<p class="serif" style="font-size:15px;line-height:1.6">${esc(B['F3.1'].eleve)}</p>` }],
     btn: E.juge ? 'Tracer la ligne' : 'Soumettre les trois',
     peut: E.juge ? ok('dossier') : E.docs.length === 3,
     hint: E.juge ? (ok('dossier') ? '' : 'Répondez à la question.') : `${E.docs.length} sur 3 retenus.`
@@ -262,8 +264,8 @@ const ECRANS = {
       guide: `À vous. <b>Choisissez une zone, puis touchez les secteurs.</b> Un vrai parc n'est pas
         « protégé » d'un bloc : il est zoné. Il n'y a pas de bonne réponse — il y a ce que vous
         protégez, qui peut venir, et qui peut rester.`,
-      h: carte(c, E, { outil: ui.outil }) + effetRecent(c, ui.effet) + blocQuestions('trace'),
-      carnet: [{ t: 'Votre relevé', h: blocReleve(c, E) }],
+      h: carte(c, E, { outil: ui.outil }) + blocQuestions('trace'),
+      carnet: [blocEffet(), { t: 'Votre relevé', h: blocReleve(c, E) }],
       btn: 'Arrêter cette ligne',
       peut: r.dans > 0 && ok('trace'),
       hint: r.dans === 0 ? 'Il faut au moins un secteur dans la ligne.' : ok('trace') ? '' : 'Dites pourquoi vous gardez cette ligne.'
@@ -272,23 +274,23 @@ const ECRANS = {
 
   comp: () => {
     const vues = c.complications.slice(0, E.comps);
+    const lus = vues.slice(0, -1), neuf = vues[vues.length - 1];
     const n = c.complications.length;
     const bloque = !ok('comp');
+    // Comme un relevé : le point de vue qui arrive s'affiche à droite, la garde-parc dit quoi en
+    // faire (sa consigne, « quoi »), et la carte reste en place à gauche, prête à être retouchée.
+    // Ceux déjà lus tiennent en une ligne ; la question vient sous la carte.
     return {
-      guide: E.comps === 0 ? 'Votre ligne est arrêtée. <b>Maintenant, d\'autres points de vue.</b> Chacun voit le territoire à sa façon.'
-        : E.comps < n ? `Ce n'est pas fini. <b>Votre carte est toujours vivante</b> : rezonez ici si l'information change votre idée.`
-          : `Voilà les quatre. <b>Ce que vous décidez maintenant, vous le décidez en le sachant.</b>`,
-      h: (vues.length
-        ? vues.slice(0, -1).map((x) => `<details class="fige"><summary><span class="sur">${esc(x.sur)}</span>
-            <b>${esc(x.t)}</b></summary><div class="corps-f"><p>${x.x}</p><p>${x.quoi}</p></div></details>`).join('')
-          + vues.slice(-1).map((x) => `<div class="comp"><p class="sur">${esc(x.sur)}</p><h3>${esc(x.t)}</h3>
-            <p class="serif">${x.x}</p><p class="trouve-s">${esc(x.s)}</p>${lienSource(x)}<p class="quoi">${x.quoi}</p></div>`).join('')
-          + blocQuestions('comp')
-          + '<h3 class="comp-sep">Votre carte, toujours modifiable</h3>'
-        : '<p class="hint">Touchez le bouton pour entendre le premier.</p>')
-        + carte(c, E, { outil: ui.outil }) + effetRecent(c, ui.effet),
-      carnet: [{ t: 'Votre relevé', h: blocReleve(c, E, true)
-        + '<p class="avert" style="margin-top:11px">Rezonez : le relevé bouge.</p>' }],
+      guide: !neuf ? 'Votre ligne est arrêtée. <b>Maintenant, d\'autres points de vue.</b> Chacun voit le territoire à sa façon.'
+        : (E.comps < n ? '' : 'Voilà les quatre. ') + neuf.quoi,
+      h: (lus.length ? `<details class="fige"><summary><span class="sur">Déjà lus</span>
+            <b>${lus.length > 1 ? `${MOTS[lus.length] || lus.length} points de vue` : esc(lus[0].t)}</b></summary><div class="corps-f">${lus.map((x) =>
+              `<p><b>${esc(x.t)}</b> — ${x.x}</p><p>${x.quoi}</p>`).join('')}</div></details>` : '')
+        + (neuf ? '' : '<p class="hint" style="margin-bottom:12px">Touchez le bouton pour entendre le premier.</p>')
+        + carte(c, E, { outil: ui.outil }) + blocQuestions('comp'),
+      carnet: [...(neuf ? [{ brut: `<div class="comp${ui.compNeuf ? ' comp--neuf' : ''}"><p class="sur">${esc(neuf.sur)}</p>
+          <h3>${esc(neuf.t)}</h3><p class="serif">${neuf.x}</p><p class="trouve-s">${esc(neuf.s)}</p>${lienSource(neuf)}</div>` }] : []),
+        blocEffet(), { t: 'Votre relevé', h: blocReleve(c, E, true) }],
       btn: E.comps === 0 ? 'Entendre un premier point de vue' : E.comps < n ? 'Un autre point de vue' : 'Voir la décision de 1970',
       peut: !bloque,
       hint: bloque ? PAS_FINI : ''
@@ -313,9 +315,8 @@ const ECRANS = {
           r.dehors.length ? `Vous laissez dehors ${liste(r.dehors)}, non ${r.dehors.length > 1 ? 'protégés' : 'protégé'}. ` : ''}</p>
         ${bloc(c.bilan[0])}
         ${blocQuestions('bilan')}
-        ${c.bilan.slice(1).map(bloc).join('')}`,
-      carnet: [{ t: 'La comparaison', h: `<p class="serif" style="font-size:14.5px;line-height:1.6">Ce n'est pas une
-        correction. Votre ligne et celle de 1970 répondent à la même question avec des informations différentes.</p>` }],
+        ${c.bilan.slice(1).map((b) => `<details class="d-sources d-plus"><summary>${esc(b.t)}</summary>${paires(b.paires)}
+          <p class="serif texte">${esc(b.texte)}</p><p class="avert">${esc(b.src)}</p></details>`).join('')}`,
       btn: 'Revenir sur notre démarche', peut: ok('bilan'), hint: ok('bilan') ? '' : 'Répondez à la question.'
     };
   },
@@ -354,7 +355,7 @@ const ECRANS = {
         le site t'a aidé ou t'a mêlé. Pas de nom.`,
       h: `<div class="avis">${c.avis.map((q, i) => `<fieldset class="q"><legend><span class="q-n">${i + 1}</span>${esc(q.t)}</legend>
         ${q.type === 'echelle' ? `<div class="ech">${c.echelle.map((x, j) => `<button type="button" data-avis="${q.id}"
-            data-val="${j + 1}" aria-pressed="${ui.avis[q.id] === String(j + 1)}">${x}</button>`).join('')}</div>`
+            data-val="${j + 1}" aria-pressed="${ui.avis[q.id] === String(j + 1)}">${esc(x)}</button>`).join('')}</div>`
         : q.type === 'choix' ? `<div class="choix">${q.options.map((x) => `<button type="button" data-avis="${q.id}"
             data-val="${esc(x)}" aria-pressed="${ui.avis[q.id] === x}">${esc(x)}</button>`).join('')}</div>`
         : `<textarea data-avis-t="${q.id}" rows="2" maxlength="300" placeholder="Une phrase suffit.">${esc(ui.avis[q.id] || '')}</textarea>`}
@@ -372,10 +373,10 @@ const etapesVisibles = () => c.etapes.filter((x) => x.id !== 'avis' || avisActif
 const GABARIT = `
   <div class="question"><span class="sur">La question</span><p>${esc(c.question)}</p></div>
   <div class="corps" id="corps">
-    <main>
+    <div class="jeu">
       <section class="scene">
         <div class="scene-h"><h2 id="titre">…</h2><span class="hint" id="minutes"></span></div>
-        <div class="guide">${GARDE}<div class="bulle">
+        <div class="guide${GARDE ? '' : ' guide--seul'}">${GARDE}<div class="bulle">
           <p class="nom">Jeanne Element <small>· garde-parc (personnage fictif)</small></p>
           <p id="guide-txt">…</p></div></div>
         <div class="scene-c" id="scene"></div>
@@ -385,7 +386,7 @@ const GABARIT = `
         <span class="hint" id="hint"></span>
         <button class="btn" id="suivant">Continuer</button>
       </div>
-    </main>
+    </div>
     <div class="carnet" id="carnet"></div>
   </div>`;
 
@@ -405,6 +406,7 @@ function rendre() {
   const vis = etapesVisibles();
   const e = c.etapes[E.etape];
   if (ui.rendue !== E.etape) { if (ui.rendue !== -1) window.scrollTo({ top: 0 }); ui.rendue = E.etape; }
+  ui.compNeuf = E.comps > ui.compVu; ui.compVu = E.comps;   // un point de vue qui vient d'arriver se signale, une fois
   const v = ECRANS[e.id]();
 
   $('#prog').innerHTML = `<div class="prog-seg" style="grid-template-columns:repeat(${vis.length},1fr)">${
@@ -426,13 +428,14 @@ function rendre() {
     const t = document.querySelector(`[data-rep="${CSS.escape(actif.id)}"]`);
     if (t) { t.focus(); try { t.setSelectionRange(actif.a, actif.b); } catch { /* vide */ } }
   }
-  const mentions = (E.etape === 0 || e.id === 'avis') ? '' : `<div class="bloc"><h3>Ce que vous avez fait de bien</h3>
+  // Les gestes reconnus : le « Bravo » les annonce en jouant ; la liste entière attend le retour sur la démarche.
+  const mentions = e.id !== 'debrief' ? '' : `<div class="bloc"><h3>Ce que vous avez fait de bien</h3>
     ${E.mentions.length ? `<div class="mentions">${E.mentions.map((id) => `<div class="mention${ui.nouvelles.includes(id) ? ' mention--neuve' : ''}"
       title="${esc(c.mentions[id].q)}"><span class="mention-i" aria-hidden="true">✦</span>
       <span><b>${esc(c.mentions[id].nom)}</b><span>${esc(c.mentions[id].court)}</span></span></div>`).join('')}</div>`
-      : '<p class="hint">Rien encore. Ça vient en faisant, pas en réussissant.</p>'}
+      : '<p class="hint">Aucun cette fois-ci : ils viennent en faisant, pas en réussissant.</p>'}
     <p class="avert">Des gestes, pas des points : pas de total, pas de classement.</p></div>`;
-  $('#carnet').innerHTML = typo([...(v.carnet || []).map((b) => `<div class="bloc"><h3>${esc(b.t)}</h3>${b.h}</div>`), mentions].join(''));
+  $('#carnet').innerHTML = typo([...(v.carnet || []).map((b) => b.brut ?? `<div class="bloc"><h3>${esc(b.t)}</h3>${b.h}</div>`), mentions].join(''));
   $('#carnet').hidden = !$('#carnet').innerHTML.trim();
   $('#corps').classList.toggle('seul', $('#carnet').hidden);
   majPied(v);
@@ -464,7 +467,17 @@ function majPied(v) {
   v ||= ECRANS[c.etapes[E.etape].id]();
   bt.textContent = v.btn + (v.fleche === false ? '' : ' →');
   bt.disabled = !v.peut;
-  $('#hint').textContent = v.hint || '';
+  // Une réponse requise manque : la phrase sous le bouton devient un lien qui y mène.
+  const manque = !v.peut && v.hint && reponseManquante();
+  $('#hint').innerHTML = manque
+    ? `<button type="button" class="lien lien-manque" data-aller="${esc(manque.id)}">${esc(v.hint)}</button>`
+    : esc(v.hint || '');
+}
+
+/** La première réponse requise encore vide : « À rattraper » d'abord, puis l'étape en cours. */
+function reponseManquante() {
+  const ici = c.etapes[E.etape].id;
+  return [...Rg.aRattraper(c, E), ...Rg.questionsVisibles(c, E, ici)].find((q) => q.requise && !R(q.id));
 }
 
 let minuterieBravo = null;
@@ -514,6 +527,12 @@ document.addEventListener('input', (ev) => {
 
 document.addEventListener('click', async (ev) => {
   if (!E) return;
+  const al = ev.target.closest('[data-aller]');
+  if (al) {
+    const t = document.querySelector(`[data-rep="${CSS.escape(al.dataset.aller)}"]`);
+    if (t) { t.scrollIntoView({ block: 'center', behavior: 'smooth' }); t.focus({ preventScroll: true }); }
+    return;
+  }
   const fs = ev.target.closest('[data-fermer-signal]');
   if (fs) { signalLu(Number(fs.dataset.fermerSignal)); return rendreSignal(); }
   if (ev.target.closest('[data-vers-debrief]')) {
@@ -565,7 +584,7 @@ document.addEventListener('click', async (ev) => {
       if (!ui.avisEnvoye) {
         ui.avisEnvoye = true;
         const rep = Object.fromEntries(c.avis.map((q) => [q.id, String(ui.avis[q.id] ?? '').slice(0, 300)]));
-        try { await donnees.ecrire(`${cheminSeance(code)}/avis/${crypto.randomUUID().slice(0, 12)}`, { ...rep, t: Date.now() }); }
+        try { await donnees.ecrire(`${cheminSeance(code)}/avis/${crypto.randomUUID().slice(0, 12)}`, { ...rep, t: Date.now(), expireLe: expiration(S) }); }
         catch (err) { console.warn('Avis non envoyé', err); }
         if (!E.fini) { E.fini = true; J.allerA(c, E, E.etape); sauverTout(); }
         return rendre();
@@ -580,6 +599,9 @@ document.addEventListener('click', async (ev) => {
 });
 
 document.addEventListener('toggle', (ev) => {
+  // un document ouvert avec « Lire » le reste quand l'écran se redessine (un autre document coché)
+  const lu = ev.target.dataset?.lire;
+  if (lu) { if (ev.target.open) ui.lus.add(lu); else ui.lus.delete(lu); return; }
   if (ev.target.id === 'd-sources' && ev.target.open && E && !E.mentions.includes('origine')) apres(J.mentionner(E, 'origine'));
 }, true);
 

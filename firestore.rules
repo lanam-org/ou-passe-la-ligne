@@ -16,7 +16,10 @@ rules_version = '2';
 //   · l'enseignant·e lit tout dans sa séance, et peut tout effacer ;
 //   · seuls les champs prévus sont acceptés (listes blanches) : personne ne peut
 //     ajouter un champ « prénom » par erreur ;
-//   · la version du jeu de l'enseignant·e (ses réglages) n'est lue et écrite que par elle ou lui.
+//   · la version du jeu de l'enseignant·e (ses réglages) n'est lue et écrite que par elle ou lui ;
+//   · séances, fiches et avis portent une date d'effacement (expireLe) : la politique
+//     TTL de Firestore les efface après cette date (Loi 25 : conservation limitée).
+//     À activer une fois : voir le README, « Effacement automatique ».
 //
 // À coller dans la console Firebase → Firestore Database → Règles → Publier,
 // ou à déployer avec : firebase deploy --only firestore:rules
@@ -27,6 +30,10 @@ service cloud.firestore {
     function connecte() { return request.auth != null; }
     function seance(code) { return get(/databases/$(database)/documents/seances/$(code)).data; }
     function enseignant(code) { return connecte() && seance(code).enseignantId == request.auth.uid; }
+    // expireLe est facultatif (anciennes séances) ; s'il est là, c'est une vraie date
+    function expiration(d) { return !('expireLe' in d) || d.expireLe is timestamp; }
+    // un texte libre court (réponses du questionnaire)
+    function court(d, k) { return !(k in d) || (d[k] is string && d[k].size() <= 300); }
 
     match /seances/{code} {
       // Lire UNE séance par son code : toute personne connectée (une équipe qui la rejoint).
@@ -36,12 +43,14 @@ service cloud.firestore {
       allow create: if connecte()
         && code.matches('^[A-HJ-KM-NP-Z2-9]{5}$')
         && request.resource.data.enseignantId == request.auth.uid
-        && request.resource.data.keys().hasOnly(['enseignantId', 'creeLe', 'etat', 'questionnaire', 'signal', 'config', 'chrono'])
+        && request.resource.data.keys().hasOnly(['enseignantId', 'creeLe', 'etat', 'questionnaire', 'signal', 'config', 'chrono', 'expireLe'])
+        && expiration(request.resource.data)
         && request.resource.data.etat == 'ouverte';
       allow update: if connecte()
         && resource.data.enseignantId == request.auth.uid
         && request.resource.data.enseignantId == resource.data.enseignantId
-        && request.resource.data.keys().hasOnly(['enseignantId', 'creeLe', 'etat', 'questionnaire', 'signal', 'config', 'chrono']);
+        && request.resource.data.keys().hasOnly(['enseignantId', 'creeLe', 'etat', 'questionnaire', 'signal', 'config', 'chrono', 'expireLe'])
+        && expiration(request.resource.data);
       allow delete: if connecte() && resource.data.enseignantId == request.auth.uid;
 
       // La fiche d'une équipe. L'identifiant du document est le nom de l'équipe :
@@ -54,16 +63,19 @@ service cloud.firestore {
           && request.resource.data.appareil == request.auth.uid
           && request.resource.data.keys().hasOnly(['nom', 'appareil', 'creeLe', 'maj', 'etape', 'atteinte', 'entree',
                'temps', 'releves', 'docs', 'juge', 'zones', 'comps', 'gespeg', 'gespegVu', 'historique',
-               'corridorRompu', 'mentions', 'reponses', 'fini', 'compteurs'])
-          && request.resource.data.nom is string && request.resource.data.nom.size() <= 30;
+               'corridorRompu', 'mentions', 'reponses', 'fini', 'compteurs', 'expireLe'])
+          && expiration(request.resource.data)
+          && request.resource.data.nom is string && request.resource.data.nom.size() <= 30
+          && request.resource.data.reponses is map && request.resource.data.reponses.size() <= 40;
         allow update: if connecte()
           && resource.data.appareil == request.auth.uid
           && request.resource.data.appareil == resource.data.appareil
           && request.resource.data.nom == resource.data.nom
           && request.resource.data.keys().hasOnly(['nom', 'appareil', 'creeLe', 'maj', 'etape', 'atteinte', 'entree',
                'temps', 'releves', 'docs', 'juge', 'zones', 'comps', 'gespeg', 'gespegVu', 'historique',
-               'corridorRompu', 'mentions', 'reponses', 'fini', 'compteurs'])
-          && request.resource.data.reponses.size() <= 40;
+               'corridorRompu', 'mentions', 'reponses', 'fini', 'compteurs', 'expireLe'])
+          && expiration(request.resource.data)
+          && request.resource.data.reponses is map && request.resource.data.reponses.size() <= 40;
         allow delete: if enseignant(code);
       }
 
@@ -73,7 +85,11 @@ service cloud.firestore {
       match /avis/{id} {
         allow create: if connecte()
           && seance(code).questionnaire == true
-          && request.resource.data.keys().hasOnly(['q1', 'q2', 'q3', 'q4', 'q5', 'q6', 'q7', 'q8', 't']);
+          && request.resource.data.keys().hasOnly(['q1', 'q2', 'q3', 'q4', 'q5', 'q6', 'q7', 'q8', 't', 'expireLe'])
+          && expiration(request.resource.data)
+          && court(request.resource.data, 'q1') && court(request.resource.data, 'q2') && court(request.resource.data, 'q3')
+          && court(request.resource.data, 'q4') && court(request.resource.data, 'q5') && court(request.resource.data, 'q6')
+          && court(request.resource.data, 'q7') && court(request.resource.data, 'q8');
         allow read, delete: if enseignant(code);
         allow update: if false;
       }

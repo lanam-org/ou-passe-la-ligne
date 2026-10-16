@@ -3,6 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'sha256-nRMD0fmqsHy+XEoxZnBgX4yZIxcpCHXtCmYHfOON/mg='; img-src data:; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
 <meta name="robots" content="noindex">
 <title>Page introuvable — Où passe la ligne</title>
 <style>
@@ -17,19 +19,23 @@
   p{color:var(--doux);margin:0 0 20px}
   a{color:var(--primaire);font-weight:700;text-underline-offset:3px}
   a:focus-visible{outline:3px solid var(--primaire);outline-offset:3px;border-radius:4px}
+  .petit{font-size:15px}
 </style>
 </head>
 <body>
 <main>
   <h1>Cette page n'existe pas</h1>
   <p>L'adresse est peut-être mal recopiée. Le code d'une séance s'entre sur la page des équipes, pas dans l'adresse.</p>
-  <p><a id="accueil" href="/">Retour à l'accueil d'Où passe la ligne</a></p>
+  <p><a data-page="" href="/">Retour à l'accueil d'Où passe la ligne</a></p>
+  <p class="petit"><a data-page="confidentialite.html" href="/confidentialite.html">Confidentialité et à propos</a></p>
 </main>
 <script>
-  // Sur GitHub Pages, le site vit sous /nom-du-depot/ : on y renvoie.
+  // Sur GitHub Pages, le site vit sous /nom-du-depot/ : les liens y renvoient.
   (function () {
     var p = location.pathname.split('/').filter(Boolean);
-    if (/\.github\.io$/.test(location.hostname) && p.length) document.getElementById('accueil').href = '/' + p[0] + '/';
+    var racine = /\.github\.io$/.test(location.hostname) && p.length ? '/' + p[0] + '/' : '/';
+    var liens = document.querySelectorAll('[data-page]');
+    for (var i = 0; i < liens.length; i++) liens[i].href = racine + liens[i].getAttribute('data-page');
   })();
 </script>
 </body>
