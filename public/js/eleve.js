@@ -130,9 +130,11 @@ const CHAMPS = ['maj', 'etape', 'atteinte', 'entree', 'temps', 'releves', 'docs'
 /** Le voyant en haut à droite : enregistré, ou en attente du réseau. */
 function etatEnvoi(ok) {
   const z = $('#etat-envoi');
-  if (!z) return;
+  const t = ok ? 'Enregistré' : 'En attente du réseau';
+  // seulement quand l'état change : un lecteur d'écran ne répète pas « Enregistré » à chaque phrase tapée
+  if (!z || z.textContent === t) return;
   z.setAttribute('data-ok', ok ? '1' : '0');
-  z.textContent = ok ? 'Enregistré' : 'En attente du réseau';
+  z.textContent = t;
 }
 
 async function envoyer() {
@@ -180,6 +182,25 @@ const MOTS = ['aucun', 'un', 'deux', 'trois', 'quatre', 'cinq', 'six'];
 
 /** Ce que le dernier geste vient de changer : en haut du carnet, à côté de la carte, toujours visible. */
 const blocEffet = () => ({ brut: `<div class="bloc bloc--effet">${effetRecent(c, ui.effet)}</div>` });
+
+/**
+ * Ce qui vient d'arriver, dit aux lecteurs d'écran : le carnet se redessine à chaque geste, ses
+ * nouveautés ne seraient pas annoncées. Une zone #annonce, toujours là, les lit (WCAG 4.1.3).
+ */
+const sansBalises = (t) => String(t || '').replace(/<[^>]+>/g, '');
+function dire(texte) {
+  const z = $('#annonce');
+  if (!z) return;
+  z.textContent = '';
+  setTimeout(() => { z.textContent = texte; }, 60);   // vidée puis remplie : la même phrase se relit
+}
+function direEffet(effet) {
+  const nz = (z) => J.nomZone(c, z);
+  const n = (k, un, plus) => (k ? `${k > 0 ? plus : 'moins'} ${Math.abs(k)} ${un}` : '');
+  dire([`${effet.secteur} : ${nz(effet.de)}, devient ${nz(effet.a)}.`,
+    n(effet.dans, 'secteur protégé', 'plus'), n(effet.vides, 'village à vider', 'plus'), n(effet.gardes, 'village gardé', 'plus'),
+    effet.corridorChange ? `Corridor ${effet.corridor}.` : ''].filter(Boolean).join(' '));
+}
 
 /* ------------------------------------------------------------ les écrans */
 
@@ -375,7 +396,7 @@ const GABARIT = `
   <div class="corps" id="corps">
     <div class="jeu">
       <section class="scene">
-        <div class="scene-h"><h2 id="titre">…</h2><span class="hint" id="minutes"></span></div>
+        <div class="scene-h"><h2 id="titre" tabindex="-1">…</h2><span class="hint" id="minutes"></span></div>
         <div class="guide${GARDE ? '' : ' guide--seul'}">${GARDE}<div class="bulle">
           <p class="nom">Jeanne Element <small>· garde-parc (personnage fictif)</small></p>
           <p id="guide-txt">…</p></div></div>
@@ -405,7 +426,10 @@ function rendre() {
   if (E.fini && !ui.avisEnvoye && c.etapes[E.etape].id !== 'avis') return rendreFin();
   const vis = etapesVisibles();
   const e = c.etapes[E.etape];
-  if (ui.rendue !== E.etape) { if (ui.rendue !== -1) window.scrollTo({ top: 0 }); ui.rendue = E.etape; }
+  // Nouvelle étape : en haut de la page, et le focus sur son titre (le clavier et le lecteur d'écran
+  // repartent du début de l'étape, pas du bouton « Continuer » resté en bas).
+  let focusTitre = false;
+  if (ui.rendue !== E.etape) { if (ui.rendue !== -1) { window.scrollTo({ top: 0 }); focusTitre = true; } ui.rendue = E.etape; }
   ui.compNeuf = E.comps > ui.compVu; ui.compVu = E.comps;   // un point de vue qui vient d'arriver se signale, une fois
   const v = ECRANS[e.id]();
 
@@ -424,7 +448,8 @@ function rendre() {
   majMinutes();
   $('#guide-txt').innerHTML = typo(v.guide);
   $('#scene').innerHTML = typo((e.id === 'avis' ? '' : rattrapage()) + v.h);
-  if (actif) {
+  if (focusTitre) $('#titre').focus({ preventScroll: true });
+  else if (actif) {
     const t = document.querySelector(`[data-rep="${CSS.escape(actif.id)}"]`);
     if (t) { t.focus(); try { t.setSelectionRange(actif.a, actif.b); } catch { /* vide */ } }
   }
@@ -550,7 +575,11 @@ document.addEventListener('click', async (ev) => {
     return rendre();
   }
   const rl = ev.target.closest('[data-releve]');
-  if (rl) return apres(J.basculerReleve(c, E, Number(rl.dataset.releve)));
+  if (rl) {
+    const i = Number(rl.dataset.releve), nouvelles = J.basculerReleve(c, E, i);
+    if (E.releves.includes(i)) dire(`Relevé ${E.releves.length} sur ${c.releves.length}, ${c.releves[i].t} : ${c.releves[i].x}`);
+    return apres(nouvelles);
+  }
   const doc = ev.target.closest('[data-doc]');
   if (doc) { J.basculerDoc(E, doc.dataset.doc); return apres(); }
   if (ev.target.closest('[data-gespeg]')) return apres(J.basculerGespeg(E));
@@ -559,7 +588,7 @@ document.addEventListener('click', async (ev) => {
   const sect = ev.target.closest('[data-sect]');
   if (sect) {
     const r = J.peindre(c, E, sect.dataset.sect, ui.outil);
-    if (r) ui.effet = r.effet;
+    if (r) { ui.effet = r.effet; direEffet(r.effet); }
     return apres(r ? r.nouvelles : []);
   }
   if (ev.target.closest('.carte')) { E.compteurs.clicsVides += 1; sauver(); return; }
@@ -574,7 +603,12 @@ document.addEventListener('click', async (ev) => {
     if (!ECRANS[e.id]().peut) return;
     if (e.id === 'dossier' && !E.juge) return apres(J.juger(c, E));
     if (e.id === 'trace' && J.releve(c, E).corridor === 'continu') ui.nouvelles.push(...J.mentionner(E, 'corridor'));
-    if (e.id === 'comp' && E.comps < c.complications.length) { E.comps += 1; return apres(); }
+    if (e.id === 'comp' && E.comps < c.complications.length) {
+      E.comps += 1;
+      const x = c.complications[E.comps - 1];
+      dire(`Point de vue ${E.comps} sur ${c.complications.length}, ${x.t} : ${sansBalises(x.x)} ${sansBalises(x.quoi)}`);
+      return apres();
+    }
     if (e.id === 'debrief') {
       if (avisActif()) { J.allerA(c, E, idx('avis')); }
       else { J.allerA(c, E, E.etape); E.fini = true; }

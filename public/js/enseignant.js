@@ -223,6 +223,7 @@ function vueDirect() {
   const sel = eq.find((e) => e.id === choisie);
   const ecouleMin = ch.debut ? Math.floor(Rg.ecoule(ch) / 60000) : 0;
   return `<div class="p-tete">
+      <h2 class="cache-visuel">En direct</h2>
       <p class="retour"><button class="lien" data-retour="1">← Tes séances</button></p>
       <div class="tete-g">
         <section class="p-sect tete-code">

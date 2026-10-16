@@ -77,13 +77,14 @@ export function carte(c, e, o = {}) {
     </g>`;
   }).join('') : '';
 
-  const palette = !cliquable ? '' : `<div class="palette" role="radiogroup" aria-label="Zone à appliquer">
+  // Des boutons à bascule (aria-pressed) : un « radio » ARIA promettrait les flèches du clavier.
+  const palette = !cliquable ? '' : `<div class="palette" role="group" aria-label="Zone à appliquer">
     ${c.ordreZones.map((z) => `<button class="outil${outil === z ? ' outil--on' : ''}" data-outil="${z}"
-        role="radio" aria-checked="${outil === z}">
+        aria-pressed="${outil === z}">
         <svg width="20" height="20" aria-hidden="true"><rect width="20" height="20" rx="4"
           fill="${c.zones[z].motif}" stroke="var(--z-trait)" stroke-width="1"/></svg>
         <span><b>${esc(c.zones[z].nom)}</b><small>${esc(c.zones[z].pc)}</small></span></button>`).join('')}
-    <button class="outil${outil === 'hors' ? ' outil--on' : ''}" data-outil="hors" role="radio" aria-checked="${outil === 'hors'}">
+    <button class="outil${outil === 'hors' ? ' outil--on' : ''}" data-outil="hors" aria-pressed="${outil === 'hors'}">
       <svg width="20" height="20" aria-hidden="true"><rect width="20" height="20" rx="4"
         fill="var(--sable)" stroke="var(--fort)" stroke-width="1.5" stroke-dasharray="3 2"/></svg>
       <span><b>Hors de la ligne</b><small>non protégé</small></span></button>

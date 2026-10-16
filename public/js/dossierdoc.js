@@ -54,7 +54,7 @@ function copie(item) {
   return `<div class="dd-src"><p class="dd-sur">Ce que dit la source</p>${l.map((q) => {
     const u = lienWeb(q.url);
     return `<blockquote>
-      <p class="dd-q">« ${esc(q.q)} »</p>
+      <p class="dd-q"${q.trad ? ' lang="en"' : ''}>« ${esc(q.q)} »</p>
       ${q.trad ? `<p class="dd-trad">Traduction libre : « ${esc(q.trad)} »</p>` : ''}
       <p class="dd-cite">— ${esc(q.src)}${u ? ` · ${A(u)}${esc(domaine(u))}</a>` : ''}</p>
     </blockquote>`;

@@ -1053,3 +1053,25 @@ body[data-espace="prof"] .aide-b:focus-visible{outline-color:var(--prof-txt)}
 .fige summary b{font-weight:700}
 /* cartes de documents plus courtes : trois par rangée sur un Chromebook */
 .docs{grid-template-columns:repeat(auto-fill,minmax(210px,1fr))}
+
+/* ===================================================== accessibilité (audit du 16 octobre) */
+/* texte pour les lecteurs d'écran seulement */
+.cache-visuel{position:absolute !important;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;
+  clip:rect(0 0 0 0);white-space:nowrap;border:0}
+/* le titre de l'étape reçoit le focus à chaque nouvelle étape : pas de cadre, il n'est pas un contrôle */
+#titre:focus{outline:none}
+/* cibles d'au moins 24 px de haut (WCAG 2.5.8) */
+.pied-site a{display:inline-block;padding:4px 0}
+.src-l{padding:3px 0}
+/* 320 px de large (WCAG 1.4.10) : les libellés longs du bouton passent à la ligne, la phrase d'aide dessous */
+@media (max-width:480px){
+  .pied{flex-wrap:wrap}
+  .pied .btn{white-space:normal}
+  #suivant{flex:1}
+  .pied .hint{order:3;flex-basis:100%;margin-left:0;text-align:left}
+}
+/* écran bas (zoom à 200 %) : l'en-tête défile avec la page, seule la barre d'action reste */
+@media (max-height:600px){
+  .barre{position:relative}
+  .carnet{top:12px}
+}
