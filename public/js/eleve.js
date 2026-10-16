@@ -15,7 +15,7 @@ import * as Rg from './reglages.js';
 import { carte, blocReleve, effetRecent } from './carte.js';
 import { lienSource } from './dossierdoc.js';
 import { NOMS_EQUIPES, rejoindre, cheminSeance, cheminEquipe,
-  normaliserCode, codeValide, SIGNAUX, expiration } from './seance.js';
+  normaliserCode, codeValide, SIGNAUX, expiration, cleBravo, aUnBravo } from './seance.js';
 
 // Le contenu d'origine, puis le contenu tel que la séance le règle (questions,
 // minutes, corrections). Les réglages arrivent avec la séance et peuvent
@@ -37,10 +37,11 @@ const idx = (id) => c.etapes.findIndex((x) => x.id === id);
 let code = null, idEq = null, E = null, S = null;   // S : la séance (signal, état)
 const ui = { outil: 'preservation', effet: null, nouvelles: [], avis: {}, avisEnvoye: false,
   signalFerme: 0, rendue: -1, erreur: '', lus: new Set(),   // lus : les documents ouverts avec « Lire »
-  compVu: 0, compNeuf: false };
+  compVu: 0, compNeuf: false, bravoVu: 0, bravos: '{}' };
 const CLE_SIGNAL = 'forillon:signal-lu';
 const signalLu = (t) => { ui.signalFerme = t; try { localStorage.setItem(`${CLE_SIGNAL}:${E?.appareil}`, String(t)); } catch { /* vide */ } };
 const CLE = 'forillon:equipe';
+const CLE_BRAVO = 'forillon:bravo-vu';   // le dernier « bravo » de l'enseignant·e déjà fêté sur cet appareil
 
 /* ------------------------------------------------------------ l'arrivée */
 
@@ -67,7 +68,6 @@ function accueil(prerempli = '', erreur = '') {
   document.body.dataset.ecran = 'accueil';
   $('#app').innerHTML = typo(`<section class="rejoindre scene">
     <div class="scene-c">
-      <p class="sur">Géographie · 1<sup>er</sup> cycle · en équipe</p>
       <h2>Rejoindre la séance</h2>
       <p class="hint" style="margin-top:6px">Un seul ordinateur par équipe. Pas de prénom, ni ici ni dans vos réponses :
         votre équipe porte le nom d'un animal de Forillon.</p>
@@ -114,10 +114,14 @@ function entrer(cd, id, etat) {
   $('#app').innerHTML = GABARIT;
   $('#equipe').textContent = `Équipe ${E.nom} · séance ${code}`;
   arretSeance();
+  try { ui.bravoVu = Number(localStorage.getItem(`${CLE_BRAVO}:${E.appareil}`) || 0); } catch { /* vide */ }
   arretSeance = donnees.ecouter(cheminSeance(code), (s) => {
     S = s;
-    if (appliquerReglages(s?.config)) rendre(); else majMinutes();
+    const bravos = JSON.stringify(s?.bravos?.[idEq] || {}), changes = bravos !== ui.bravos;
+    ui.bravos = bravos;
+    if (appliquerReglages(s?.config) || changes) rendre(); else majMinutes();
     rendreSignal();
+    bravosRecus();
   });
   rendre();
 }
@@ -127,26 +131,41 @@ function entrer(cd, id, etat) {
 const CHAMPS = ['maj', 'etape', 'atteinte', 'entree', 'temps', 'releves', 'docs', 'juge', 'zones',
   'comps', 'gespeg', 'gespegVu', 'historique', 'corridorRompu', 'mentions', 'reponses', 'fini', 'compteurs'];
 
-/** Le voyant en haut à droite : enregistré, ou en attente du réseau. */
-function etatEnvoi(ok) {
+/**
+ * Le voyant en haut à droite, en mots simples (le survol en dit plus) :
+ *   · « Enregistré » : l'enseignant·e a vos réponses ;
+ *   · « Pas encore enregistré » : pas de connexion ; les réponses restent sur cet ordinateur
+ *     et le site réessaie tout seul ;
+ *   · « Séance terminée » : la séance a été fermée ou effacée, plus rien ne peut partir.
+ */
+const ETATS_ENVOI = {
+  ok: ['1', 'Enregistré', 'Vos réponses sont enregistrées.'],
+  attente: ['0', 'Pas encore enregistré', 'Pas de connexion pour l’instant. Vos réponses restent sur cet ordinateur ; le site réessaie tout seul.'],
+  fin: ['0', 'Séance terminée', 'La séance a été fermée ou effacée : les nouvelles réponses ne peuvent plus partir.']
+};
+function etatEnvoi(etat) {
   const z = $('#etat-envoi');
-  const t = ok ? 'Enregistré' : 'En attente du réseau';
+  const [ok, t, titre] = ETATS_ENVOI[etat];
   // seulement quand l'état change : un lecteur d'écran ne répète pas « Enregistré » à chaque phrase tapée
   if (!z || z.textContent === t) return;
-  z.setAttribute('data-ok', ok ? '1' : '0');
+  z.setAttribute('data-ok', ok);
   z.textContent = t;
+  z.title = titre;
 }
 
+let reessai = null;
 async function envoyer() {
   if (!E) return;
   E.maj = Date.now();
   const champs = Object.fromEntries(CHAMPS.map((k) => [k, E[k] ?? null]));
   try {
     await donnees.majPartielle(cheminEquipe(code, idEq), champs);
-    etatEnvoi(true);
+    etatEnvoi('ok');
   } catch (e) {
     console.warn('Envoi impossible pour le moment', e);
-    etatEnvoi(false);
+    const perdu = /not-found|permission-denied/.test(e?.code || '');
+    etatEnvoi(perdu ? 'fin' : 'attente');
+    if (!perdu) { clearTimeout(reessai); reessai = setTimeout(() => sauver(), 8000); }   // on réessaie, sans rien demander
   }
 }
 const sauver = retarder(envoyer, 1200);   // un envoi par pause de 1,2 s : peu d'écritures, suivi presque en direct
@@ -155,11 +174,27 @@ const sauverTout = () => { sauver(); sauver.maintenant(); };
 /* ------------------------------------------------------------ les questions */
 
 function blocQuestion(q) {
-  return `<div class="qe">
+  const bravo = aUnBravo(S, idEq, q.id);
+  return `<div class="qe${bravo ? ' qe--bravo' : ''}">
     <label class="qe-l" for="r-${esc(q.id)}"><span class="sur">Question pour l'équipe${q.requise ? '' : ' · facultative'}</span>${esc(q.eleve)}</label>
     <textarea id="r-${esc(q.id)}" data-rep="${esc(q.id)}" rows="2" maxlength="400"
       placeholder="Une ou deux phrases, écrites ensemble.">${esc(E.reponses?.[q.id] || '')}</textarea>
+    ${bravo ? '<p class="qe-bravo"><span aria-hidden="true">✦</span> Bravo de votre enseignant·e pour cette réponse.</p>' : ''}
   </div>`;
+}
+
+/** Les questions qui ont reçu un « bravo » de l'enseignant·e (écrites dans cette séance). */
+const questionsBravo = () => (c.q?.ecrites || []).filter((q) => aUnBravo(S, idEq, q.id));
+
+/** Un « bravo » vient d'arriver : on le fête une fois, quelle que soit l'étape où l'équipe se trouve. */
+function bravosRecus() {
+  const mes = S?.bravos?.[idEq] || {};
+  const neufs = Object.entries(mes).filter(([, t]) => t && t > ui.bravoVu);
+  if (!neufs.length) return;
+  ui.bravoVu = Math.max(...neufs.map(([, t]) => t));
+  try { localStorage.setItem(`${CLE_BRAVO}:${E.appareil}`, String(ui.bravoVu)); } catch { /* vide */ }
+  const qs = neufs.map(([k]) => (c.q?.ecrites || []).find((q) => cleBravo(q.id) === k)).filter(Boolean);
+  if (qs.length) annoncerBravoEnseignant(qs);
 }
 /** Les questions écrites de l'étape que l'équipe peut déjà voir. */
 const blocQuestions = (etapeId, filtre = () => true) =>
@@ -354,7 +389,8 @@ const ECRANS = {
         <ol class="qlist">${orales.map((q) => `<li>${esc(q.eleve)}</li>`).join('')}</ol>` : ''}
         ${blocQuestions('debrief')}
         <details class="d-sources"><summary>Ce que votre équipe a écrit <span class="hint">— pour en parler</span></summary>
-          <dl class="vos-rep">${ecrites.map((q) => `<dt>${esc(q.eleve)}</dt><dd>${esc(E.reponses[q.id])}</dd>`).join('')}</dl>
+          <dl class="vos-rep">${ecrites.map((q) => `<dt>${esc(q.eleve)}</dt><dd>${esc(E.reponses[q.id])}${
+            aUnBravo(S, idEq, q.id) ? ' <span class="vos-bravo">✦ bravo de votre enseignant·e</span>' : ''}</dd>`).join('')}</dl>
         </details>
         <details class="d-sources" id="d-sources"><summary>D'où viennent les chiffres <span class="hint">— chaque source</span></summary>
           ${c.sources.map((s) => `<p class="src"><b>${esc(s.t)}</b> — ${esc(s.x)}</p>`).join('')}
@@ -454,12 +490,15 @@ function rendre() {
     if (t) { t.focus(); try { t.setSelectionRange(actif.a, actif.b); } catch { /* vide */ } }
   }
   // Les gestes reconnus : le « Bravo » les annonce en jouant ; la liste entière attend le retour sur la démarche.
+  // Les bravos de l'enseignant·e y figurent aussi, avec la question qu'ils saluent.
+  const bravos = e.id === 'debrief' ? questionsBravo() : [];
   const mentions = e.id !== 'debrief' ? '' : `<div class="bloc"><h3>Ce que vous avez fait de bien</h3>
-    ${E.mentions.length ? `<div class="mentions">${E.mentions.map((id) => `<div class="mention${ui.nouvelles.includes(id) ? ' mention--neuve' : ''}"
+    ${E.mentions.length || bravos.length ? `<div class="mentions">${bravos.map((q) => `<div class="mention mention--ens">
+      <span class="mention-i" aria-hidden="true">✦</span><span><b>Bravo de votre enseignant·e</b><span>« ${esc(q.eleve)} »</span></span></div>`).join('')}${
+      E.mentions.map((id) => `<div class="mention${ui.nouvelles.includes(id) ? ' mention--neuve' : ''}"
       title="${esc(c.mentions[id].q)}"><span class="mention-i" aria-hidden="true">✦</span>
       <span><b>${esc(c.mentions[id].nom)}</b><span>${esc(c.mentions[id].court)}</span></span></div>`).join('')}</div>`
-      : '<p class="hint">Aucun cette fois-ci : ils viennent en faisant, pas en réussissant.</p>'}
-    <p class="avert">Des gestes, pas des points : pas de total, pas de classement.</p></div>`;
+      : '<p class="hint">Aucun cette fois-ci : ils viennent en faisant, pas en réussissant.</p>'}</div>`;
   $('#carnet').innerHTML = typo([...(v.carnet || []).map((b) => b.brut ?? `<div class="bloc"><h3>${esc(b.t)}</h3>${b.h}</div>`), mentions].join(''));
   $('#carnet').hidden = !$('#carnet').innerHTML.trim();
   $('#corps').classList.toggle('seul', $('#carnet').hidden);
@@ -506,10 +545,21 @@ function reponseManquante() {
 }
 
 let minuterieBravo = null;
+const FERMER_BRAVO = '<button type="button" class="bravo-x" data-fermer-bravo aria-label="Fermer">×</button>';
+function fermerBravo() { clearTimeout(minuterieBravo); const z = $('#bravo'); if (z) z.innerHTML = ''; }
+/** Le « bravo » de l'enseignant·e : plus long à l'écran qu'un geste reconnu, et il nomme la question. */
+function annoncerBravoEnseignant(qs) {
+  const z = $('#bravo');
+  if (!z) return;
+  z.innerHTML = `<div class="bravo bravo--ens">${FERMER_BRAVO}<p class="bravo-sur"><span aria-hidden="true">✦</span> Bravo de votre enseignant·e</p>${
+    qs.map((q) => `<p class="bravo-l"><span class="bravo-i" aria-hidden="true">✦</span><span>Votre réponse à « ${esc(q.eleve)} »</span></p>`).join('')}</div>`;
+  clearTimeout(minuterieBravo);
+  minuterieBravo = setTimeout(() => { z.innerHTML = ''; }, 7500);
+}
 function annoncer(ids) {
   const z = $('#bravo');
   if (!z || !ids.length) return;
-  z.innerHTML = `<div class="bravo"><p class="bravo-sur">Bravo</p>${ids.map((id) => `<p class="bravo-l">
+  z.innerHTML = `<div class="bravo">${FERMER_BRAVO}<p class="bravo-sur">Bravo</p>${ids.map((id) => `<p class="bravo-l">
     <span class="bravo-i" aria-hidden="true">✦</span><span><b>${esc(c.mentions[id].nom)}</b> — ${esc(c.mentions[id].court)}</span></p>`).join('')}</div>`;
   clearTimeout(minuterieBravo);
   minuterieBravo = setTimeout(() => { z.innerHTML = ''; }, 4600);
@@ -552,6 +602,7 @@ document.addEventListener('input', (ev) => {
 
 document.addEventListener('click', async (ev) => {
   if (!E) return;
+  if (ev.target.closest('[data-fermer-bravo]')) return fermerBravo();
   const al = ev.target.closest('[data-aller]');
   if (al) {
     const t = document.querySelector(`[data-rep="${CSS.escape(al.dataset.aller)}"]`);

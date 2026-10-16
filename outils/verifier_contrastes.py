@@ -77,7 +77,7 @@ FONDS = ['--fond', '--fond-2', '--surface', '--fond-prof', 'color-mix(in srgb,va
 TEXTES = ['--encre', '--doux', '--pale']
 SENS = [  # couleur de sens, et les fonds où elle s'écrit
     ('--primaire', ['--fond', '--fond-2', '--surface', 'color-mix(in srgb,var(--primaire) 9%,var(--surface))']),
-    ('--env', ['--fond', '--surface']),
+    ('--env', ['--fond', '--surface', 'color-mix(in srgb,var(--primaire) 9%,var(--surface))', '--fond-2']),
     ('--eco', ['--fond', '--surface', 'color-mix(in srgb,var(--eco) 7%,var(--surface))', 'color-mix(in srgb,var(--eco) 8%,var(--surface))']),
     ('--action', ['--fond', '--surface', 'color-mix(in srgb,var(--action) 6%,var(--surface))', 'color-mix(in srgb,var(--action) 8%,var(--surface))']),
     ('--gespeg', ['--surface', 'color-mix(in srgb,var(--gespeg) 8%,var(--surface))']),

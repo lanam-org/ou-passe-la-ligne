@@ -25,6 +25,9 @@ dans `forillon.json`, la phrase exacte de sa source (`copie`, avec sa traduction
 de vérification. Dans le jeu, chaque relevé, verdict et point de vue donne le lien de sa source.
 
 - Onglet « Dossier » (espace enseignant·e) : tout le dossier, surprises signalées ; impression complète ou version devoir.
+- D'avance, sans créer de séance : l'accueil de l'espace enseignant·e, « Avant la séance » → « Imprimer le dossier
+  élève » (sans les surprises ni les pastilles) ou « Dossier complet, pour toi ». La version du jeu de l'enseignant·e
+  (ses corrections) s'y applique.
 - `dossier.html?code=XXXXX` : la version devoir, avec les corrections de la séance. Les éléments marqués `surprise`
   (ceux qui servent à contredire ce que l'équipe croyait) n'y sont jamais.
 - Pastilles : à quelle question sert chaque document (`sert`), dans la couleur de sa famille (`dossier.questions`).
@@ -106,6 +109,20 @@ une arrivée en retard). Pour montrer le suivi en direct, le débrief, les mesur
 faire jouer quatre onglets. Les états sont produits par les vraies règles du jeu (`public/js/demo.js`) ;
 les réponses sont inventées. En ligne avec Firebase, ce bouton n'apparaît pas : les règles interdisent,
 avec raison, à l'enseignant·e d'écrire la fiche d'une équipe.
+
+## Féliciter une bonne réponse : le « bravo » de l'enseignant·e
+
+Les réponses écrites sont libres : aucune machine ne peut dire, à coup sûr, si elles sont bonnes. C'est
+donc l'enseignant·e qui félicite, comme dans ClassDojo (des retours positifs donnés par l'adulte) et
+Nearpod (une bonne réponse mise en lumière devant la classe), sans points ni classement :
+
+- En direct, dans le détail d'une équipe, « ✦ Bravo » sous une réponse. Un second clic le reprend.
+- L'équipe le voit tout de suite, à n'importe quelle étape : une bulle « Bravo de votre enseignant·e »
+  qui nomme la question, puis une marque ✦ sur la réponse ; au retour sur la démarche, il rejoint
+  « Ce que vous avez fait de bien ».
+- Au débrief, les réponses saluées passent en premier, marquées ✦, prêtes à être projetées ;
+  le rapport imprimé les marque aussi.
+- Rangé dans la séance (`bravos`, une date par équipe et par question) : il part avec elle.
 
 ## Un écran, une chose à faire
 

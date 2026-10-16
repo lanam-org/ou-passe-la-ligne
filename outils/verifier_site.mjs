@@ -203,6 +203,12 @@ await prof.waitForSelector('#detail');
 const detail = await prof.textContent('#detail');
 dit(detail.includes('la route coupe les passages'), "l'enseignant·e lit les réponses de l'équipe en direct");
 await capture(prof, '08-enseignant-direct');
+// le « bravo » : l'enseignant·e salue une réponse, l'équipe le voit tout de suite, sans score
+await prof.click('#detail [data-bravo="F5.1"]');
+await eleve.waitForSelector('.bravo--ens', { timeout: 5000 });
+dit((await eleve.textContent('.bravo--ens')).includes('Une aire coupée par une route'), 'un « bravo » de l’enseignant·e arrive chez l’équipe, avec sa question');
+await prof.waitForSelector('#detail [data-bravo="F5.1"][aria-pressed="true"]');
+await capture(eleve, '08c-bravo-equipe');
 await prof.click('[data-signal="temps"]');
 await eleve.waitForSelector('#signal:not([hidden])', { timeout: 5000 });
 dit((await eleve.textContent('#signal')).includes('5 minutes'), 'le message de l’enseignant·e arrive chez l’équipe');
@@ -383,6 +389,7 @@ await prof.click('[data-onglet="debrief"]');
 await prof.waitForTimeout(300);
 const db = await prof.textContent('#prof');
 dit(db.includes("Les Mi'gmaq, depuis des temps immémoriaux"), 'le débrief rassemble les réponses des équipes');
+dit(db.includes('✦ bravo'), 'au débrief, la réponse saluée d’un « bravo » passe en premier, marquée ✦');
 await capture(prof, '12-enseignant-debrief');
 for (const o of ['questions', 'deroulement', 'mesures', 'questionnaire']) {
   await prof.click(`[data-onglet="${o}"]`); await prof.waitForTimeout(150);

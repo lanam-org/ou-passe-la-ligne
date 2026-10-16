@@ -17,6 +17,8 @@ rules_version = '2';
 //   · seuls les champs prévus sont acceptés (listes blanches) : personne ne peut
 //     ajouter un champ « prénom » par erreur ;
 //   · la version du jeu de l'enseignant·e (ses réglages) n'est lue et écrite que par elle ou lui ;
+//   · les « bravos » (une réponse saluée : équipe, question, date) vivent dans la séance :
+//     seul·e l'enseignant·e les écrit, puisque seul·e elle ou il modifie la séance ;
 //   · séances, fiches et avis portent une date d'effacement (expireLe) : la politique
 //     TTL de Firestore les efface après cette date (Loi 25 : conservation limitée).
 //     À activer une fois : voir le README, « Effacement automatique ».
@@ -43,14 +45,15 @@ service cloud.firestore {
       allow create: if connecte()
         && code.matches('^[A-HJ-KM-NP-Z2-9]{5}$')
         && request.resource.data.enseignantId == request.auth.uid
-        && request.resource.data.keys().hasOnly(['enseignantId', 'creeLe', 'etat', 'questionnaire', 'signal', 'config', 'chrono', 'expireLe'])
+        && request.resource.data.keys().hasOnly(['enseignantId', 'creeLe', 'etat', 'questionnaire', 'signal', 'config', 'chrono', 'expireLe', 'bravos'])
         && expiration(request.resource.data)
         && request.resource.data.etat == 'ouverte';
       allow update: if connecte()
         && resource.data.enseignantId == request.auth.uid
         && request.resource.data.enseignantId == resource.data.enseignantId
-        && request.resource.data.keys().hasOnly(['enseignantId', 'creeLe', 'etat', 'questionnaire', 'signal', 'config', 'chrono', 'expireLe'])
-        && expiration(request.resource.data);
+        && request.resource.data.keys().hasOnly(['enseignantId', 'creeLe', 'etat', 'questionnaire', 'signal', 'config', 'chrono', 'expireLe', 'bravos'])
+        && expiration(request.resource.data)
+        && (!('bravos' in request.resource.data) || request.resource.data.bravos is map);
       allow delete: if connecte() && resource.data.enseignantId == request.auth.uid;
 
       // La fiche d'une équipe. L'identifiant du document est le nom de l'équipe :

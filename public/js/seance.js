@@ -96,6 +96,19 @@ export async function reglerChrono(code, chrono) {
   await donnees.majPartielle(cheminSeance(code), { chrono });
 }
 
+/*
+ * Les « bravos » de l'enseignant·e : une réponse remarquée, dite à l'équipe tout de suite
+ * (inspiré des retours positifs de ClassDojo et du « coup de projecteur » de Nearpod).
+ * Ils vivent dans la séance, pas dans la fiche de l'équipe (que l'enseignant·e n'écrit jamais) :
+ *   bravos = { [équipe]: { [question]: date } }
+ * Une date, pas un point : pas de total, pas de classement. Ils partent avec la séance.
+ */
+export const cleBravo = (qid) => String(qid).replace(/\./g, '_');   // « F2.1 » : un point couperait le chemin du champ
+export const aUnBravo = (s, equipe, qid) => !!s?.bravos?.[equipe]?.[cleBravo(qid)];
+export async function donnerBravo(code, equipe, qid, oui) {
+  await donnees.majPartielle(cheminSeance(code), { [`bravos.${equipe}.${cleBravo(qid)}`]: oui ? Date.now() : null });
+}
+
 export async function effacerMaVersion(uid) {
   await donnees.supprimer(cheminVersion(uid));
 }

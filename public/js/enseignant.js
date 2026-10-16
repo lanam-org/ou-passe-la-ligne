@@ -16,7 +16,7 @@ import { carte, blocReleve } from './carte.js';
 import { dossierHTML } from './dossierdoc.js';
 import { creerSeanceDemo } from './demo.js';
 import { creerSeance, cheminSeance, effacerSeance, mesSeances, SIGNAUX, lireMaVersion, enregistrerMaVersion,
-  effacerMaVersion, reglerSeance, reglerChrono, chronoNeuf, JOURS_CONSERVATION } from './seance.js';
+  effacerMaVersion, reglerSeance, reglerChrono, chronoNeuf, JOURS_CONSERVATION, aUnBravo, donnerBravo } from './seance.js';
 
 // Le contenu d'origine, puis le contenu réglé pour la séance ouverte.
 const base = await chargerContenu();
@@ -132,6 +132,14 @@ async function ecranAccueil(erreur = '') {
     </section>
     </div>
     <aside class="accueil-a">
+    <section class="p-sect" id="avant"><div class="p-sect-h"><h3>Avant la séance</h3></div>
+      <p class="p-txt">Le dossier documentaire, à distribuer d'avance : le portrait du territoire et les documents à trier,
+        sans les surprises (les points de vue et la décision de 1970).</p>
+      <div class="p-actions"><button class="btn" data-dossier-avance="devoir">Imprimer le dossier élève</button>
+        <button class="btn btn--f" data-dossier-avance="complet">Dossier complet, pour toi</button></div>
+      <p class="hint" style="margin-top:10px">Tes corrections (ta version du jeu) s'y appliquent. En ligne :
+        <a href="dossier.html" target="_blank" rel="noopener">la version élève</a>.</p>
+    </section>
     ${demo}
     <section class="p-sect"><div class="p-sect-h"><h3>Ta version du jeu</h3></div>
       <p class="p-txt">${v ? esc(resumeReglages(v)) : 'Aucune pour l\'instant : chaque séance part de la version d\'origine.'}</p>
@@ -294,8 +302,11 @@ function vueDetail(e) {
           return `<li class="${d.utile ? 'ok' : 'hs'}"><span aria-hidden="true">${d.utile ? '✓' : '—'}</span> ${esc(d.t)}${d.utile ? '' : ' <small>(hors sujet)</small>'}</li>`; }).join('')}</ul>` : ''}</div>
       <div class="rep-l">${ecrites.map((q) => {
         const r = String(e.reponses?.[q.id] || '').trim();
-        return `<div class="rep${r ? '' : ' rep--vide'}"><p class="k">${esc(qid(q))} · ${esc(c.etapes.find((x) => x.id === q.etape).t)}${q.requise ? '' : ' · facultative'}</p>
+        const bravo = aUnBravo(S, e.id, q.id);
+        return `<div class="rep${r ? '' : ' rep--vide'}${bravo ? ' rep--bravo' : ''}"><p class="k">${esc(qid(q))} · ${esc(c.etapes.find((x) => x.id === q.etape).t)}${q.requise ? '' : ' · facultative'}</p>
           <p><b>${esc(q.eleve)}</b></p><p>${r ? esc(r) : 'pas encore de réponse'}</p>
+          ${r ? `<button class="btn btn--f btn--s bravo-b" data-bravo="${esc(q.id)}" data-pour="${esc(e.id)}" aria-pressed="${bravo}"
+            title="L'équipe voit tout de suite que cette réponse vous a plu">${bravo ? '✦ Bravo envoyé' : '✦ Bravo'}</button>` : ''}
           ${q.reponse ? `<details data-k="${esc(e.id)}-${esc(q.id)}" ${ui.ouverts.has(`${e.id}-${q.id}`) ? 'open' : ''}><summary class="hint">Réponse attendue</summary><p class="att">${esc(q.reponse)}</p></details>` : ''}</div>`;
       }).join('')}${autresReponses(e).map((x) => `<div class="rep"><p class="k">${esc(x.k)}</p><p><b>${esc(x.t)}</b></p><p>${esc(x.r)}</p></div>`).join('')}</div>
     </div></section>`;
@@ -323,8 +334,11 @@ function vueDebrief() {
   const continu = rs.filter((r) => r.corridor === 'continu').length;
   const rezone = EQ.filter((e) => (e.compteurs?.apresComp || []).some((x) => x > 0)).length;
   const posees = new Map(ecrites.map((q) => [q.id, q]));
+  // les réponses qui ont reçu un « bravo » d'abord, marquées ✦ : prêtes à être projetées et discutées
   const reponses = (id) => EQ.filter((e) => J.repondu(e, id))
-    .map((e) => `<div><small>${esc(e.nom)}</small>${esc(e.reponses[id])}</div>`).join('') || '<p class="hint">Aucune réponse pour l\'instant.</p>';
+    .sort((a, b) => aUnBravo(S, b.id, id) - aUnBravo(S, a.id, id))
+    .map((e) => `<div${aUnBravo(S, e.id, id) ? ' class="db-bravo"' : ''}><small>${esc(e.nom)}${aUnBravo(S, e.id, id) ? ' · ✦ bravo' : ''}</small>${esc(e.reponses[id])}</div>`).join('')
+    || '<p class="hint">Aucune réponse pour l\'instant.</p>';
   const orales = c.q.orales;
   const bloc = (q) => {
     const ap = posees.get(APPUIS[q.id]);
@@ -404,7 +418,7 @@ function vueDossier() {
         meurt, l'information reste dans le site. Les corrections de l'onglet Réglages s'y appliquent.</p>
       <div class="p-actions">
         <button class="btn" data-dossier-imprimer="complet">Imprimer le dossier complet</button>
-        <button class="btn btn--f" data-dossier-imprimer="devoir">Imprimer la version devoir</button>
+        <button class="btn btn--f" data-dossier-imprimer="devoir">Imprimer le dossier élève (sans les surprises)</button>
         <label class="case-l dd-opt"><input type="checkbox" id="dd-pastilles" ${ui.pastilles ? 'checked' : ''}><span>Pastilles des questions</span></label>
       </div>
       <p class="hint" style="margin-top:10px">Version devoir : le portrait du territoire et les documents à trier, à lire avant la séance.
@@ -594,7 +608,7 @@ function rapportHTML() {
           ${e.mentions.length ? `<p><span class="r-k">Gestes reconnus :</span> ${e.mentions.map((id) => esc(c.mentions[id].nom)).join(', ')}</p>` : ''}
         </div></div>
         <dl class="r-rep">${ecrites.map((q) => `<dt>${esc(qid(q))} · ${esc(q.eleve)}${q.requise ? '' : ' (facultative)'}</dt>
-          <dd>${String(e.reponses?.[q.id] || '').trim() ? esc(e.reponses[q.id]) : '<i>pas de réponse</i>'}</dd>`).join('')}${
+          <dd>${String(e.reponses?.[q.id] || '').trim() ? esc(e.reponses[q.id]) + (aUnBravo(S, e.id, q.id) ? ' <b>✦ bravo</b>' : '') : '<i>pas de réponse</i>'}</dd>`).join('')}${
           autresReponses(e).map((x) => `<dt>${esc(x.t)} (${esc(x.k)})</dt><dd>${esc(x.r)}</dd>`).join('')}</dl>
       </section>`;
     }).join('')}`;
@@ -1071,6 +1085,13 @@ document.addEventListener('click', async (ev) => {
     }
     onglet = ong.dataset.onglet; window.scrollTo({ top: 0 }); return rendre(true);
   }
+  const bv = ev.target.closest('[data-bravo]');
+  if (bv) {
+    // un « bravo » se donne ou se reprend ; l'écran se redessine quand la séance change
+    bv.disabled = true;
+    await donnerBravo(code, bv.dataset.pour, bv.dataset.bravo, bv.getAttribute('aria-pressed') !== 'true');
+    return;
+  }
   const eqb = ev.target.closest('[data-equipe]');
   if (eqb) {
     choisie = eqb.dataset.equipe && eqb.dataset.equipe !== choisie ? eqb.dataset.equipe : null;
@@ -1129,6 +1150,12 @@ document.addEventListener('click', async (ev) => {
         : '<div class="p-lignes"></div><div class="p-lignes"></div>'}</div>`).join('')}`);
   }
   if (ev.target.closest('[data-rapport]')) return imprimer(rapportHTML());
+  // depuis l'accueil, sans séance : le dossier selon la version du jeu de l'enseignant·e
+  const dda = ev.target.closest('[data-dossier-avance]');
+  if (dda) {
+    const version = dda.dataset.dossierAvance;
+    return imprimer(dossierHTML(Rg.appliquer(base, ui.maVersion), { version, pastilles: version === 'complet', enseignant: version === 'complet' }));
+  }
   const ddi = ev.target.closest('[data-dossier-imprimer]');
   if (ddi) {
     const version = ddi.dataset.dossierImprimer;

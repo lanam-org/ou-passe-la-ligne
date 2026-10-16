@@ -18,162 +18,177 @@
 <header class="barre">
   <div class="barre-in">
     <div class="marque"><a class="marque-l" href="index.html">Où passe la ligne</a><small>Confidentialité et à propos</small></div>
-    <div class="barre-d"><span data-theme-ici></span></div>
+    <div class="barre-d"><a class="lien" href="index.html">← Retour au site</a><span data-theme-ici></span></div>
   </div>
 </header>
-<main class="texte" id="contenu">
-  <h1>Confidentialité et à propos</h1>
-  <p class="lead">Ce que le site enregistre, pourquoi, où, combien de temps, et à qui écrire.</p>
-  <p class="hint">Dernière mise à jour : 13 octobre 2026</p>
+<main class="apropos" id="contenu">
+  <div class="ap-tete">
+    <h1>Ce que le site garde, et pourquoi</h1>
+    <p class="lead">En bref, puis en détail : ce qui est enregistré, où, combien de temps, et à qui écrire.</p>
+    <p class="ap-meta">Mise à jour le 13 octobre 2026 · Responsable : <a href="#responsable">Ana Lucia Munteanu (ÉTS)</a></p>
+  </div>
 
-  <div class="bref">
-    <p class="sur">En bref</p>
+  <ul class="ap-cartes">
+    <li><span class="ap-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/><path d="M3 3l18 18"/></svg></span>
+      <b>Aucun compte, aucun nom</b><span class="t">Une équipe porte le nom d'un animal de Forillon. N'écrivez aucun prénom dans vos réponses.</span></li>
+    <li><span class="ap-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></span>
+      <b>Lu par l'équipe et son enseignant·e</b><span class="t">Personne d'autre ne lit les réponses d'une équipe.</span></li>
+    <li><span class="ap-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span>
+      <b>Effacé en 30 jours au plus</b><span class="t">Dès que l'enseignant·e efface la séance, ou automatiquement après 30 jours.</span></li>
+    <li><span class="ap-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 3l18 18"/></svg></span>
+      <b>Ni publicité ni suivi</b><span class="t">Pas de statistiques de visite, pas de témoins de suivi, rien de vendu.</span></li>
+  </ul>
+
+  <nav class="ap-nav" aria-label="Sur cette page">
+    <a href="#responsable">Responsable</a><a href="#site">Le site</a><a href="#donnees">Ce qui est enregistré</a>
+    <a href="#ou">Où sont les données</a><a href="#droits">Vos droits</a><a href="#reseau">Service informatique</a>
+    <a href="#accessibilite">Accessibilité</a>
+  </nav>
+
+  <section class="ap-sect" id="responsable">
+    <h2>Qui est responsable</h2>
+    <p>Ce site est un prototype de recherche réalisé par Ana Lucia Munteanu, étudiante à la maîtrise en génie logiciel
+      à l'École de technologie supérieure (ÉTS), à Montréal. Elle est la responsable de la protection des renseignements
+      personnels pour ce site.</p>
+    <div class="ap-contact">
+      <p><b>Ana Lucia Munteanu</b><br><span class="hint">Responsable de la protection des renseignements personnels · a-lmunteanu@hotmail.ca</span></p>
+      <a class="btn" href="mailto:a-lmunteanu@hotmail.ca">Écrire à la responsable</a>
+    </div>
+    <p style="margin-top:14px">Pour une séance en particulier (par exemple, effacer tout de suite les réponses d'une équipe),
+      le plus rapide est de s'adresser à l'enseignant·e qui l'anime : son espace efface la séance en un clic.</p>
+  </section>
+
+  <section class="ap-sect" id="site">
+    <h2>Le site</h2>
+    <p>« Où passe la ligne » est un jeu de géographie en équipe pour le 1<sup>er</sup> cycle du secondaire : tracer la limite
+      d'une aire protégée à Forillon, en 1970, puis voir l'information arriver. C'est un prototype en prévalidation :
+      le contenu et les questions sont encore discutés, et les images sont volontairement des cadres vides.</p>
     <ul>
-      <li>Les élèves n'ont pas de compte et ne donnent pas leur nom : une équipe porte le nom d'un animal de Forillon.</li>
-      <li>Pas de publicité, pas de statistiques de visite, pas de témoins (cookies) de suivi, pas de profilage.</li>
-      <li>Les réponses d'une équipe ne sont lues que par cette équipe et par l'enseignant·e qui a créé la séance.</li>
-      <li>Tout est effacé quand l'enseignant·e efface la séance, et automatiquement au plus tard 30 jours après sa création.</li>
-      <li>N'écrivez aucun prénom dans vos réponses : ainsi, aucun renseignement personnel n'entre dans le jeu.</li>
+      <li>Les faits, les chiffres et les citations viennent de sources publiques (Parcs Canada, Nation Micmac de Gespeg,
+        médias) ; chaque document donne sa source et son lien. La garde-parc, Jeanne Element, est un personnage fictif :
+        c'est le seul élément inventé du jeu.</li>
+      <li>Une relecture du contenu par la Nation Micmac de Gespeg est prévue.</li>
     </ul>
-  </div>
+    <div class="ap-deux">
+      <div><h3>La version de démonstration</h3>
+        <p>Bandeau jaune en haut de l'écran. Tout reste dans le navigateur de l'appareil : rien n'est envoyé à un serveur.
+          Pour tout effacer, il suffit d'effacer les données de ce site dans les réglages du navigateur.</p></div>
+      <div><h3>La version en classe</h3>
+        <p>Pour que l'ordinateur de l'enseignant·e et les Chromebooks des équipes voient la même séance, les données
+          passent par une base en ligne, Cloud Firestore (Google Firebase). Le détail suit.</p></div>
+    </div>
+  </section>
 
-  <h2>Qui est responsable</h2>
-  <p>Ce site est un prototype de recherche réalisé par Ana Lucia Munteanu, étudiante à la maîtrise en génie logiciel
-    à l'École de technologie supérieure (ÉTS), à Montréal. Elle est la responsable de la protection des renseignements
-    personnels pour ce site.</p>
-  <div class="contact">
-    <p><b>Ana Lucia Munteanu</b>, responsable de la protection des renseignements personnels</p>
-    <p>Courriel : <a href="mailto:a-lmunteanu@hotmail.ca">a-lmunteanu@hotmail.ca</a></p>
-  </div>
-  <p>Pour une question sur une séance en particulier (par exemple, faire effacer tout de suite les réponses d'une équipe),
-    le plus rapide est de s'adresser à l'enseignant·e qui l'anime : son espace permet d'effacer la séance en un clic.</p>
+  <section class="ap-sect" id="donnees">
+    <h2>Ce qui est enregistré, et pourquoi</h2>
+    <div class="ap-donnees">
+      <article class="ap-donnee"><h3>La séance</h3>
+        <p>Un code de cinq caractères, la date de création, l'état (ouverte ou fermée), les réglages (durée, questions,
+          corrections), le chrono, le message affiché à la classe, les « bravos » donnés par l'enseignant·e (quelle équipe,
+          quelle question, quand) et l'identifiant technique de l'enseignant·e qui l'a créée.</p>
+        <dl><dt>Pourquoi</dt><dd>Faire fonctionner la séance.</dd>
+          <dt>Qui y a accès</dt><dd>L'enseignant·e qui l'a créée ; les équipes qui ont le code lisent les réglages.</dd>
+          <dt>Combien de temps</dt><dd>Jusqu'à ce que l'enseignant·e l'efface, et au plus tard 30 jours après sa création.</dd></dl></article>
+      <article class="ap-donnee"><h3>La fiche d'une équipe</h3>
+        <p>Le nom d'animal choisi, un identifiant technique anonyme de l'appareil, l'étape atteinte, la carte zonée, les
+          documents retenus, les réponses écrites, le temps passé à chaque étape et quelques compteurs de gestes
+          (retours en arrière, clics hors des secteurs de la carte).</p>
+        <dl><dt>Pourquoi</dt><dd>Suivre la classe en direct, reprendre la partie après un rafraîchissement, imprimer le rapport de séance.</dd>
+          <dt>Qui y a accès</dt><dd>L'équipe, depuis son appareil, et l'enseignant·e de la séance. Personne d'autre.</dd>
+          <dt>Combien de temps</dt><dd>Effacée avec sa séance, au plus tard 30 jours après la création de la séance.</dd></dl></article>
+      <article class="ap-donnee"><h3>L'identifiant anonyme d'un appareil</h3>
+        <p>Une suite de caractères créée par Firebase Authentication, sans nom ni courriel.</p>
+        <dl><dt>Pourquoi</dt><dd>Savoir quelle fiche d'équipe appartient à quel appareil.</dd>
+          <dt>Qui y a accès</dt><dd>Firebase Authentication (Google).</dd>
+          <dt>Combien de temps</dt><dd>Tant que le projet existe. Seul, il ne permet pas de savoir qui est l'élève.</dd></dl></article>
+      <article class="ap-donnee"><h3>Le compte Google de l'enseignant·e (facultatif)</h3>
+        <p>Nom et adresse courriel, si l'enseignant·e choisit de se connecter avec Google.</p>
+        <dl><dt>Pourquoi</dt><dd>Retrouver ses séances depuis n'importe quel ordinateur.</dd>
+          <dt>Qui y a accès</dt><dd>Firebase Authentication (Google) seulement : jamais écrits dans la base du jeu.</dd>
+          <dt>Combien de temps</dt><dd>Tant que l'enseignant·e garde son accès ; supprimé sur demande à la responsable.</dd></dl></article>
+      <article class="ap-donnee"><h3>La version du jeu de l'enseignant·e</h3>
+        <p>Ses réglages préférés (questions ajoutées, corrections, minutes), sans aucune donnée d'élève.</p>
+        <dl><dt>Pourquoi</dt><dd>Reprendre ses réglages à chaque nouvelle séance.</dd>
+          <dt>Qui y a accès</dt><dd>L'enseignant·e seulement.</dd>
+          <dt>Combien de temps</dt><dd>Jusqu'à ce qu'il ou elle la supprime (bouton « Supprimer ma version »).</dd></dl></article>
+    </div>
+    <p class="ap-note"><b>Le questionnaire « Ton avis » est désactivé.</b> Ce questionnaire anonyme sert à la recherche. Il ne
+      sera activé qu'après l'obtention du certificat d'éthique de l'ÉTS et des autorisations requises : centre de services
+      scolaire, direction, consentement des parents et accord de l'élève.</p>
+    <h3>Dans le navigateur seulement</h3>
+    <p>Quelques réglages restent dans le stockage du navigateur et ne sont jamais envoyés : l'affichage choisi, les bulles
+      d'aide déjà vues, l'équipe et la séance en cours (pour reprendre après un rafraîchissement), le dernier message déjà lu.
+      Le site garde aussi une copie de ses propres fichiers publics, pour s'ouvrir quand le Wi-Fi décroche.
+      Ce ne sont pas des témoins (cookies) de suivi.</p>
+    <h3>Ce que le site ne fait pas</h3>
+    <ul>
+      <li>Il ne demande jamais le nom, le courriel, l'âge ou l'école d'un élève.</li>
+      <li>Aucune publicité, aucun outil de statistiques de visite, aucun réseau social.</li>
+      <li>Aucun profilage ni décision automatisée au sujet d'un élève : les indicateurs de l'espace enseignant·e décrivent ce
+        qu'une équipe a fait dans le jeu, ils ne la notent pas.</li>
+      <li>Aucune donnée n'est vendue, louée ou partagée.</li>
+    </ul>
+  </section>
 
-  <h2>Le site</h2>
-  <p>« Où passe la ligne » est un jeu de géographie en équipe pour le 1<sup>er</sup> cycle du secondaire : tracer la limite
-    d'une aire protégée à Forillon, en 1970, puis voir l'information arriver. C'est un prototype en prévalidation :
-    le contenu et les questions sont encore discutés, et les images sont volontairement des cadres vides.</p>
-  <ul>
-    <li>Les faits, les chiffres et les citations viennent de sources publiques (Parcs Canada, Nation Micmac de Gespeg,
-      médias). Chaque document donne sa source et son lien. La garde-parc, Jeanne Element, est un personnage fictif :
-      c'est le seul élément inventé du jeu.</li>
-    <li>Une relecture du contenu par la Nation Micmac de Gespeg est prévue.</li>
-    <li>Le jeu ne note personne : les « gestes reconnus » ne sont ni des points ni un classement.</li>
-  </ul>
+  <section class="ap-sect" id="ou">
+    <h2>Où sont les données</h2>
+    <ul>
+      <li><b>La base de données</b> (Cloud Firestore, de Google) est hébergée au Canada, à Montréal.</li>
+      <li><b>La connexion</b> (Firebase Authentication, de Google) : les identifiants anonymes et, s'il y a lieu, le compte
+        Google de l'enseignant·e sont traités par Google, notamment aux États-Unis.</li>
+      <li><b>Le code de Firebase</b> est chargé depuis les serveurs de Google (www.gstatic.com).</li>
+      <li><b>L'hébergement des pages</b> (GitHub Pages ou Firebase Hosting) reçoit, comme pour tout site web, l'adresse IP de
+        l'appareil pour lui envoyer les pages. Le site lui-même ne la conserve pas.</li>
+      <li><b>Les polices de caractères</b> font partie du site : aucune requête n'est faite à Google Fonts.</li>
+    </ul>
+    <p>Une partie du traitement se fait hors du Québec. Un établissement ou un centre de services scolaire qui veut faire sa
+      propre évaluation des facteurs relatifs à la vie privée (ÉFVP) peut écrire à la responsable pour obtenir tous les
+      détails techniques.</p>
+  </section>
 
-  <h2>Deux façons de fonctionner</h2>
-  <h3>La version de démonstration</h3>
-  <p>Elle se reconnaît à son bandeau jaune. Tout reste dans le navigateur de l'appareil : rien n'est envoyé à un serveur,
-    et personne d'autre n'y a accès. Pour tout effacer, il suffit d'effacer les données de ce site dans les réglages du navigateur.</p>
-  <h3>La version en classe</h3>
-  <p>Pour que l'ordinateur de l'enseignant·e et les Chromebooks des équipes voient la même séance, les données passent
-    par une base en ligne, Cloud Firestore (Google Firebase). Voici exactement ce qui y est enregistré.</p>
+  <section class="ap-sect" id="droits">
+    <h2>Vos droits</h2>
+    <p>Selon les lois québécoises sur la protection des renseignements personnels (dont la Loi 25), vous pouvez demander
+      d'accéder aux renseignements qui vous concernent, de les faire corriger ou de les faire effacer. Écrivez à la
+      responsable : une réponse vous sera donnée dans les 30 jours. Comme les élèves sont anonymes, indiquez le code de la
+      séance et le nom de l'équipe.</p>
+    <p>En cas d'incident de confidentialité qui présente un risque de préjudice sérieux, la responsable avisera la Commission
+      d'accès à l'information et les personnes concernées, comme la loi le prévoit. Vous pouvez aussi porter plainte auprès de la
+      <a href="https://www.cai.gouv.qc.ca/" target="_blank" rel="noopener noreferrer">Commission d'accès à l'information du Québec</a>.</p>
+    <h3>Les élèves de moins de 14 ans</h3>
+    <p>Au 1<sup>er</sup> cycle du secondaire, la plupart des élèves ont moins de 14 ans. Le site ne recueille donc aucun
+      renseignement personnel à leur sujet : pas de nom, pas de compte, pas de courriel. Le seul texte libre est celui des
+      réponses écrites en équipe, et la consigne est de n'y mettre aucun prénom. Toute collecte pour la recherche reste
+      désactivée tant que le certificat d'éthique et le consentement des parents ne sont pas obtenus.</p>
+    <h3>Liens vers d'autres sites</h3>
+    <p>Chaque document du jeu renvoie à sa source (Parcs Canada, Nation Micmac de Gespeg, Radio-Canada, journaux régionaux…),
+      dans un nouvel onglet ; ces sites ont leurs propres règles de confidentialité. La phrase exacte de chaque source est
+      aussi recopiée dans le site : le jeu fonctionne même si un lien est bloqué.</p>
+  </section>
 
-  <h2>Ce qui est enregistré, et pourquoi</h2>
-  <div class="tab-w"><table class="tab">
-    <thead><tr><th>Quoi</th><th>Pourquoi</th><th>Qui y a accès</th><th>Combien de temps</th></tr></thead>
-    <tbody>
-      <tr><td><b>La séance</b> : un code de cinq caractères, la date de création, l'état (ouverte ou fermée), les réglages
-          (durée, questions, corrections), le chrono, le message affiché à la classe, et l'identifiant technique de
-          l'enseignant·e qui l'a créée.</td>
-        <td>Faire fonctionner la séance.</td>
-        <td>L'enseignant·e qui l'a créée. Les équipes qui ont le code lisent les réglages.</td>
-        <td>Jusqu'à ce que l'enseignant·e l'efface, et au plus tard 30 jours après sa création.</td></tr>
-      <tr><td><b>La fiche d'une équipe</b> : le nom d'animal choisi, un identifiant technique anonyme de l'appareil,
-          l'étape atteinte, la carte zonée, les documents retenus, les réponses écrites, le temps passé à chaque étape
-          et quelques compteurs de gestes (retours en arrière, clics hors des secteurs de la carte).</td>
-        <td>Suivre la classe en direct, reprendre la partie après un rafraîchissement, imprimer le rapport de séance.</td>
-        <td>L'équipe, depuis son appareil, et l'enseignant·e de la séance. Personne d'autre.</td>
-        <td>Effacée avec sa séance, au plus tard 30 jours après la création de la séance.</td></tr>
-      <tr><td><b>L'identifiant anonyme d'un appareil</b> : une suite de caractères créée par Firebase Authentication,
-          sans nom ni courriel.</td>
-        <td>Savoir quelle fiche d'équipe appartient à quel appareil.</td>
-        <td>Firebase Authentication (Google).</td>
-        <td>Tant que le projet existe. Seul, il ne permet pas de savoir qui est l'élève.</td></tr>
-      <tr><td><b>Le compte Google de l'enseignant·e</b>, s'il ou elle choisit de s'en servir : nom et adresse courriel.</td>
-        <td>Retrouver ses séances depuis n'importe quel ordinateur.</td>
-        <td>Firebase Authentication (Google) seulement : ces renseignements ne sont jamais écrits dans la base du jeu.</td>
-        <td>Tant que l'enseignant·e garde son accès ; supprimé sur demande à la responsable.</td></tr>
-      <tr><td><b>La version du jeu de l'enseignant·e</b> : ses réglages préférés (questions ajoutées, corrections, minutes),
-          sans aucune donnée d'élève.</td>
-        <td>Reprendre ses réglages à chaque nouvelle séance.</td>
-        <td>L'enseignant·e seulement.</td>
-        <td>Jusqu'à ce qu'il ou elle la supprime (bouton « Supprimer ma version »).</td></tr>
-    </tbody>
-  </table></div>
-  <p style="margin-top:14px"><b>Le questionnaire « Ton avis » est désactivé.</b> Ce questionnaire anonyme sert à la recherche.
-    Il ne sera activé qu'après l'obtention du certificat d'éthique de l'ÉTS et des autorisations requises : centre de services
-    scolaire, direction, consentement des parents et accord de l'élève.</p>
+  <section class="ap-sect" id="reseau">
+    <h2>Pour le service informatique de l'école</h2>
+    <p>Si le filtre du réseau bloque le site, voici les adresses à autoriser :</p>
+    <ul>
+      <li>l'adresse du site lui-même ;</li>
+      <li>pour la version en classe : <code>www.gstatic.com</code>, <code>firestore.googleapis.com</code>,
+        <code>identitytoolkit.googleapis.com</code> et <code>securetoken.googleapis.com</code> ;</li>
+      <li>pour la connexion Google de l'enseignant·e seulement : <code>apis.google.com</code>, <code>accounts.google.com</code>
+        et l'adresse <code>firebaseapp.com</code> du projet.</li>
+    </ul>
+    <p>Le site n'utilise aucun témoin tiers et ne fait télécharger aucun programme.</p>
+  </section>
 
-  <h3>Dans le navigateur seulement</h3>
-  <p>Le site garde aussi quelques réglages dans le stockage du navigateur. Ils ne sont jamais envoyés : l'affichage choisi
-    (clair, sombre, contraste élevé), les bulles d'aide déjà vues, l'équipe et la séance en cours (pour reprendre après un
-    rafraîchissement), le dernier message de l'enseignant·e déjà lu. Le site garde aussi une copie de ses propres fichiers
-    publics, pour continuer de s'ouvrir quand le Wi-Fi décroche. Ce ne sont pas des témoins (cookies) de suivi.</p>
-
-  <h2>Ce que le site ne fait pas</h2>
-  <ul>
-    <li>Il ne demande jamais le nom, le courriel, l'âge ou l'école d'un élève.</li>
-    <li>Il n'affiche aucune publicité et n'utilise aucun outil de statistiques de visite ni aucun réseau social.</li>
-    <li>Il ne fait pas de profilage et ne prend aucune décision automatisée au sujet d'un élève. Les indicateurs de
-      l'espace enseignant·e décrivent ce qu'une équipe a fait dans le jeu ; ils ne la notent pas.</li>
-    <li>Il ne vend, ne loue et ne partage aucune donnée.</li>
-  </ul>
-
-  <h2>Où sont les données</h2>
-  <ul>
-    <li><b>La base de données</b> (Cloud Firestore, de Google) est hébergée au Canada, à Montréal.</li>
-    <li><b>La connexion</b> (Firebase Authentication, de Google) : les identifiants anonymes et, s'il y a lieu, le compte
-      Google de l'enseignant·e sont traités par Google, notamment aux États-Unis.</li>
-    <li><b>Le code de Firebase</b> est chargé depuis les serveurs de Google (www.gstatic.com).</li>
-    <li><b>L'hébergement des pages</b> (GitHub Pages ou Firebase Hosting) : comme pour tout site web, l'hébergeur reçoit
-      l'adresse IP de l'appareil pour lui envoyer les pages. Le site lui-même ne la conserve pas.</li>
-    <li><b>Les polices de caractères</b> font partie du site : aucune requête n'est faite à Google Fonts.</li>
-  </ul>
-  <p>Une partie du traitement se fait hors du Québec. Un établissement ou un centre de services scolaire qui veut faire
-    sa propre évaluation des facteurs relatifs à la vie privée (ÉFVP) avant d'utiliser la version en classe peut écrire
-    à la responsable pour obtenir tous les détails techniques.</p>
-
-  <h2>Vos droits</h2>
-  <p>Selon les lois québécoises sur la protection des renseignements personnels (dont la Loi 25), vous pouvez demander
-    d'accéder aux renseignements qui vous concernent, de les faire corriger ou de les faire effacer. Écrivez à la
-    responsable : une réponse vous sera donnée dans les 30 jours. Comme les élèves sont anonymes, indiquez le code de la
-    séance et le nom de l'équipe.</p>
-  <p>En cas d'incident de confidentialité qui présente un risque de préjudice sérieux, la responsable avisera la Commission
-    d'accès à l'information et les personnes concernées, comme la loi le prévoit.</p>
-  <p>Vous pouvez aussi porter plainte auprès de la
-    <a href="https://www.cai.gouv.qc.ca/" target="_blank" rel="noopener noreferrer">Commission d'accès à l'information du Québec</a>.</p>
-
-  <h2>Les élèves de moins de 14 ans</h2>
-  <p>Au 1<sup>er</sup> cycle du secondaire, la plupart des élèves ont moins de 14 ans. Le site est donc conçu pour ne recueillir
-    aucun renseignement personnel à leur sujet : pas de nom, pas de compte, pas de courriel. Le seul texte libre est celui des
-    réponses écrites en équipe, et la consigne est de n'y mettre aucun prénom. Toute collecte pour la recherche reste désactivée
-    tant que le certificat d'éthique et le consentement des parents ne sont pas obtenus.</p>
-
-  <h2>Liens vers d'autres sites</h2>
-  <p>Chaque document du jeu renvoie à sa source (Parcs Canada, Nation Micmac de Gespeg, Radio-Canada, journaux régionaux…).
-    Ces liens s'ouvrent dans un nouvel onglet, et ces sites ont leurs propres règles de confidentialité. La phrase exacte de
-    chaque source est aussi recopiée dans le site : le jeu fonctionne même si un lien est bloqué ou disparaît.</p>
-
-  <h2 id="reseau">Pour le service informatique de l'école</h2>
-  <p>Si le filtre du réseau bloque le site, voici les adresses à autoriser :</p>
-  <ul>
-    <li>l'adresse du site lui-même ;</li>
-    <li>pour la version en classe : <code>www.gstatic.com</code> (code de Firebase), <code>firestore.googleapis.com</code>,
-      <code>identitytoolkit.googleapis.com</code> et <code>securetoken.googleapis.com</code> (base de données et connexion anonyme) ;</li>
-    <li>pour la connexion Google de l'enseignant·e seulement : <code>apis.google.com</code>, <code>accounts.google.com</code>
-      et l'adresse <code>firebaseapp.com</code> du projet.</li>
-  </ul>
-  <p>Le site n'utilise aucun témoin tiers et ne fait télécharger aucun programme.</p>
-
-  <h2>Accessibilité</h2>
-  <p>Le site vise les critères WCAG 2.1 de niveau AA : navigation au clavier, contrastes vérifiés, trois affichages (clair,
-    sombre, contraste élevé), une police conçue pour la lisibilité, et une information qui n'est jamais portée par la couleur
-    seule. Un obstacle ? Écrivez à la responsable.</p>
-
-  <h2>Crédits</h2>
-  <p>Polices Atkinson Hyperlegible Next et Atkinson Hyperlegible Mono, créées pour le Braille Institute of America et
-    distribuées sous la licence SIL Open Font License 1.1 (<a href="polices/OFL.txt">texte de la licence</a>).
-    Les sources du contenu sont citées dans le jeu et dans le dossier documentaire.</p>
+  <section class="ap-sect" id="accessibilite">
+    <h2>Accessibilité</h2>
+    <p>Le site vise les critères WCAG 2.1 de niveau AA : navigation au clavier, contrastes vérifiés, trois affichages (clair,
+      sombre, contraste élevé), une police conçue pour la lisibilité, une mise en page qui tient sur un écran de 320 pixels,
+      et une information qui n'est jamais portée par la couleur seule. Un obstacle ? Écrivez à la responsable.</p>
+    <h3>Crédits</h3>
+    <p>Polices Atkinson Hyperlegible Next et Atkinson Hyperlegible Mono, créées pour le Braille Institute of America,
+      sous licence SIL Open Font License 1.1 (<a href="polices/OFL.txt">texte de la licence</a>). Les sources du contenu
+      sont citées dans le jeu et dans le dossier documentaire.</p>
+  </section>
 </main>
 <footer class="pied-site"><a href="index.html">Retour à l'accueil</a><span>Prototype de recherche · ÉTS</span></footer>
 </body>
