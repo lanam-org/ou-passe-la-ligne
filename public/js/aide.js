@@ -119,10 +119,11 @@
     for (var i = 0; i < z.length; i++) {
       if (z[i].querySelector('[data-aide]')) continue;
       var bt = document.createElement('button');
-      bt.type = 'button'; bt.className = 'aide-b'; bt.textContent = '?';
+      // un vrai libellé : une bulle fermée par erreur (ou « Arrêter l'aide ») se retrouve ici
+      bt.type = 'button'; bt.className = 'aide-b';
+      bt.innerHTML = '<span aria-hidden="true">?</span><span class="aide-b-t">Revoir le guide</span>';
       bt.setAttribute('data-aide', '');
-      bt.setAttribute('aria-label', 'Revoir les bulles d’aide de cette page');
-      bt.title = 'Revoir l’aide';
+      bt.setAttribute('aria-label', 'Revoir le guide de cette page');
       z[i].appendChild(bt);
     }
   }

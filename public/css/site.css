@@ -1161,3 +1161,64 @@ body[data-espace="prof"] .aide-b:focus-visible{outline-color:var(--prof-txt)}
 /* rapport imprimé : une ligne pour écrire les prénoms à la main (jamais dans le site) */
 .r-membres{display:flex;gap:8px;align-items:flex-end;margin:2pt 0 8pt;font-size:11pt}
 .r-membres span{flex:1;min-height:1.3em;border-bottom:1px solid #000}
+
+/* ===================================================== deux ambiances : élèves plus vives, enseignant·e plus terne
+   Seulement en clair et en sombre : le contraste élevé garde ses couleurs (noir sur blanc).
+   Vérifiées par outils/verifier_contrastes.py (thèmes « élève » et « enseignant »). */
+:root[data-theme="light"] body[data-espace="eleve"]{
+  --fond:#F2F7F1; --fond-2:#E6F0E5; --trait:#D8E5D6; --fort:#BFD0BC; --bord:#6E8571;
+  --primaire:#0C7365; --primaire-h:#095A4F; --sur-primaire:#FFFFFF;
+}
+:root[data-theme="dark"] body[data-espace="eleve"]{
+  --fond:#0E1A17; --fond-2:#13231F; --surface:#162B26; --trait:#23392F; --fort:#35514A; --bord:#6E9286;
+  --primaire:#4FD1B5; --primaire-h:#7ADDC6; --sur-primaire:#0B1F1A;
+}
+:root[data-theme="light"] body[data-espace="prof"]{
+  --fond-prof:#E9ECEE; --prof-bande:#29363E; --primaire:#3A6684; --primaire-h:#2F5670;
+}
+:root[data-theme="dark"] body[data-espace="prof"]{
+  --primaire:#7FA9C6; --primaire-h:#9BBCD3;
+}
+/* l'accent doré de l'espace enseignant·e, adouci */
+body[data-espace="prof"] .marque span{color:#D9BE88}
+.onglets button[aria-current="page"]{border-bottom-color:#D9BE88}
+
+/* ===================================================== en-tête : le nom du site et « ← Accueil » ramènent à l'accueil */
+.marque h1 .marque-l{font-size:inherit}
+body[data-espace="prof"] .marque-l{color:var(--prof-txt)}
+.retour-site{text-decoration:none;white-space:nowrap}
+body[data-espace="prof"] .retour-site{color:var(--prof-txt)}
+body[data-espace="prof"] .retour-site:hover{background:rgba(255,255,255,.12)}
+
+/* le guide : un vrai libellé à côté du « ? » */
+.aide-b{width:auto;padding:0 12px 0 4px;border-radius:999px;display:inline-flex;align-items:center;gap:6px;font-size:14px}
+.aide-b > span:first-child{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;
+  border:1px solid currentColor;font-weight:800}
+@media (max-width:560px){.aide-b{padding:0;width:36px;justify-content:center}.aide-b .aide-b-t,.aide-b > span:first-child{border:0}.aide-b .aide-b-t{display:none}}
+
+/* équipes : un emoji devant le nom, sur l'écran « Rejoindre » */
+.nom-e{display:inline-block;width:1.5em;margin-right:4px;font-size:18px;line-height:1;text-align:center}
+
+/* réponses : le compteur de caractères, discret */
+.qe-compte{margin-top:4px;font-size:12.5px;color:var(--pale);text-align:right;font-variant-numeric:tabular-nums}
+
+/* espace enseignant·e : message écrit, durée sur mesure, détail du chrono, lien à copier */
+.signal-perso{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;margin-top:14px}
+.signal-perso .champ{flex:1 1 320px;margin:0}
+.signal-perso input{width:100%;font:inherit;font-size:15px;padding:10px 12px;border-radius:var(--r-s);border:1px solid var(--bord);
+  background:var(--surface);color:var(--encre)}
+.duree-mesure{width:5.5em;margin:0 4px;font:inherit;font-size:15px;padding:4px 8px;border-radius:8px;border:1px solid var(--bord);
+  background:var(--surface);color:var(--encre)}
+.chrono-detail{margin-top:8px;font-size:14px;color:var(--doux)}
+.chrono-detail summary{cursor:pointer;font-weight:600;color:var(--primaire)}
+.chrono-detail ol{margin:6px 0 0;padding-left:20px;line-height:1.6}
+.code-u a{color:var(--primaire);font-weight:700;overflow-wrap:anywhere}
+.lien-copier{padding:2px 8px;font-size:13.5px}
+/* le message écrit : un texte normal (les champs .champ du code de séance sont en grandes capitales espacées) */
+.signal-perso .champ input{font-family:var(--f);font-size:15px;letter-spacing:normal;text-transform:none}
+/* l'emoji vit dans la carte du nom : il ne reprend pas le cadre de la carte (.nom-c span) */
+.nom-c .nom-e{display:inline-block;width:1.5em;margin:0 6px 0 0;padding:0;border:0;border-radius:0;background:none;
+  font-size:18px;line-height:1;text-align:center;vertical-align:-2px}
+.nom-c input + span{display:flex;align-items:center;min-height:46px;line-height:1.25}
+.nom-c .nom-e{flex:none;vertical-align:0}
+.nom-c .nom-e{min-height:0;font-weight:400}

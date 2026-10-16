@@ -72,6 +72,12 @@ THEMES = {
     'sombre': {**clair, **blocs(':root[data-theme="dark"]')},
     'contraste élevé': {**clair, **blocs(':root[data-theme="contrast"]')},
 }
+# les ambiances par espace (élèves plus vives, enseignant·e plus terne), posées sur <body>
+sombre = THEMES['sombre']
+THEMES['élève clair'] = {**clair, **blocs(':root[data-theme="light"] body[data-espace="eleve"]')}
+THEMES['élève sombre'] = {**sombre, **blocs(':root[data-theme="dark"] body[data-espace="eleve"]')}
+THEMES['enseignant clair'] = {**clair, **blocs(':root[data-theme="light"] body[data-espace="prof"]')}
+THEMES['enseignant sombre'] = {**sombre, **blocs(':root[data-theme="dark"] body[data-espace="prof"]')}
 
 FONDS = ['--fond', '--fond-2', '--surface', '--fond-prof', 'color-mix(in srgb,var(--primaire) 9%,var(--surface))']
 TEXTES = ['--encre', '--doux', '--pale']
@@ -88,7 +94,7 @@ SENS = [  # couleur de sens, et les fonds où elle s'écrit
 ]
 INVERSES = [  # texte clair sur fond foncé
     ('--sur-primaire', '--primaire'), ('--sur-primaire', '--primaire-h'),
-    ('--nuit-txt', '--nuit'), ('#F2C46B', '--nuit'), ('#F2C46B', '--prof-bande'),
+    ('--nuit-txt', '--nuit'), ('#F2C46B', '--nuit'), ('#F2C46B', '--prof-bande'), ('#D9BE88', '--prof-bande'),
     ('#C5D2DA', '--prof-bande'), ('--prof-txt', '--prof-bande'),
     ('--surface', '--primaire'), ('--surface', '--env'),   # chiffres des pastilles de la carte
 ]

@@ -35,6 +35,45 @@ export async function chargerContenu() {
   return cache;
 }
 
+/**
+ * Un message d'erreur en français pour l'écran. Nos propres erreurs (sans code) sont déjà en
+ * français ; celles de Firebase portent un code et un message en anglais : on traduit le code.
+ */
+export function messageErreur(e, defaut) {
+  const code = String(e?.code || '');
+  if (!code) return e?.message || defaut;
+  if (/permission-denied|insufficient/.test(code)) return 'La base a refusé cette action : la séance est peut-être fermée, ou elle n’est pas à toi.';
+  if (/unavailable|network|deadline|offline/.test(code)) return 'Pas de connexion pour le moment. Vérifie le Wi-Fi, puis réessaie.';
+  if (/not-found/.test(code)) return 'Cette séance n’existe plus : elle a peut-être été effacée.';
+  if (/quota|resource-exhausted|too-many/.test(code)) return 'Trop de demandes en même temps. Attends une minute, puis réessaie.';
+  return defaut;
+}
+
+/**
+ * Les bulles de validation du navigateur (« Please fill out this field ») suivent la langue
+ * de l'ordinateur : on les remplace par des phrases en français, partout dans la page.
+ */
+export function validationEnFrancais() {
+  document.addEventListener('invalid', (ev) => {
+    const c = ev.target, v = c.validity;
+    if (!c.setCustomValidity || !v) return;
+    c.setCustomValidity(v.valueMissing ? (c.type === 'radio' || c.type === 'checkbox' ? 'Choisissez une option.' : 'Ce champ est à remplir.')
+      : v.rangeUnderflow ? `Au moins ${c.min}.` : v.rangeOverflow ? `Au plus ${c.max}.`
+        : v.badInput || v.stepMismatch ? 'Entrez un nombre entier.' : v.tooLong ? `${c.maxLength} caractères au plus.`
+          : v.typeMismatch || v.patternMismatch ? 'Ce format n’est pas reconnu.' : '');
+  }, true);
+  // la correction efface le message : il ne doit pas bloquer l'envoi suivant
+  const effacer = (ev) => {
+    const c = ev.target;
+    if (!c.setCustomValidity) return;
+    // un groupe de boutons radio : le message vit sur le premier, effacer tout le groupe
+    const groupe = c.type === 'radio' && c.form ? [...c.form.elements].filter((x) => x.name === c.name) : [c];
+    groupe.forEach((x) => x.setCustomValidity(''));
+  };
+  document.addEventListener('input', effacer, true);
+  document.addEventListener('change', effacer, true);
+}
+
 export function telecharger(nom, contenu, type) {
   const url = URL.createObjectURL(new Blob([contenu], { type }));
   const a = Object.assign(document.createElement('a'), { href: url, download: nom });

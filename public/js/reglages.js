@@ -1,6 +1,6 @@
 // reglages.js — ce que l'enseignant·e peut adapter, sans toucher au code.
 //
-//   · la DURÉE : trois formats prêts (50 min, 75 min, deux périodes), puis chaque
+//   · la DURÉE : trois formats prêts (35, 50 et 100 min) ou sur mesure, puis chaque
 //     étape à la minute près, avant ou pendant la séance ;
 //   · les QUESTIONS : chacune des 28 questions de la banque se pose (requise ou
 //     facultative) ou non, et l'enseignant·e peut en ajouter ;
@@ -27,28 +27,55 @@ const copie = (o) => JSON.parse(JSON.stringify(o));
 const ECRITES_STANDARD = ['F1.2', 'F2.1', 'F2.4', 'F3.2', 'F4.3', 'F5.1', 'F5.4', 'F6.1'];
 const ORALES_STANDARD = ['F7.1', 'F7.2', 'F7.5'];
 
+// 50 minutes est le standard : une période de 75 minutes est déjà trop longue dans bien des écoles.
+const QUESTIONS_50 = { 'F1.2': 'requise', 'F2.1': 'facultative', 'F2.4': 'facultative', 'F3.2': 'requise', 'F4.3': 'requise',
+  'F5.1': 'facultative', 'F5.4': 'requise', 'F6.1': 'facultative', 'F7.1': 'on', 'F7.2': 'on', 'F7.5': 'off' };
+const MINUTES_50 = { arrivee: 3, marche: 7, dossier: 8, trace: 7, comp: 8, bilan: 3, debrief: 9, avis: 3 };
+
 export const FORMATS = {
   courte: {
-    nom: 'Courte · 50 min', resume: 'Une période de 50 minutes : quatre questions requises, les autres facultatives.',
-    miseEnRoute: 5, minutes: { arrivee: 3, marche: 7, dossier: 8, trace: 7, comp: 8, bilan: 3, debrief: 9, avis: 3 },
-    questions: { 'F1.2': 'requise', 'F2.1': 'facultative', 'F2.4': 'facultative', 'F3.2': 'requise', 'F4.3': 'requise',
-      'F5.1': 'facultative', 'F5.4': 'requise', 'F6.1': 'facultative', 'F7.1': 'on', 'F7.2': 'on', 'F7.5': 'off' }
+    nom: 'Courte · 35 min', resume: 'Le cœur du jeu : trois questions requises et une seule à l\'oral.',
+    miseEnRoute: 3, minutes: { arrivee: 2, marche: 5, dossier: 6, trace: 5, comp: 6, bilan: 2, debrief: 6, avis: 3 },
+    questions: { 'F1.2': 'requise', 'F2.1': 'off', 'F2.4': 'off', 'F3.2': 'facultative', 'F4.3': 'requise',
+      'F5.1': 'off', 'F5.4': 'requise', 'F6.1': 'off', 'F7.1': 'on', 'F7.2': 'off', 'F7.5': 'off' }
   },
   standard: {
-    nom: 'Standard · 75 min', resume: 'La version allégée : 12 questions dans une période de 75 minutes.',
-    miseEnRoute: 8, minutes: { arrivee: 4, marche: 10, dossier: 12, trace: 10, comp: 12, bilan: 5, debrief: 14, avis: 3 },
-    questions: {}
+    nom: 'Standard · 50 min', resume: 'Une période : quatre questions requises, quatre facultatives, deux à l\'oral.',
+    miseEnRoute: 5, minutes: MINUTES_50, questions: QUESTIONS_50
   },
   deux: {
-    nom: 'Deux périodes · 150 min', resume: 'Les 28 questions : celles de la version allégée restent requises, les questions de reprise s\'ajoutent, facultatives. Coupure conseillée après le tracé.',
-    miseEnRoute: 16, coupure: 'trace',
-    minutes: { arrivee: 6, marche: 20, dossier: 22, trace: 16, comp: 24, bilan: 14, debrief: 32, avis: 3 },
+    nom: 'Deux périodes · 100 min', resume: 'Les 28 questions : huit requises, les questions de reprise facultatives. Coupure conseillée après le tracé.',
+    miseEnRoute: 10, coupure: 'trace',
+    minutes: { arrivee: 4, marche: 13, dossier: 15, trace: 11, comp: 16, bilan: 9, debrief: 22, avis: 3 },
     questions: { 'F2.2': 'facultative', 'F2.3': 'facultative', 'F2.5': 'facultative', 'F2.6': 'facultative',
       'F3.3': 'facultative', 'F4.1': 'facultative', 'F4.2': 'facultative', 'F4.4': 'facultative',
       'F5.2': 'facultative', 'F5.3': 'facultative', 'F6.2': 'facultative', 'F6.3': 'facultative',
       'F7.3': 'on', 'F7.4': 'on', 'F7.6': 'on' }
+  },
+  // la durée totale au choix ; les minutes de chaque étape suivent les proportions du standard
+  mesure: {
+    nom: 'Sur mesure', resume: 'La durée totale de ton choix ; tu choisis ensuite les questions.',
+    miseEnRoute: 5, minutes: MINUTES_50, questions: QUESTIONS_50
   }
 };
+
+/**
+ * Réglages « sur mesure » : `total` minutes réparties comme le standard (mise en route
+ * comprise), chaque étape au moins une minute. Les questions partent du standard.
+ */
+export function reglagesSurMesure(base, total, garder = {}) {
+  const r = reglagesDuFormat(base, 'mesure', garder);
+  const t = Math.max(15, Math.min(240, Math.round(Number(total) || 50)));
+  const etapes = Object.keys(MINUTES_50).filter((k) => k !== 'avis');
+  const somme = etapes.reduce((s, k) => s + MINUTES_50[k], 0) + FORMATS.standard.miseEnRoute;
+  r.miseEnRoute = Math.max(1, Math.round(FORMATS.standard.miseEnRoute * t / somme));
+  const reste = t - r.miseEnRoute;
+  etapes.forEach((k) => { r.minutes[k] = Math.max(1, Math.round(MINUTES_50[k] * reste / (somme - FORMATS.standard.miseEnRoute))); });
+  // l'arrondi peut décaler d'une minute ou deux : le débrief absorbe l'écart
+  const ecart = t - r.miseEnRoute - etapes.reduce((s, k) => s + r.minutes[k], 0);
+  r.minutes.debrief = Math.max(1, r.minutes.debrief + ecart);
+  return r;
+}
 
 /** Le mode d'une question de la banque : 'ecrite', 'orale', 'geste' (F3.1, le tri) ou 'enseignant' (F1.1). */
 export function modeQuestion(q) {

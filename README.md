@@ -1,8 +1,8 @@
 # Où passe la ligne — le site
 
 Un jeu de géographie en équipe pour le 1er cycle du secondaire : tracer la limite d'une aire protégée
-à Forillon, en 1970, puis voir l'information arriver. Par défaut, la version allégée (12 questions dans
-une période de 75 minutes) ; l'enseignant·e peut aussi choisir 50 minutes ou deux périodes, et tout régler.
+à Forillon, en 1970, puis voir l'information arriver. Par défaut, une période de 50 minutes ; l'enseignant·e
+peut aussi choisir 35 minutes, deux périodes (100 minutes) ou une durée sur mesure, et tout régler.
 
 Prototype de recherche, en prévalidation : le contenu et les questions sont encore discutés,
 et les images sont volontairement des cadres vides.
@@ -37,16 +37,21 @@ de vérification. Dans le jeu, chaque relevé, verdict et point de vue donne le 
 
 Dans l'onglet « Réglages » d'une séance, avant ou pendant la partie (« Appliquer à la séance ») :
 
-- La durée. Trois formats : 50 min, 75 min, deux périodes (les 28 questions, coupure après le tracé).
-  Puis chaque étape à la minute près. En direct, « +5 min » ou « −5 min » allonge ou écourte l'étape
-  où se trouvent la plupart des équipes.
+- La durée. Trois formats : courte (35 min), standard (50 min, par défaut), deux périodes (100 min, les
+  28 questions, coupure après le tracé) ; ou « Sur mesure » : la durée totale tapée à l'accueil, répartie
+  comme le standard, puis l'onglet Réglages s'ouvre pour choisir les questions. Ensuite chaque étape à la
+  minute près. En direct, « +5 min », « −5 min » (jusqu'à 1 min) ou « Terminer l'étape maintenant » pour
+  l'étape où se trouvent la plupart des équipes.
 - Les questions. Chacune des 28 questions de la banque : requise, facultative ou pas posée. Et jusqu'à
   douze questions ajoutées (écrites en équipe ou orales au débrief). Une équipe déjà plus loin retrouve
   une nouvelle question requise dans « À rattraper ». Une réponse déjà écrite n'est jamais effacée.
 - Les corrections. Un chiffre, un texte ou une source du jeu se corrige, avec sa raison ; l'original
   est gardé et « Rétablir l'original » le remet.
-- Le chrono. Il démarre avec la première équipe ; Pause, Reprendre, Remettre à zéro. Chaque équipe
-  voit le temps qui reste à son étape (en ocre une fois dépassé, sans jamais bloquer).
+- Le chrono. Il démarre avec la première équipe et avance à la seconde ; Pause, Reprendre, Remettre à
+  zéro ; « Le détail, étape par étape » donne les minutes et le nombre de questions de chaque étape.
+  Chaque équipe voit le temps qui reste à son étape (en ocre une fois dépassé, sans jamais bloquer).
+- Les messages à la classe : « 5 minutes restantes », « 2 minutes restantes », « Pause », « Bloqués ?
+  Levez la main », « Au retour en classe », ou un message écrit (140 caractères, affiché tel quel).
 
 « Ta version du jeu » (à l'accueil, ou « Enregistrer aussi comme ma version ») garde ces réglages et les
 reprend à chaque nouvelle séance. « Exporter (JSON) » sort les questions ajoutées et les corrections, sans
@@ -61,10 +66,11 @@ les relevés et les sept secteurs deviennent de simples boutons, avec les mêmes
 
 ## L'affichage : clair, sombre, contraste élevé
 
-En haut de chaque page, le menu « Affichage » : Clair (par défaut, même si l'ordinateur est en
-mode sombre), Sombre, Contraste élevé, Comme l'ordinateur (suit le mode sombre et « plus de
-contraste »). Le choix reste dans ce navigateur seulement ; rien n'est envoyé. Le rapport
-s'imprime toujours en clair.
+En haut de chaque page, le menu « Affichage » : Comme l'ordinateur (par défaut : suit le mode sombre
+et « plus de contraste »), Clair, Sombre, Contraste élevé. Le choix reste dans ce navigateur seulement ;
+rien n'est envoyé. Le rapport s'imprime toujours en clair. Deux ambiances : la page des équipes, plus
+vive et plus verte ; l'espace enseignant·e, plus terne (en clair et en sombre ; le contraste élevé ne
+change pas). Le nom du site et « ← Accueil », en haut, ramènent à l'accueil.
 
 À l'impression (rapport de séance, dossier documentaire, questionnaire papier) : un style neutre,
 noir et gris, filets fins, aucun aplat de couleur. Seules restent les couleurs qui portent un sens

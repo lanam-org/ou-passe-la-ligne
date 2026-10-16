@@ -9,14 +9,16 @@
 
 import * as donnees from './donnees.js';
 import { mesure, googleEnseignant } from './config.js';
-import { $, esc, typo, dec, mmss, chargerContenu, telecharger } from './outils.js';
+import { $, esc, typo, dec, mmss, chargerContenu, telecharger, messageErreur, validationEnFrancais } from './outils.js';
 import * as J from './jeu.js';
 import * as Rg from './reglages.js';
 import { carte, blocReleve } from './carte.js';
 import { dossierHTML } from './dossierdoc.js';
 import { creerSeanceDemo } from './demo.js';
-import { creerSeance, cheminSeance, effacerSeance, mesSeances, SIGNAUX, lireMaVersion, enregistrerMaVersion,
+import { creerSeance, cheminSeance, effacerSeance, mesSeances, SIGNAUX, texteSignal, MAX_MESSAGE, lireMaVersion, enregistrerMaVersion,
   effacerMaVersion, reglerSeance, reglerChrono, chronoNeuf, JOURS_CONSERVATION, aUnBravo, donnerBravo } from './seance.js';
+
+validationEnFrancais();
 
 // Le contenu d'origine, puis le contenu réglé pour la séance ouverte.
 const base = await chargerContenu();
@@ -93,7 +95,7 @@ async function ecranAccueil(erreur = '') {
         <p class="hint">Les élèves, eux, n'ont jamais de compte. Ni ton nom ni ton courriel ne sont écrits dans la base.</p>
         <div class="p-actions"><button class="btn" data-google="1">Se connecter avec Google</button></div>`;
   const demo = donnees.mode === 'local' ? `<section class="p-sect" id="demo"><div class="p-sect-h"><h3>Séance de démonstration</h3></div>
-      <p class="p-txt">Une séance de 75 minutes en cours depuis 40 minutes, avec quatre équipes à des étapes différentes.
+      <p class="p-txt">Une séance de 50 minutes en cours depuis 40 minutes, avec quatre équipes à des étapes différentes.
         Pour explorer le suivi en direct, le débrief et le rapport.</p>
       <div class="p-actions"><button class="btn btn--f" data-demo="1">Ouvrir la démonstration →</button></div>
     </section>` : '';
@@ -108,7 +110,9 @@ async function ecranAccueil(erreur = '') {
     <section class="p-sect creer"><div class="p-sect-h"><h3>Nouvelle séance</h3></div>
       <fieldset class="formats" id="formats"><legend>La durée</legend>
         ${Object.entries(Rg.FORMATS).map(([k, f]) => `<label class="case-l"><input type="radio" name="format" value="${k}" ${k === fmt ? 'checked' : ''}>
-          <span>${esc(f.nom)}<br><span class="hint">${esc(f.resume)}</span></span></label>`).join('')}
+          <span>${esc(f.nom)}${k === 'mesure' ? ` <input type="number" id="duree-mesure" class="duree-mesure" min="15" max="240" step="1"
+            value="${v?.format === 'mesure' ? v.miseEnRoute + Object.entries(v.minutes).filter(([id]) => id !== 'avis').reduce((s, [, m]) => s + m, 0) : 60}"
+            aria-label="Durée totale, en minutes"> min` : ''}<br><span class="hint">${esc(f.resume)}</span></span></label>`).join('')}
       </fieldset>
       <p class="hint formats-n">${v ? `Ta version du jeu sert de départ (${esc(resumeReglages(v))}). Choisir un autre format reprend ses minutes et ses questions ; tes questions ajoutées et tes corrections restent.`
         : 'Les minutes de chaque étape, les questions et les corrections se changent ensuite dans l\'onglet « Réglages », même pendant la séance.'}</p>
@@ -186,6 +190,13 @@ const lienEleve = () => new URL(`eleve.html?code=${code}`, location.href).href;
 
 /** Le chrono de la classe (une ancienne séance sans chrono compte depuis sa création). */
 const chronoDe = () => S?.chrono || { debut: S?.creeLe || null, pause: null, pauses: [] };
+/** Le temps écoulé, en minutes et secondes (« 12:05 ») : on le voit avancer dès la première seconde. */
+const chronoTexte = (ch) => {
+  const s = ch.debut ? Math.floor(Rg.ecoule(ch) / 1000) : 0;
+  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+};
+// le chrono avance chaque seconde, sans redessiner la page
+setInterval(() => { const z = document.getElementById('chrono-v'); if (z && S) z.textContent = chronoTexte(chronoDe()); }, 1000);
 
 /** Le chrono démarre seul avec la première équipe. */
 function lancerChrono() {
@@ -229,7 +240,10 @@ function vueDirect() {
   const sg = S?.signal;
   const eq = [...EQ].sort((a, b) => a.creeLe - b.creeLe);
   const sel = eq.find((e) => e.id === choisie);
-  const ecouleMin = ch.debut ? Math.floor(Rg.ecoule(ch) / 60000) : 0;
+  const lien = lienEleve();
+  // ce que prévoit la séance, en clair : les minutes ET les questions de chaque étape
+  const nq = (id) => ecrites.filter((q) => q.etape === id).length + (id === 'debrief' ? c.q.orales.length : 0);
+  const nReq = ecrites.filter((q) => q.requise).length;
   return `<div class="p-tete">
       <h2 class="cache-visuel">En direct</h2>
       <p class="retour"><button class="lien" data-retour="1">← Tes séances</button></p>
@@ -238,14 +252,20 @@ function vueDirect() {
           <p class="sur">Code de la séance</p>
           <p class="code-v" id="code-seance">${esc(code)}</p>
           <p class="code-u">À afficher au tableau.</p>
-          <p class="code-u">Lien direct : <b>${esc(lienEleve())}</b>${donnees.mode === 'local'
+          <p class="code-u">Lien direct : <a href="${esc(lien)}" target="_blank" rel="noopener">${esc(lien)}</a>
+            <button class="lien lien-copier" type="button" data-copier="${esc(lien)}">Copier</button>${donnees.mode === 'local'
             ? '<br><span class="hint">Démonstration : ce lien ne marche que dans ce navigateur.</span>' : ''}</p>
         </section>
         <section class="p-sect tete-chrono">
           <p class="sur">Chrono de la classe${ch.pause ? ' <span class="badge badge--pause">en pause</span>' : ''}</p>
-          <p class="chrono${ch.debut ? '' : ' chrono--attente'}" id="chrono">${ecouleMin} min <span>sur ${total} prévues</span></p>
-          <p class="hint">${ch.debut ? '' : 'Démarre avec la première équipe. '}${c.miseEnRoute.min} min de mise en route, puis
-            ${etapesJeu.map((x) => x.min).join(' + ')}.</p>
+          <p class="chrono${ch.debut ? '' : ' chrono--attente'}" id="chrono"><span id="chrono-v">${chronoTexte(ch)}</span> <span>sur ${total} min prévues</span></p>
+          <p class="hint">${ch.debut ? 'Temps écoulé depuis le début, pauses retirées. ' : 'Démarre avec la première équipe. '}Prévu :
+            ${c.miseEnRoute.min} min de mise en route, puis ${etapesJeu.length} étapes ; ${ecrites.length} questions écrites
+            (${nReq} requises) et ${c.q.orales.length} à l'oral.</p>
+          <details class="chrono-detail" data-k="chrono-detail" ${ui.ouverts.has('chrono-detail') ? 'open' : ''}>
+            <summary>Le détail, étape par étape</summary>
+            <ol>${etapesJeu.map((x) => `<li>${esc(x.t)} · ${x.min} min${nq(x.id) ? ` · ${nq(x.id)} question${nq(x.id) > 1 ? 's' : ''}` : ''}</li>`).join('')}</ol>
+          </details>
           <div class="signaux">${!ch.debut ? '<button class="btn btn--f btn--s" data-chrono="demarrer">Démarrer maintenant</button>'
             : ch.pause ? '<button class="btn btn--s" data-chrono="reprendre">Reprendre</button>'
               : '<button class="btn btn--f btn--s" data-chrono="pause">Pause</button>'}
@@ -255,11 +275,16 @@ function vueDirect() {
     </div>
     <section class="p-sect">
       <div class="p-sect-h"><h3>Message à toute la classe</h3>
-        <span class="hint">${sg && SIGNAUX[sg.type] ? `Affiché : « ${esc(SIGNAUX[sg.type].t)} »` : 'Aucun message affiché.'}</span></div>
+        <span class="hint">${texteSignal(sg) ? `Affiché : « ${esc(texteSignal(sg))} »` : 'Aucun message affiché.'}</span></div>
       <div class="signaux">
         ${Object.entries(SIGNAUX).map(([k, v]) => `<button class="btn btn--f" data-signal="${k}" aria-pressed="${sg?.type === k}">${esc(v.court)}</button>`).join('')}
-        ${sg && SIGNAUX[sg.type] ? '<button class="lien" data-signal="">Retirer le message</button>' : ''}
+        ${texteSignal(sg) ? '<button class="lien" data-signal="">Retirer le message</button>' : ''}
       </div>
+      <form class="signal-perso" id="f-signal" autocomplete="off">
+        <label class="champ"><span>Ou votre propre message (${MAX_MESSAGE} caractères au plus)</span>
+          <input name="texte" maxlength="${MAX_MESSAGE}" placeholder="Ex. : Relisez la consigne avant de continuer."></label>
+        <button class="btn btn--f" type="submit">Envoyer</button>
+      </form>
     </section>
     <section class="p-sect">
       <div class="p-sect-h"><h3>Les équipes (${eq.length})</h3>
@@ -267,7 +292,9 @@ function vueDirect() {
       ${classe ? `<div class="signaux duree-v"><span class="hint">La plupart des équipes : ${esc(classe.t)}, ${classe.min} min prévues.
           Les équipes voient le temps qui reste.</span>
         <button class="btn btn--f" data-minutes="${classe.id}" data-delta="5">+5 min</button>
-        <button class="btn btn--f" data-minutes="${classe.id}" data-delta="-5" ${classe.min <= 5 ? 'disabled' : ''}>−5 min</button></div>` : ''}
+        <button class="btn btn--f" data-minutes="${classe.id}" data-delta="-5" ${classe.min <= 1 ? 'disabled' : ''}>−5 min</button>
+        <button class="btn btn--f" data-terminer="${classe.id}"
+          title="Le temps prévu de l'étape s'arrête maintenant : les équipes voient « Temps prévu dépassé ».">Terminer l'étape maintenant</button></div>` : ''}
       ${eq.length ? `<div class="equipes">${eq.map((e) => {
         const t = etatTemps(e), x = etapeDe(e);
         return `<button class="eq" data-equipe="${esc(e.id)}" aria-pressed="${e.id === choisie}">
@@ -918,8 +945,21 @@ function rendre(force = false) {
         `<option value="${x.id}" ${onglet === x.id ? 'selected' : ''}>${x.t}</option>`).join('')}</optgroup>`).join('')}</select></label>`;
   const vues = { direct: vueDirect, reglages: vueReglages, debrief: vueDebrief, questions: vueQuestions, dossier: vueDossier, deroulement: vueDeroulement,
     mesures: vueMesures, questionnaire: vueQuestionnaire };
+  // un message en cours d'écriture survit au rafraîchissement (toutes les 5 s, et à chaque geste d'équipe)
+  const brouillon = $('#f-signal [name=texte]');
+  const garde = brouillon && { v: brouillon.value, focus: document.activeElement === brouillon, a: brouillon.selectionStart, b: brouillon.selectionEnd };
   $('#prof').innerHTML = typo(vues[onglet]());
+  const neuf = garde && $('#f-signal [name=texte]');
+  if (neuf) {
+    neuf.value = garde.v;
+    if (garde.focus) { neuf.focus(); try { neuf.setSelectionRange(garde.a, garde.b); } catch { /* vide */ } }
+  }
 }
+
+// taper une durée « sur mesure » choisit ce format
+document.addEventListener('input', (ev) => {
+  if (ev.target.id === 'duree-mesure') { const r = document.querySelector('input[name=format][value="mesure"]'); if (r) r.checked = true; }
+});
 
 // l'éditeur de réglages : on modifie le brouillon sans redessiner (le curseur reste où il est)
 document.addEventListener('input', (ev) => {
@@ -982,6 +1022,17 @@ document.addEventListener('change', async (ev) => {
   }
 });
 
+// le message écrit par l'enseignant·e : envoyé comme les autres, affiché (échappé) chez chaque équipe
+document.addEventListener('submit', async (ev) => {
+  if (ev.target.id !== 'f-signal' || !code) return;
+  ev.preventDefault();
+  const champ = ev.target.querySelector('[name=texte]');
+  const texte = champ.value.trim().replace(/\s+/g, ' ').slice(0, MAX_MESSAGE);
+  if (!texte) { champ.focus(); return; }
+  champ.value = '';
+  await donnees.majPartielle(cheminSeance(code), { signal: { type: 'perso', texte, t: Date.now() } });
+});
+
 document.addEventListener('submit', (ev) => {
   if (ev.target.id !== 'f-ajout' || !ui.ed) return;
   ev.preventDefault();
@@ -1010,12 +1061,23 @@ document.addEventListener('click', async (ev) => {
     try {
       const fmt = document.querySelector('input[name=format]:checked')?.value || 'standard';
       const v = ui.maVersion ? Rg.completer(base, ui.maVersion) : null;
-      const reglages = v && v.format === fmt ? v
-        : Rg.reglagesDuFormat(base, fmt, { ajouts: v?.ajouts, corrections: v?.corrections });
+      const garder = { ajouts: v?.ajouts, corrections: v?.corrections };
+      let reglages;
+      if (fmt === 'mesure') {
+        // sur mesure : la durée totale tapée ; les questions de ta version sur mesure, s'il y en a une
+        reglages = Rg.reglagesSurMesure(base, Number($('#duree-mesure')?.value), garder);
+        if (v?.format === 'mesure') reglages.questions = { ...reglages.questions, ...v.questions };
+      } else reglages = v && v.format === fmt ? v : Rg.reglagesDuFormat(base, fmt, garder);
       const cd = await creerSeance({ questionnaire: !!$('#opt-avis')?.checked, reglages });
       MOI = await donnees.attendreUtilisateur();
-      return ouvrir(cd);
-    } catch (e) { return ecranAccueil(e.message || 'Impossible de créer la séance.'); }
+      ouvrir(cd);
+      // sur mesure : on ouvre tout de suite les réglages, pour choisir les questions avant l'arrivée des équipes
+      if (fmt === 'mesure') {
+        onglet = 'reglages'; rendre(true);
+        if (ui.ed) { ui.ed.msg = 'Séance sur mesure : choisis tes questions (et ajuste les minutes), puis « Appliquer à la séance ».'; rendre(true); }
+      }
+      return;
+    } catch (e) { return ecranAccueil(messageErreur(e, 'Impossible de créer la séance pour le moment. Réessaie.')); }
   }
   if (ev.target.closest('[data-demo]')) {
     const b = ev.target.closest('[data-demo]'); b.disabled = true;
@@ -1024,7 +1086,7 @@ document.addEventListener('click', async (ev) => {
       const cd = await creerSeanceDemo(Rg.appliquer(base, reglages), reglages);
       MOI = await donnees.attendreUtilisateur();
       return ouvrir(cd);
-    } catch (e) { return ecranAccueil(e.message || 'Impossible de créer la démonstration.'); }
+    } catch (e) { return ecranAccueil(messageErreur(e, 'Impossible de créer la démonstration.')); }
   }
   const efv = ev.target.closest('[data-effacer-version]');
   if (efv) {
@@ -1049,7 +1111,9 @@ document.addEventListener('click', async (ev) => {
     if (ed) return actionEditeur(ed.dataset.ed, ed);
     const fm = ev.target.closest('[data-format]');
     if (fm) {
-      ui.ed.r = Rg.reglagesDuFormat(base, fm.dataset.format, { ajouts: ui.ed.r.ajouts, corrections: ui.ed.r.corrections });
+      // « Sur mesure » garde les minutes et les questions déjà choisies ; un format prêt les remplace
+      if (fm.dataset.format === 'mesure') ui.ed.r.format = 'mesure';
+      else ui.ed.r = Rg.reglagesDuFormat(base, fm.dataset.format, { ajouts: ui.ed.r.ajouts, corrections: ui.ed.r.corrections });
       ui.ed.modifie = true; ui.ed.msg = '';
       return rendreEditeur();
     }
@@ -1067,7 +1131,7 @@ document.addEventListener('click', async (ev) => {
   }
   if (ev.target.closest('[data-google]')) {
     try { MOI = await donnees.connexionGoogle(); }
-    catch (e) { return ecranAccueil(e.message || 'Connexion Google impossible.'); }
+    catch (e) { return ecranAccueil(messageErreur(e, 'Connexion Google impossible pour le moment.')); }
     return ecranAccueil();
   }
   if (ev.target.closest('[data-deconnexion]')) {
@@ -1133,6 +1197,27 @@ document.addEventListener('click', async (ev) => {
     mn.disabled = true;
     await reglerSeance(code, r);
     if (ui.ed?.cible === 'seance') ui.ed.r.minutes[id] = r.minutes[id];
+    return;
+  }
+  // « Terminer l'étape maintenant » : le temps prévu devient le temps déjà passé par l'équipe arrivée
+  // le plus tard ; toutes les équipes de l'étape voient alors « Temps prévu dépassé »
+  const tm = ev.target.closest('[data-terminer]');
+  if (tm) {
+    const id = tm.dataset.terminer;
+    const dedans = EQ.filter((e) => !e.fini && c.etapes[e.etape]?.id === id);
+    if (!dedans.length) return;
+    const passe = Math.min(...dedans.map((e) => (e.temps?.[id] || 0) + Rg.tempsDansEtape(e, chronoDe())));
+    const r = Rg.completer(base, S?.config);
+    r.minutes[id] = Math.max(1, Math.floor(passe / 60000));
+    tm.disabled = true;
+    await reglerSeance(code, r);
+    if (ui.ed?.cible === 'seance') ui.ed.r.minutes[id] = r.minutes[id];
+    return;
+  }
+  const cp = ev.target.closest('[data-copier]');
+  if (cp) {
+    try { await navigator.clipboard.writeText(cp.dataset.copier); cp.textContent = 'Copié ✓'; }
+    catch { cp.textContent = 'Sélectionne le lien pour le copier'; }
     return;
   }
   const sg = ev.target.closest('[data-signal]');

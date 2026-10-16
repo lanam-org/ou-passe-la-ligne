@@ -1,7 +1,7 @@
 // demo.js — une séance de démonstration, déjà en cours.
 //
 // Pour montrer l'espace enseignant·e sans faire jouer quatre onglets : une
-// séance au format 75 minutes, ouverte depuis 40 minutes, avec quatre équipes
+// séance au format standard (50 minutes), ouverte depuis 40 minutes, avec quatre équipes
 // à des endroits différents du jeu.
 //   · Fou de Bassan : rapide, déjà au retour sur la démarche ;
 //   · Phoque gris : dans les temps, au deuxième point de vue, a rezoné ;
@@ -38,7 +38,7 @@ function rejouer(c, nom, debut, etapes) {
   return e;
 }
 
-const releves = (c, e, liste) => liste.forEach((i) => J.basculerReleve(c, e, i));
+const releves = (c, e, liste) => liste.forEach((i) => J.ouvrirReleve(c, e, i));
 const peindre = (c, e, quand, gestes) => gestes.forEach(([s, z], i) => J.peindre(c, e, s, z, quand((i + 1) / (gestes.length + 1))));
 
 function equipes(c, maintenant) {

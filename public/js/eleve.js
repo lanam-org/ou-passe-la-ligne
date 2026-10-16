@@ -9,13 +9,15 @@
 
 import * as donnees from './donnees.js';
 import { mesure } from './config.js';
-import { $, esc, typo, chargerContenu, retarder, GARDE, IMAGES } from './outils.js';
+import { $, esc, typo, chargerContenu, retarder, GARDE, IMAGES, messageErreur, validationEnFrancais } from './outils.js';
 import * as J from './jeu.js';
 import * as Rg from './reglages.js';
 import { carte, blocReleve, effetRecent } from './carte.js';
 import { lienSource } from './dossierdoc.js';
-import { NOMS_EQUIPES, rejoindre, cheminSeance, cheminEquipe,
-  normaliserCode, codeValide, SIGNAUX, expiration, cleBravo, aUnBravo } from './seance.js';
+import { NOMS_EQUIPES, EMOJIS_EQUIPES, rejoindre, cheminSeance, cheminEquipe,
+  normaliserCode, codeValide, texteSignal, expiration, cleBravo, aUnBravo } from './seance.js';
+
+validationEnFrancais();
 
 // Le contenu d'origine, puis le contenu tel que la séance le règle (questions,
 // minutes, corrections). Les réglages arrivent avec la séance et peuvent
@@ -37,7 +39,7 @@ const idx = (id) => c.etapes.findIndex((x) => x.id === id);
 let code = null, idEq = null, E = null, S = null;   // S : la séance (signal, état)
 const ui = { outil: 'preservation', effet: null, nouvelles: [], avis: {}, avisEnvoye: false,
   signalFerme: 0, rendue: -1, erreur: '', lus: new Set(),   // lus : les documents ouverts avec « Lire »
-  compVu: 0, compNeuf: false, bravoVu: 0, bravos: '{}' };
+  compVu: 0, compNeuf: false, bravoVu: 0, bravos: '{}', releveVu: null };
 const CLE_SIGNAL = 'forillon:signal-lu';
 const signalLu = (t) => { ui.signalFerme = t; try { localStorage.setItem(`${CLE_SIGNAL}:${E?.appareil}`, String(t)); } catch { /* vide */ } };
 const CLE = 'forillon:equipe';
@@ -64,21 +66,23 @@ async function demarrer() {
   accueil(codeUrl);
 }
 
-function accueil(prerempli = '', erreur = '') {
+function accueil(prerempli = '', erreur = '', nomChoisi = '') {   // le nom choisi reste coché après une erreur
   document.body.dataset.ecran = 'accueil';
+  $('#retour-accueil').hidden = false;   // une erreur de porte ? on revient à l'accueil du site
   $('#app').innerHTML = typo(`<section class="rejoindre scene">
     <div class="scene-c">
       <h2>Rejoindre la séance</h2>
       <p class="hint" style="margin-top:6px">Un seul ordinateur par équipe. Pas de prénom, ni ici ni dans vos réponses :
         votre équipe porte le nom d'un animal de Forillon.</p>
-      <form id="f-rejoindre" autocomplete="off">
+      <form id="f-rejoindre" autocomplete="off" novalidate>
         <label class="champ"><span>Code de la séance (au tableau)</span>
           <input id="code" name="code" inputmode="text" maxlength="5" required
             value="${esc(prerempli)}" placeholder="K7P2M" aria-describedby="code-aide"></label>
-        <p id="code-aide" class="avert">Cinq caractères, lettres et chiffres.</p>
+        <p id="code-aide" class="avert">Les cinq caractères écrits au tableau.</p>
         <fieldset class="noms"><legend>Le nom de votre équipe</legend>
           <div class="noms-g">${NOMS_EQUIPES.map((n, i) => `<label class="nom-c">
-            <input type="radio" name="nom" value="${esc(n)}" ${i === 0 ? 'required' : ''}><span>${esc(n)}</span></label>`).join('')}</div>
+            <input type="radio" name="nom" value="${esc(n)}" ${i === 0 ? 'required' : ''} ${n === nomChoisi ? 'checked' : ''}>
+            <span><span class="nom-e" aria-hidden="true">${EMOJIS_EQUIPES[n] || ''}</span>${esc(n)}</span></label>`).join('')}</div>
         </fieldset>
         ${erreur ? `<p class="erreur" role="alert">${esc(erreur)}</p>` : ''}
         <div class="p-actions"><button class="btn" type="submit">Commencer →</button></div>
@@ -89,8 +93,9 @@ function accueil(prerempli = '', erreur = '') {
     const f = new FormData(ev.target);
     const cd = normaliserCode(f.get('code'));
     const nom = f.get('nom');
-    if (!codeValide(cd)) return accueil(cd, 'Ce code ne ressemble pas à celui du tableau : cinq caractères, sans O ni I.');
-    if (!nom) return accueil(cd, "Choisissez le nom de votre équipe.");
+    // les messages sont les nôtres, en français (novalidate : pas les bulles du navigateur)
+    if (!codeValide(cd)) return accueil(cd, 'Ce code ne ressemble pas à celui du tableau : cinq caractères, sans O ni I.', nom);
+    if (!nom) return accueil(cd, 'Choisissez le nom de votre équipe.');
     ev.target.querySelector('button').disabled = true;
     try {
       const r = await rejoindre(c, cd, nom);
@@ -98,7 +103,7 @@ function accueil(prerempli = '', erreur = '') {
       try { localStorage.setItem(`${CLE}:${moi.uid}`, JSON.stringify({ code: cd, id: r.id })); } catch { /* vide */ }
       entrer(cd, r.id, r.etat);
     } catch (e) {
-      accueil(cd, e.message || 'Impossible de rejoindre la séance.');
+      accueil(cd, messageErreur(e, 'Impossible de rejoindre la séance pour le moment. Réessayez.'), nom);
     }
   });
   $('#code')?.addEventListener('input', (ev) => { ev.target.value = normaliserCode(ev.target.value); });
@@ -110,6 +115,7 @@ function entrer(cd, id, etat) {
   E.compteurs ||= J.nouvelEtat(c, E.nom, E.appareil).compteurs;
   try { ui.signalFerme = Number(localStorage.getItem(`${CLE_SIGNAL}:${E.appareil}`) || 0); } catch { /* vide */ }
   $('#etat-envoi').hidden = false;
+  $('#retour-accueil').hidden = true;    // en jeu, pas de sortie par erreur (le nom du site reste un lien)
   document.body.dataset.ecran = 'jeu';
   $('#app').innerHTML = GABARIT;
   $('#equipe').textContent = `Équipe ${E.nom} · séance ${code}`;
@@ -173,12 +179,15 @@ const sauverTout = () => { sauver(); sauver.maintenant(); };
 
 /* ------------------------------------------------------------ les questions */
 
+const MAX_REPONSE = 400;   // deux ou trois phrases ; le compteur sous la case le montre
+
 function blocQuestion(q) {
   const bravo = aUnBravo(S, idEq, q.id);
   return `<div class="qe${bravo ? ' qe--bravo' : ''}">
     <label class="qe-l" for="r-${esc(q.id)}"><span class="sur">Question pour l'équipe${q.requise ? '' : ' · facultative'}</span>${esc(q.eleve)}</label>
-    <textarea id="r-${esc(q.id)}" data-rep="${esc(q.id)}" rows="2" maxlength="400"
+    <textarea id="r-${esc(q.id)}" data-rep="${esc(q.id)}" rows="2" maxlength="${MAX_REPONSE}"
       placeholder="Une ou deux phrases, écrites ensemble.">${esc(E.reponses?.[q.id] || '')}</textarea>
+    <p class="qe-compte" data-compte="${esc(q.id)}" aria-hidden="true">${String(E.reponses?.[q.id] || '').length} / ${MAX_REPONSE}</p>
     ${bravo ? '<p class="qe-bravo"><span aria-hidden="true">✦</span> Bravo de votre enseignant·e pour cette réponse.</p>' : ''}
   </div>`;
 }
@@ -265,7 +274,9 @@ const ECRANS = {
 
   marche: () => {
     const reste = c.releves.length - E.releves.length;
-    const dernier = E.releves.length ? c.releves[E.releves[E.releves.length - 1]] : null;
+    // le relevé touché en dernier (même déjà lu) ; après un rafraîchissement, le dernier ouvert
+    const iVu = E.releves.includes(ui.releveVu) ? ui.releveVu : E.releves[E.releves.length - 1];
+    const dernier = iVu != null ? c.releves[iVu] : null;
     const nq = (c.q?.ecrites || []).filter((q) => q.etape === 'marche' && /^F2\./.test(q.id)).length;
     const manque = [reste ? `encore ${reste} relevé${reste > 1 ? 's' : ''}` : '',
       ok('marche') ? '' : 'une question à répondre'].filter(Boolean);
@@ -277,7 +288,7 @@ const ECRANS = {
       // la carte d'abord, toujours au même endroit ; ce qu'on y trouve s'affiche à côté, dans le carnet
       h: carte(c, E, { releves: true, cliquable: false }) + blocQuestions('marche'),
       carnet: [{ t: 'Carnet de terrain', h: dernier ? `<div class="trouve">
-            <p class="sur">Relevé ${E.releves.length} sur ${c.releves.length}</p>
+            <p class="sur">Relevé ${iVu + 1} · ${E.releves.length} sur ${c.releves.length} faits</p>
             <h3>${esc(dernier.t)}</h3><p class="serif">${esc(dernier.x)}</p>
             <p class="trouve-s">${esc(dernier.s)}</p>${lienSource(dernier)}</div>`
         : `<p class="hint">Touchez ${IMAGES ? 'une pastille numérotée' : 'un relevé'} sur la carte : ce que vous y trouvez s'affiche ici.</p>` }],
@@ -592,15 +603,15 @@ function rendreSignal() {
     return;
   }
   const sg = S?.signal;
-  if (!sg || sg.t <= ui.signalFerme || !SIGNAUX[sg.type] || (E && sg.t < E.creeLe - 60000)) {
+  if (!sg || sg.t <= ui.signalFerme || !texteSignal(sg) || (E && sg.t < E.creeLe - 60000)) {
     z.hidden = true; z.innerHTML = ''; document.body.classList.remove('avec-signal'); return;
   }
   document.body.classList.add('avec-signal');
   const versDebrief = sg.type === 'debrief' && E && E.etape < idx('debrief');
   z.hidden = false;
-  z.innerHTML = `<p><span class="sur">Message de votre enseignant·e</span> ${esc(SIGNAUX[sg.type].t)}</p>
+  z.innerHTML = `<p><span class="sur">Message de votre enseignant·e</span> ${esc(texteSignal(sg))}</p>
     <div class="signal-a">${versDebrief ? `<button class="btn" data-vers-debrief="1">Y aller : ${esc(c.etapes[idx('debrief')].t.toLowerCase())} →</button>` : ''}
-    <button class="btn btn--f" data-fermer-signal="${sg.t}">Compris</button></div>`;
+    <button class="btn btn--f" data-fermer-signal="${Number(sg.t) || 0}">Compris</button></div>`;
   if (E) majPied();
 }
 
@@ -610,7 +621,12 @@ function apres(nouvelles = []) { ui.nouvelles.push(...nouvelles); sauver(); rend
 
 document.addEventListener('input', (ev) => {
   const t = ev.target.closest('[data-rep]');
-  if (t && E) { E.reponses[t.dataset.rep] = t.value; sauver(); majPied(); return; }
+  if (t && E) {
+    E.reponses[t.dataset.rep] = t.value.slice(0, MAX_REPONSE);
+    const k = document.querySelector(`[data-compte="${CSS.escape(t.dataset.rep)}"]`);
+    if (k) k.textContent = `${t.value.length} / ${MAX_REPONSE}`;
+    sauver(); majPied(); return;
+  }
   const a = ev.target.closest('[data-avis-t]');
   if (a) ui.avis[a.dataset.avisT] = a.value;
 });
@@ -643,8 +659,9 @@ document.addEventListener('click', async (ev) => {
   }
   const rl = ev.target.closest('[data-releve]');
   if (rl) {
-    const i = Number(rl.dataset.releve), nouvelles = J.basculerReleve(c, E, i);
-    if (E.releves.includes(i)) dire(`Relevé ${E.releves.length} sur ${c.releves.length}, ${c.releves[i].t} : ${c.releves[i].x}`);
+    const i = Number(rl.dataset.releve), nouvelles = J.ouvrirReleve(c, E, i);
+    ui.releveVu = i;   // le carnet montre CE relevé, même déjà lu
+    dire(`Relevé ${i + 1}, ${c.releves[i].t} : ${c.releves[i].x}`);
     return apres(nouvelles);
   }
   const doc = ev.target.closest('[data-doc]');

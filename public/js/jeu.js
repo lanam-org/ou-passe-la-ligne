@@ -101,10 +101,10 @@ export function peindre(c, e, idSecteur, outil, maintenant = Date.now()) {
   };
 }
 
-/** Ouvre un relevé (ou le referme). */
-export function basculerReleve(c, e, i) {
+/** Ouvre un relevé. Le rouvrir le remontre, sans jamais le retirer des relevés faits. */
+export function ouvrirReleve(c, e, i) {
   const nouvelles = [];
-  e.releves = e.releves.includes(i) ? e.releves.filter((x) => x !== i) : [...e.releves, i];
+  if (!e.releves.includes(i)) e.releves = [...e.releves, i];
   if (e.releves.length === c.releves.length) ajouterMention(e, 'releves', nouvelles);
   return nouvelles;
 }

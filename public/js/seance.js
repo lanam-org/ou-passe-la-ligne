@@ -28,6 +28,13 @@ export const NOMS_EQUIPES = [
   'Cormoran', 'Grand héron', 'Lynx', 'Martin-pêcheur'
 ];
 
+/** Un emoji par animal, sur l'écran « Rejoindre » seulement (décoratif : le nom reste le nom). */
+export const EMOJIS_EQUIPES = {
+  'Fou de Bassan': '🦢', 'Phoque gris': '🦭', 'Petit rorqual': '🐋', 'Orignal': '🫎', 'Ours noir': '🐻', 'Castor': '🦫',
+  'Renard roux': '🦊', 'Porc-épic': '🦔', 'Guillemot': '🐦', 'Petit pingouin': '🐧', 'Mouette tridactyle': '🕊️',
+  'Cormoran': '🦆', 'Grand héron': '🦩', 'Lynx': '🐈', 'Martin-pêcheur': '🦜'
+};
+
 export const idEquipe = (nom) => nom.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
   .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 
@@ -155,8 +162,14 @@ export async function effacerSeance(code) {
   await donnees.supprimer(cheminSeance(code));
 }
 
+/** Les messages à toute la classe : des phrases prêtes, ou un message écrit par l'enseignant·e (« perso »). */
 export const SIGNAUX = {
-  temps: { t: 'Il reste 5 minutes à cette étape.', court: '5 minutes' },
-  pause: { t: "Pause : regardez votre enseignant·e.", court: 'Pause' },
-  debrief: { t: "On revient sur notre démarche, toute la classe ensemble.", court: 'Au retour en classe' }
+  temps: { t: 'Il reste 5 minutes à cette étape.', court: '5 minutes restantes' },
+  deux: { t: 'Il reste 2 minutes : terminez votre phrase.', court: '2 minutes restantes' },
+  pause: { t: 'Pause : regardez votre enseignant·e.', court: 'Pause' },
+  aide: { t: 'Une équipe est bloquée ? Levez la main.', court: 'Bloqués ? Levez la main' },
+  debrief: { t: 'On revient sur notre démarche, toute la classe ensemble.', court: 'Au retour en classe' }
 };
+export const MAX_MESSAGE = 140;
+/** Le texte d'un message, prêt ou écrit (toujours affiché échappé). */
+export const texteSignal = (sg) => (sg?.type === 'perso' ? String(sg.texte || '').slice(0, MAX_MESSAGE) : SIGNAUX[sg?.type]?.t || '');

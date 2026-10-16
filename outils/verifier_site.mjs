@@ -155,7 +155,11 @@ dit(IMAGES ? await eleve.locator('svg.carte').count() === 1
   IMAGES ? 'images : la carte dessinée est là' : 'images à venir : cadre vide pour la carte, relevés en boutons, pas de cadre vide à côté de la garde-parc');
 dit(await sansDefiler(eleve, '[data-releve="0"]') && await sansDefiler(eleve, '#carnet .trouve'),
   'étape 2 : la carte reste en place, le relevé trouvé s’affiche à côté, sans défiler');
-dit(await eleve.isDisabled('#suivant'), 'étape 2 : six relevés ne suffisent pas sans les deux réponses');
+await eleve.click('[data-releve="1"]');
+dit((await eleve.textContent('#carnet .trouve h3')).includes('Grande-Grave') && (await eleve.textContent('#carnet .trouve .sur')).includes('6 sur 6'),
+  'étape 2 : rouvrir un relevé déjà lu le remontre, sans le défaire');
+dit(!(await eleve.isDisabled('#suivant')) && (await eleve.textContent('#scene')).includes('facultative'),
+  'étape 2 : en 50 min, les deux questions sont facultatives : les six relevés suffisent');
 await ecrire(eleve, 'F2.1', "Gespe'gewa'gi, le territoire des Mi'gmaq.");
 await ecrire(eleve, 'F2.4', 'Des maisons, des chalets, des commerces, des églises et des écoles.');
 dit(!(await eleve.isDisabled('#suivant')), 'étape 2 : relevés et réponses débloquent le dossier');
@@ -188,7 +192,8 @@ dit(!(await eleve.textContent('#app')).toLowerCase().includes('complication')
   && (await eleve.textContent('.comp .sur')).includes('points de vue'), 'étape 5 : « D\'autres points de vue », le mot « complication » n\'apparaît plus');
 dit(await sansDefiler(eleve, '#carnet .comp') && await sansDefiler(eleve, '[data-sect]'),
   'étape 5 : le point de vue arrive à droite, la carte à retoucher reste visible sans défiler');
-dit(await eleve.isDisabled('#suivant'), 'étape 5 : la question de la route bloque la complication suivante');
+dit(!(await eleve.isDisabled('#suivant')) && (await eleve.textContent('#scene')).includes('facultative'),
+  'étape 5 : en 50 min, la question de la route est facultative et ne bloque pas');
 await ecrire(eleve, 'F5.1', 'Moins bien : la route coupe les passages des animaux.');
 await suivant(eleve); await suivant(eleve); await suivant(eleve); // complications 2 à 4
 await eleve.click('[data-outil="plein"]');
@@ -204,22 +209,28 @@ const detail = await prof.textContent('#detail');
 dit(detail.includes('la route coupe les passages'), "l'enseignant·e lit les réponses de l'équipe en direct");
 await capture(prof, '08-enseignant-direct');
 // le « bravo » : l'enseignant·e salue une réponse, l'équipe le voit tout de suite, sans score
-await prof.click('#detail [data-bravo="F5.1"]');
+await prof.click('#detail [data-bravo="F5.4"]');
 await eleve.waitForSelector('.bravo--ens', { timeout: 5000 });
-dit((await eleve.textContent('.bravo--ens')).includes('Une aire coupée par une route'), 'un « bravo » de l’enseignant·e arrive chez l’équipe, avec sa question');
-await prof.waitForSelector('#detail [data-bravo="F5.1"][aria-pressed="true"]');
+dit((await eleve.textContent('.bravo--ens')).includes('Le territoire porte déjà un nom'), 'un « bravo » de l’enseignant·e arrive chez l’équipe, avec sa question');
+await prof.waitForSelector('#detail [data-bravo="F5.4"][aria-pressed="true"]');
 await capture(eleve, '08c-bravo-equipe');
 await prof.click('[data-signal="temps"]');
 await eleve.waitForSelector('#signal:not([hidden])', { timeout: 5000 });
 dit((await eleve.textContent('#signal')).includes('5 minutes'), 'le message de l’enseignant·e arrive chez l’équipe');
 await capture(eleve, '09-signal');
 await eleve.click('[data-fermer-signal]');
+// un message écrit par l'enseignant·e : il arrive tel quel, et le HTML ne s'exécute pas
+await prof.fill('#f-signal [name=texte]', 'Relisez la consigne <b>maintenant</b>');
+await prof.click('#f-signal button[type=submit]');
+await eleve.waitForFunction(() => document.querySelector('#signal')?.textContent.includes('Relisez la consigne'), null, { timeout: 5000 });
+dit(!(await eleve.locator('#signal b').count()), 'un message écrit par l’enseignant·e arrive chez l’équipe, sans HTML actif');
+await eleve.click('[data-fermer-signal]');
 
 // ---------------------------------------------------------------- les réglages, en pleine partie
 // Orignal est au bilan (étape 6), Phoque gris encore à l'arrivée (étape 1).
 await prof.click('[data-onglet="reglages"]');
 await prof.waitForSelector('.rg-barre');
-dit(await prof.inputValue('[data-min="dossier"]') === '12', 'réglages : la séance part du format standard (12 min au dossier)');
+dit(await prof.inputValue('[data-min="dossier"]') === '8', 'réglages : la séance part du format standard, 50 min (8 min au dossier)');
 await prof.selectOption('[data-etatq="F1.2"]', 'facultative');
 await prof.selectOption('#f-ajout select[name=etape]', 'arrivee');
 await prof.fill('#f-ajout textarea[name=q]', 'Quel animal de Forillon choisiriez-vous comme emblème ?');
@@ -278,7 +289,7 @@ await autre.waitForFunction(() => !document.querySelector('#minutes')?.textConte
 dit(true, 'reprise : le compte à rebours repart');
 await prof.waitForSelector('[data-minutes="marche"][data-delta="5"]');
 await prof.click('[data-minutes="marche"][data-delta="5"]');
-await autre.waitForFunction(() => document.querySelector('#minutes')?.title.includes('15 min'), null, { timeout: 5000 });
+await autre.waitForFunction(() => document.querySelector('#minutes')?.title.includes('12 min'), null, { timeout: 5000 });
 dit(true, '« +5 min » allonge l’étape de la classe, chez les équipes aussi');
 await capture(prof, '09d-chrono');
 
@@ -319,13 +330,10 @@ await prof.click('[data-onglet="direct"]');
 
 // ---------------------------------------------------------------- l'affichage : clair, sombre, contraste élevé
 const theme = (p) => p.evaluate(() => document.documentElement.dataset.theme);
-dit(await theme(autre) === 'light' && await autre.inputValue('[data-theme-select]') === 'light', 'affichage clair par défaut');
+dit(await theme(autre) === 'light' && await autre.inputValue('[data-theme-select]') === 'auto', 'par défaut, l’affichage suit l’ordinateur (ici en clair)');
 await autre.emulateMedia({ colorScheme: 'dark' });
-await autre.waitForTimeout(150);
-dit(await theme(autre) === 'light', 'clair par défaut, même quand l’ordinateur est en sombre');
-await autre.selectOption('[data-theme-select]', 'auto');
 await autre.waitForFunction(() => document.documentElement.dataset.theme === 'dark');
-dit(true, '« Comme l’ordinateur » : l’ordinateur est en sombre, la page aussi');
+dit(true, '« Comme l’ordinateur » : l’ordinateur passe en sombre, la page aussi');
 await autre.emulateMedia({ colorScheme: 'light', contrast: 'more' });
 await autre.waitForFunction(() => document.documentElement.dataset.theme === 'contrast');
 dit(true, 'en automatique, l’ordinateur demande plus de contraste : contraste élevé');
@@ -380,7 +388,8 @@ if (MESURE) {
   dit(true, 'un avis est envoyé, sans nom');
 } else {
   await eleve.waitForSelector('.merci-t');
-  dit(true, 'la partie se termine sur un écran de fin');
+  dit(await eleve.locator('.recap .vos-rep dt').count() >= 5 && await eleve.locator('[data-imprimer-fin]').count() === 1,
+    'la partie se termine sur un écran de fin, avec toutes les réponses à relire ou imprimer');
 }
 
 // ---------------------------------------------------------------- l'espace enseignant·e
@@ -457,8 +466,8 @@ await prof.waitForSelector('#code-seance');
 const code2 = (await prof.textContent('#code-seance')).trim();
 await prof.click('[data-onglet="reglages"]');
 await prof.waitForSelector('.rg-barre');
-dit(await prof.inputValue('[data-min="marche"]') === '7' && (await prof.textContent('#prof')).includes('Quel animal')
-  && (await prof.textContent('#prof')).includes('1 corrigé'), 'nouvelle séance en 50 min : minutes du format, questions ajoutées et corrections reprises');
+dit(await prof.inputValue('[data-min="marche"]') === '5' && (await prof.textContent('#prof')).includes('Quel animal')
+  && (await prof.textContent('#prof')).includes('1 corrigé'), 'nouvelle séance courte (35 min) : minutes du format, questions ajoutées et corrections reprises');
 await capture(prof, '14b-nouvelle-seance-courte');
 // rétablir l'original : la correction doit disparaître pour de bon (pas une fusion qui la garderait)
 await prof.evaluate(() => document.querySelectorAll('details.rg-groupe, details.rg-item').forEach((d) => { d.open = true; }));
@@ -484,7 +493,7 @@ await prof.click('[data-ed="enregistrer"]');
 await prof.waitForFunction(() => document.querySelector('#ed-etat')?.textContent.includes('Enregistré'));
 await prof.click('[data-retour]');
 await prof.waitForSelector('#creer');
-dit((await prof.textContent('#prof')).includes('61 min en tout'), '« Ma version » se modifie depuis l’accueil (50 min + 11 au débrief)');
+dit((await prof.textContent('#prof')).includes('49 min en tout'), '« Ma version » se modifie depuis l’accueil (35 min + 14 au débrief)');
 
 // ---------------------------------------------------------------- la séance de démonstration (mode local)
 if (MODE === 'local') {
@@ -496,7 +505,7 @@ if (MODE === 'local') {
   dit((await ligne('fou-de-bassan')).includes('Revenir sur sa démarche') && (await ligne('castor')).includes('Faire le portrait'),
     'démonstration : quatre équipes, à des étapes différentes');
   dit(await prof.locator('[data-equipe="orignal"] .t--alerte').count() === 1, 'démonstration : une équipe au-delà du temps prévu, signalée');
-  dit(/^(39|40|41) min/.test((await prof.textContent('#chrono')).trim()), 'démonstration : le chrono de la classe tourne depuis 40 min');
+  dit(/^(39|40|41):\d\d/.test((await prof.textContent('#chrono')).trim()), 'démonstration : le chrono de la classe tourne depuis 40 min, à la seconde près');
   await capture(prof, '16-demonstration');
   await prof.click('[data-onglet="debrief"]');
   dit((await prof.textContent('#prof')).includes('Personne leur a demandé leur avis'), 'démonstration : le débrief montre les réponses des équipes');
@@ -649,6 +658,11 @@ if (MODE === 'local') {
     'secteurs|foret|d': { valeur: '"><img src=x onerror=alert(1)>' },
     'complications|route|x': { valeur: '<img src=x onerror=alert(2)>' } } });
   const foret = (x) => x.secteurs.find((s) => s.id === 'foret').d;
+  const { reglagesDuFormat, reglagesSurMesure } = await import('../public/js/reglages.js');
+  const total = (rg) => rg.miseEnRoute + Object.entries(rg.minutes).filter(([k]) => k !== 'avis').reduce((s, [, m]) => s + m, 0);
+  dit(total(reglagesDuFormat(contenu, 'courte')) === 35 && total(reglagesDuFormat(contenu, 'standard')) === 50
+    && total(reglagesDuFormat(contenu, 'deux')) === 100 && total(reglagesSurMesure(contenu, 62)) === 62,
+    'formats : 35, 50 (le standard) et 100 min, ou sur mesure à la minute près');
   dit(c.releves[0].t === 'Titre corrigé' && !('url' in c.releves[0]) && foret(c) === foret(contenu)
     && !c.complications[0].x.includes('<img'),
     'une correction ne touche que les champs prévus : ni lien, ni tracé de la carte, ni HTML actif');

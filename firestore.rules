@@ -36,6 +36,16 @@ service cloud.firestore {
     function expiration(d) { return !('expireLe' in d) || d.expireLe is timestamp; }
     // un texte libre court (réponses du questionnaire)
     function court(d, k) { return !(k in d) || (d[k] is string && d[k].size() <= 300); }
+    // les seuls noms d'équipe possibles : un client trafiqué ne peut pas afficher un autre nom en classe
+    function nomPermis(n) {
+      return n in ['Fou de Bassan', 'Phoque gris', 'Petit rorqual', 'Orignal', 'Ours noir', 'Castor', 'Renard roux',
+        'Porc-épic', 'Guillemot', 'Petit pingouin', 'Mouette tridactyle', 'Cormoran', 'Grand héron', 'Lynx', 'Martin-pêcheur'];
+    }
+    // le message écrit par l'enseignant·e : 140 caractères au plus
+    function messageCourt(d) {
+      return !('signal' in d) || d.signal == null || !('texte' in d.signal)
+        || (d.signal.texte is string && d.signal.texte.size() <= 140);
+    }
 
     match /seances/{code} {
       // Lire UNE séance par son code : toute personne connectée (une équipe qui la rejoint).
@@ -53,7 +63,8 @@ service cloud.firestore {
         && request.resource.data.enseignantId == resource.data.enseignantId
         && request.resource.data.keys().hasOnly(['enseignantId', 'creeLe', 'etat', 'questionnaire', 'signal', 'config', 'chrono', 'expireLe', 'bravos'])
         && expiration(request.resource.data)
-        && (!('bravos' in request.resource.data) || request.resource.data.bravos is map);
+        && (!('bravos' in request.resource.data) || request.resource.data.bravos is map)
+        && messageCourt(request.resource.data);
       allow delete: if connecte() && resource.data.enseignantId == request.auth.uid;
 
       // La fiche d'une équipe. L'identifiant du document est le nom de l'équipe :
@@ -68,7 +79,7 @@ service cloud.firestore {
                'temps', 'releves', 'docs', 'juge', 'zones', 'comps', 'gespeg', 'gespegVu', 'historique',
                'corridorRompu', 'mentions', 'reponses', 'fini', 'compteurs', 'expireLe'])
           && expiration(request.resource.data)
-          && request.resource.data.nom is string && request.resource.data.nom.size() <= 30
+          && request.resource.data.nom is string && nomPermis(request.resource.data.nom)
           && request.resource.data.reponses is map && request.resource.data.reponses.size() <= 40;
         allow update: if connecte()
           && resource.data.appareil == request.auth.uid
