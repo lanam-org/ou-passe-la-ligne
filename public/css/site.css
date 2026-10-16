@@ -1134,3 +1134,30 @@ body[data-espace="prof"] .aide-b:focus-visible{outline-color:var(--prof-txt)}
 .barre-d .lien{text-decoration:none}
 @media (max-width:560px){.ap-donnee dl{grid-template-columns:1fr}.ap-sect{padding:18px 16px}}
 @media print{.ap-nav,.barre{display:none}.ap-sect,.ap-cartes li{box-shadow:none}}
+
+/* ===================================================== retours du premier essai */
+/* onglets de l'espace enseignant·e : un menu déroulant quand la fenêtre est étroite */
+.onglets-menu{display:none}
+@media (max-width:980px){
+  .onglets-g{display:none}
+  .onglets-menu{display:block;width:100%;padding:6px 0 10px}
+  .onglets-menu select{width:100%;max-width:360px;font:inherit;font-size:15px;font-weight:700;padding:9px 12px;border-radius:var(--r-s);
+    border:1px solid #C5D2DA;background:var(--surface);color:var(--encre)}
+}
+
+/* fin de partie : la partie entière, à relire, à capturer ou à imprimer */
+.fin-actions{justify-content:center}
+.scene.recap{max-width:860px;margin:16px auto 0}
+.recap h2{font-size:22px;margin-bottom:14px}
+.recap-g{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:18px;align-items:start}
+@media (max-width:700px){.recap-g{grid-template-columns:1fr}}
+.recap .mentions{margin-top:10px}
+@media print{
+  body[data-espace="eleve"] .barre{position:static;border:0}
+  .mode-local,.bravo-zone,.fin-actions,#prog{display:none !important}
+  .scene.fin,.scene.recap{box-shadow:none;border:0;max-width:none}
+}
+
+/* rapport imprimé : une ligne pour écrire les prénoms à la main (jamais dans le site) */
+.r-membres{display:flex;gap:8px;align-items:flex-end;margin:2pt 0 8pt;font-size:11pt}
+.r-membres span{flex:1;min-height:1.3em;border-bottom:1px solid #000}

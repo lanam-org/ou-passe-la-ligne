@@ -121,7 +121,10 @@ export async function effacerMaVersion(uid) {
 export async function rejoindre(c, code, nom) {
   const moi = await donnees.identite();
   const s = await donnees.lire(cheminSeance(code));
-  if (!s) throw new Error('Aucune séance avec ce code. Vérifie les cinq caractères au tableau.');
+  if (!s) throw new Error(donnees.mode === 'local'
+    ? 'Aucune séance avec ce code dans ce navigateur. En version de démonstration, une séance n\'existe que dans le navigateur '
+      + 'où elle a été créée : ouvrez la page des équipes dans un autre onglet de ce même navigateur.'
+    : 'Aucune séance avec ce code. Vérifie les cinq caractères au tableau.');
   if (s.etat !== 'ouverte') throw new Error('Cette séance est terminée.');
   const id = idEquipe(nom);
   const chemin = cheminEquipe(code, id);

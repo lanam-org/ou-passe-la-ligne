@@ -447,14 +447,29 @@ const GABARIT = `
     <div class="carnet" id="carnet"></div>
   </div>`;
 
+/** La fin : un merci, puis toute la partie de l'équipe, à relire, à capturer ou à imprimer. */
 function rendreFin() {
   $('#prog').innerHTML = '';
+  const ecrites = J.questionsEcrites(c).filter((q) => R(q.id));
+  const bravos = questionsBravo();
   $('#app').innerHTML = typo(`<section class="scene fin"><div class="scene-c merci">
     <p class="merci-t">Partie terminée</p>
     <p>Merci, équipe ${esc(E.nom)}. ${donnees.mode === 'local'
       ? 'Votre ligne et vos réponses sont gardées dans ce navigateur.'
       : 'Votre ligne et vos réponses sont envoyées à votre enseignant·e.'}</p>
-    <p class="avert">Vous pouvez fermer cette page.</p></div></section>`);
+    <div class="p-actions fin-actions"><button class="btn btn--f" type="button" data-imprimer-fin>Imprimer ou enregistrer en PDF</button></div>
+    </div></section>
+    <section class="scene recap"><div class="scene-c">
+      <h2>Votre partie</h2>
+      <div class="recap-g"><div>${carte(c, E, { cliquable: false })}</div><div>${blocReleve(c, E, true)}</div></div>
+      ${bravos.length || E.mentions.length ? `<h3 class="sous">Ce que vous avez fait de bien</h3><div class="mentions">${
+        bravos.map((q) => `<div class="mention mention--ens"><span class="mention-i" aria-hidden="true">✦</span>
+          <span><b>Bravo de votre enseignant·e</b><span>« ${esc(q.eleve)} »</span></span></div>`).join('')}${
+        E.mentions.map((id) => `<div class="mention"><span class="mention-i" aria-hidden="true">✦</span>
+          <span><b>${esc(c.mentions[id].nom)}</b><span>${esc(c.mentions[id].court)}</span></span></div>`).join('')}</div>` : ''}
+      ${ecrites.length ? `<h3 class="sous">Vos réponses</h3><dl class="vos-rep">${ecrites.map((q) => `<dt>${esc(q.eleve)}</dt>
+        <dd>${esc(E.reponses[q.id])}${aUnBravo(S, idEq, q.id) ? ' <span class="vos-bravo">✦ bravo de votre enseignant·e</span>' : ''}</dd>`).join('')}</dl>` : ''}
+    </div></section>`);
 }
 
 function rendre() {
@@ -603,6 +618,7 @@ document.addEventListener('input', (ev) => {
 document.addEventListener('click', async (ev) => {
   if (!E) return;
   if (ev.target.closest('[data-fermer-bravo]')) return fermerBravo();
+  if (ev.target.closest('[data-imprimer-fin]')) return window.print();
   const al = ev.target.closest('[data-aller]');
   if (al) {
     const t = document.querySelector(`[data-rep="${CSS.escape(al.dataset.aller)}"]`);

@@ -238,7 +238,8 @@ function vueDirect() {
           <p class="sur">Code de la séance</p>
           <p class="code-v" id="code-seance">${esc(code)}</p>
           <p class="code-u">À afficher au tableau.</p>
-          <p class="code-u">Lien direct : <b>${esc(lienEleve())}</b></p>
+          <p class="code-u">Lien direct : <b>${esc(lienEleve())}</b>${donnees.mode === 'local'
+            ? '<br><span class="hint">Démonstration : ce lien ne marche que dans ce navigateur.</span>' : ''}</p>
         </section>
         <section class="p-sect tete-chrono">
           <p class="sur">Chrono de la classe${ch.pause ? ' <span class="badge badge--pause">en pause</span>' : ''}</p>
@@ -595,7 +596,9 @@ function rapportHTML() {
     ${avis}
     ${eq.map((e, k) => {
       const r = rs[k];
+      // les prénoms ne passent jamais par le site (Loi 25, élèves de moins de 14 ans) : une ligne à remplir à la main
       return `<section class="r-eq"><h2>Équipe ${esc(e.nom)}</h2>
+        <p class="r-membres">Membres de l'équipe (à écrire à la main) : <span></span></p>
         <div class="r-eq-g"><div class="r-carte">${carte(c, e, { cliquable: false })
           // motifs renommés : les identifiants SVG doivent être uniques dans la page
           .replace(/id="m-/g, `id="r${k}-m-`).replace(/url\(#m-/g, `url(#r${k}-m-`)}</div>
@@ -906,9 +909,13 @@ function rendre(force = false) {
     if (ui.ed.modifie || stable(ailleurs) === stable(ui.ed.r)) return;
     ui.ed.r = ailleurs;
   }
+  // Une rangée d'onglets sur un écran large ; un menu déroulant quand la fenêtre est étroite (site.css choisit)
   $('#onglets').innerHTML = ONGLETS.map((g) => `<div class="onglets-g" role="group" aria-label="${g.g}">
     <span class="onglets-t" aria-hidden="true">${g.g}</span>${g.l.map((x) =>
-      `<button data-onglet="${x.id}" aria-current="${onglet === x.id ? 'page' : 'false'}">${x.t}</button>`).join('')}</div>`).join('');
+      `<button data-onglet="${x.id}" aria-current="${onglet === x.id ? 'page' : 'false'}">${x.t}</button>`).join('')}</div>`).join('')
+    + `<label class="onglets-menu"><span class="cache-visuel">Section de l'espace enseignant·e</span>
+      <select data-onglet-menu>${ONGLETS.map((g) => `<optgroup label="${g.g}">${g.l.map((x) =>
+        `<option value="${x.id}" ${onglet === x.id ? 'selected' : ''}>${x.t}</option>`).join('')}</optgroup>`).join('')}</select></label>`;
   const vues = { direct: vueDirect, reglages: vueReglages, debrief: vueDebrief, questions: vueQuestions, dossier: vueDossier, deroulement: vueDeroulement,
     mesures: vueMesures, questionnaire: vueQuestionnaire };
   $('#prof').innerHTML = typo(vues[onglet]());
@@ -947,6 +954,16 @@ document.addEventListener('input', (ev) => {
 
 document.addEventListener('change', (ev) => {
   if (ev.target.id === 'dd-pastilles') { ui.pastilles = ev.target.checked; rendre(true); }
+  // le menu déroulant des sections (fenêtre étroite) : mêmes règles que les onglets
+  if (ev.target.matches('[data-onglet-menu]')) {
+    const vers = ev.target.value;
+    if (onglet === 'reglages' && vers !== 'reglages' && ui.ed?.modifie && ui.confirmeOnglet !== vers) {
+      ui.confirmeOnglet = vers; ev.target.value = 'reglages';
+      $('#ed-etat').textContent = 'Changements pas encore appliqués : applique-les, ou choisis encore cette section pour les laisser en attente.';
+      return;
+    }
+    ui.confirmeOnglet = null; onglet = vers; window.scrollTo({ top: 0 }); rendre(true);
+  }
 });
 
 document.addEventListener('change', async (ev) => {
