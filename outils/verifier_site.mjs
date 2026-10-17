@@ -538,6 +538,34 @@ await prof.click('[data-effacer="oui"]');
 await prof.waitForSelector('#creer', { timeout: 8000 });
 dit(true, 'la séance est effacée ; l’espace propose d’en créer une nouvelle');
 await auditer(prof, 'enseignant · accueil « Tes séances »');
+
+// la trousse d'essai, imprimée depuis l'accueil : « Démarrer en 5 minutes », puis la grille d'observation
+{
+  const sansInsecables = (s) => s.replace(/ /g, ' ');   // typo() pose des espaces insécables avant « ? » et « : »
+  await prof.evaluate(() => { window.__trousse = 0; window.print = () => { window.__trousse += 1; }; });
+  await prof.click('[data-trousse="demarrer"]');
+  const fiche = sansInsecables(await prof.textContent('#papier'));
+  dit(await prof.evaluate(() => window.__trousse) === 1 && fiche.includes('démarrer en 5 minutes')
+    && ['Créer la séance', 'Agrandir le code QR', 'Je suis élève', 'Message à toute la classe', 'Débrief',
+      'Imprimer le rapport de séance', 'Effacer la séance et ses données'].every((m) => fiche.includes(m)),
+    '« Démarrer en 5 minutes » : une page, de la création de la séance à l’effacement');
+  await prof.emulateMedia({ media: 'print' });
+  await prof.pdf({ path: join(CAPTURES, `${MODE}-trousse-demarrer.pdf`), format: 'Letter', printBackground: true });
+  await prof.emulateMedia({ media: 'screen' });
+  await prof.evaluate(() => window.dispatchEvent(new Event('afterprint')));
+  await prof.click('[data-trousse="observation"]');
+  const grille = sansInsecables(await prof.textContent('#papier'));
+  const contenuT = JSON.parse(await readFile(join(PUBLIC, 'contenu', 'forillon.json'), 'utf8'));
+  const aObserver = Object.entries(contenuT.observer).filter(([id]) => id !== 'avis' || MESURE).flatMap(([, l]) => l);
+  dit(aObserver.every((x) => grille.includes(x)) && contenuT.plan.every((p) => grille.includes(p.test))
+    && grille.includes('Aucun prénom') && grille.includes('Afficher le code ou le code QR au tableau'),
+    `la grille d’observation : les ${aObserver.length} « À observer », les fonctions à trouver seul·e, les ${contenuT.plan.length} critères du plan de mesure, sans prénom`);
+  await prof.emulateMedia({ media: 'print' });
+  await prof.pdf({ path: join(CAPTURES, `${MODE}-trousse-observation.pdf`), format: 'Letter', printBackground: true });
+  await prof.emulateMedia({ media: 'screen' });
+  await prof.evaluate(() => window.dispatchEvent(new Event('afterprint')));
+  dit(!(await prof.evaluate(() => document.body.classList.contains('imprime'))), 'après la trousse, l’écran revient');
+}
 await autre.waitForSelector('#signal:not([hidden])', { timeout: 5000 });
 dit((await autre.textContent('#signal')).includes('terminée'), 'les équipes encore en jeu voient « séance terminée »');
 if (MODE === 'firebase') dit(fauxFb.etat().documents === fauxFb.lireCollection('enseignants').length,

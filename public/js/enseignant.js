@@ -13,6 +13,7 @@
 //   preparer.js  Questions, Dossier, Déroulement
 //   apres.js     Mesures, Questionnaire
 //   rapport.js   le rapport de séance, et l'impression
+//   trousse.js   la trousse d'essai : « Démarrer en 5 minutes », la grille d'observation
 
 import * as donnees from './donnees.js';
 import { mesure } from './config.js';
@@ -28,6 +29,7 @@ import { vueReglages } from './enseignant/editeur.js';
 import { vueQuestions, vueDossier, vueDeroulement } from './enseignant/preparer.js';
 import { vueMesures, vueQuestionnaire, exporterCSV, questionnairePapier } from './enseignant/apres.js';
 import { rapportHTML, imprimer } from './enseignant/rapport.js';
+import './enseignant/trousse.js';   // ses boutons [data-trousse] : il écoute lui-même les clics
 
 validationEnFrancais();
 

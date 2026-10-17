@@ -84,6 +84,9 @@ export async function afficherAccueil(erreur = '') {
         <a href="dossier.html" target="_blank" rel="noopener">la version élève</a>.</p>
       <p class="hint" style="margin-top:6px">Ta direction ou ton centre de services demande ce que le site fait des données ?
         <a href="ecoles.html" target="_blank" rel="noopener">La fiche pour l'école</a>, à leur transmettre.</p>
+      <p class="p-txt" style="margin-top:16px">Pour un essai du jeu : une page pour démarrer, et une grille pour la personne qui observe.</p>
+      <div class="p-actions"><button class="btn btn--f" data-trousse="demarrer">Démarrer en 5 minutes</button>
+        <button class="btn btn--f" data-trousse="observation">Grille d'observation</button></div>
     </section>
     ${demo}
     <section class="p-sect"><div class="p-sect-h"><h3>Ta version du jeu</h3></div>

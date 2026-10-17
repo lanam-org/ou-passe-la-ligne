@@ -622,6 +622,18 @@ body.avec-signal .bravo-zone{top:150px}
   .papier .r-k{color:#000;font-weight:700}
   .papier .r-rep dt{font-weight:700;color:#000;margin-top:8pt;break-after:avoid}
   .papier .r-rep dd{margin:2pt 0 0 0;padding-left:8pt;border-left:1.5pt solid #9A9A9A}
+  /* la trousse d'essai (enseignant/trousse.js) : des étapes numérotées, des cases à cocher, de la place pour écrire */
+  .papier .t-pas{list-style:none;padding:0;margin:10pt 0 0;counter-reset:pas}
+  .papier .t-pas li{counter-increment:pas;display:grid;grid-template-columns:11mm 1fr;gap:3mm;margin:0 0 10pt;break-inside:avoid}
+  .papier .t-pas li::before{content:counter(pas);font-size:20pt;font-weight:700;line-height:1}
+  .papier .t-pas b{display:block;font-size:12pt;margin-bottom:2pt}
+  .papier .t-c{width:13mm;text-align:center;font-size:12pt}
+  .papier .t-notes td{height:11mm}
+  .papier .t-rem{width:55mm}
+  .papier .t-champs{display:grid;grid-template-columns:1fr 1fr;gap:9pt 10mm;margin:10pt 0 6pt}
+  .papier .t-champs span{border-bottom:.5pt solid #000;padding-bottom:3pt}
+  .papier .t-champs .t-large{grid-column:1 / -1}
+  .papier .t-saut{break-before:page}
 }
 
 /* ------------------------------------------------------------ réglages : temps et rattrapage */

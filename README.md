@@ -15,7 +15,7 @@ démonstration : tout reste dans le navigateur de la personne qui essaie, rien n
 | `index.html` | tout le monde | Choisir : équipe ou enseignant·e |
 | `eleve.html` | une équipe, un Chromebook | Entrer le code, choisir un nom d'animal, jouer les 7 étapes : Arriver, Faire le portrait du territoire, Se questionner, Prendre position, D'autres points de vue, La décision de 1970, Revenir sur sa démarche |
 | `dossier.html` | les élèves, avant la séance | La version devoir du dossier documentaire : le portrait et les documents, sans les surprises ; imprimable |
-| `enseignant.html` | l'enseignant·e | Se connecter (Google, facultatif), retrouver ses séances, en créer une, suivre en direct, afficher le code et son code QR, chrono de classe, envoyer un message, réglages, débrief, questions, dossier documentaire, mesures, rapport imprimable |
+| `enseignant.html` | l'enseignant·e | Se connecter (Google, facultatif), retrouver ses séances, en créer une, suivre en direct, afficher le code et son code QR, chrono de classe, envoyer un message, réglages, débrief, questions, dossier documentaire, mesures, rapport imprimable, trousse d'essai (« Démarrer en 5 minutes », grille d'observation) |
 | `confidentialite.html` | tout le monde (parents, écoles, service informatique) | Ce que le site enregistre, pourquoi, où, combien de temps ; la responsable et ses coordonnées ; les droits ; les adresses à autoriser dans le filtre de l'école. Liée en bas de chaque page |
 | `ecoles.html` | la direction, la ou le responsable de la vie privée, le service informatique | La fiche pour l'école : les éléments factuels d'une ÉFVP (inventaire des données, cycle de vie, fournisseurs et lieux, sécurité, risques), imprimable. Liée depuis Confidentialité et l'accueil de l'espace enseignant·e |
 
@@ -133,6 +133,20 @@ Nearpod (une bonne réponse mise en lumière devant la classe), sans points ni c
   le rapport imprimé les marque aussi.
 - Rangé dans la séance (`bravos`, une date par équipe et par question) : il part avec elle.
 
+## La trousse d'essai
+
+Pour un essai du jeu (playtest), deux pages à imprimer depuis l'accueil de l'espace enseignant·e (« Avant la séance ») :
+
+- **Démarrer en 5 minutes** : une page pour l'enseignant·e qui découvre le jeu, de la création de la séance à
+  l'effacement, et où trouver le reste (onglets).
+- **La grille d'observation**, pour la personne qui observe : les « À observer » de chaque étape (Oui, Non,
+  Pas vu, notes), les fonctions que l'enseignant·e doit trouver seul·e (Seul·e, Avec aide, Pas trouvée), le plan
+  de mesure (qui mesure quoi : le site, l'observation ou le questionnaire), et quatre questions pour l'entretien
+  d'après. Aucun prénom d'élève. Aussi imprimable depuis l'onglet « Déroulement » d'une séance ouverte.
+
+Les deux se construisent à partir du contenu (`observer`, `plan`) et des réglages (durées, format) : rien à
+mettre à jour à la main. Le test les imprime en PDF dans `outils/captures/`.
+
 ## Un écran, une chose à faire
 
 Règle de mise en page côté équipe : **ce qu'il y a à faire maintenant se voit sans défiler**, sur un
@@ -220,7 +234,7 @@ On peut aussi tout héberger chez Firebase (`firebase deploy`).
 | `public/js/eleve/` | `ecrans.js` (une fonction par étape, l'écran de fin), `questions.js` (questions écrites, « À rattraper »), `annonces.js` (gestes reconnus, « bravos », message de l'enseignant·e, lecteur d'écran), `envoi.js` (l'enregistrement et le voyant « Enregistré ») ; `etat.js`, l'état qu'ils partagent |
 | `public/js/vendor/uqr.js` | L'encodeur de codes QR (uqr 0.1.3, licence MIT), copié tel quel : aucun service extérieur |
 | `public/js/enseignant.js` | L'espace enseignant·e : ouvrir une séance, l'écouter en direct, choisir l'onglet, les gestes en séance |
-| `public/js/enseignant/` | Un fichier par écran de l'espace : `accueil.js` (Tes séances), `direct.js`, `debrief.js`, `editeur.js` (Réglages, Ta version), `preparer.js` (Questions, Dossier, Déroulement), `apres.js` (Mesures, Questionnaire), `rapport.js` (rapport, impression) ; `etat.js`, l'état qu'ils partagent |
+| `public/js/enseignant/` | Un fichier par écran de l'espace : `accueil.js` (Tes séances), `direct.js`, `debrief.js`, `editeur.js` (Réglages, Ta version), `preparer.js` (Questions, Dossier, Déroulement), `apres.js` (Mesures, Questionnaire), `rapport.js` (rapport, impression), `trousse.js` (la trousse d'essai) ; `etat.js`, l'état qu'ils partagent |
 | `public/js/seance.js` | Créer, rejoindre, effacer une séance ; ses réponses attendues, à part ; la version du jeu de l'enseignant·e |
 | `public/js/dossierdoc.js` | Le dossier documentaire, à l'écran et sur papier ; le lien de source dans le jeu |
 | `public/js/dossier.js` | La page de la version devoir |
@@ -364,4 +378,3 @@ se vérifient dans la console Firebase (Firestore → Règles → Terrain de jeu
 - [ ] Après chaque nouvelle version du site : republier les règles (`firebase deploy`)
 - [ ] Relecture du contenu par la Nation Micmac de Gespeg : envoyer `outils/relecture/relecture-gespeg.pdf`
       (regénéré avec `npm run relecture`), puis corriger le contenu selon ses remarques
-- [ ] Le deuxième dossier (Beauharnois) dans un second fichier de contenu

@@ -76,7 +76,8 @@ export function vueDeroulement() {
       <p>${c.miseEnRoute.min + Rg.totalPrevu(c)} minutes (${esc(Rg.FORMATS[c.reglages.format]?.nom || '')}) : ${c.miseEnRoute.min} de mise en route, puis sept étapes.
         Ce que vit l'équipe, ce que ça fait travailler, et quoi observer. Rien de ceci n'apparaît chez les élèves.</p>
       ${c.coupure ? `<p class="hint">Deux périodes : coupure conseillée après « ${esc(c.etapes.find((x) => x.id === c.coupure).t)} ».
-        À la période suivante, chaque équipe reprend sur le même Chromebook, avec le même code.</p>` : ''}</div>
+        À la période suivante, chaque équipe reprend sur le même Chromebook, avec le même code.</p>` : ''}
+      <div class="p-actions"><button class="btn btn--f" data-trousse="observation">Imprimer la grille d'observation</button></div></div>
     <div class="etapes-p">
       <article class="etape-p"><header><span class="etape-n">0</span><div><h3>Mise en route</h3>
         <span class="hint">${c.miseEnRoute.min} min · par l'enseignant·e</span></div></header>
