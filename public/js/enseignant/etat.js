@@ -8,12 +8,13 @@ import * as J from '../jeu.js';
 import * as Rg from '../reglages.js';
 import { chargerContenu } from '../outils.js';
 
-/** Le contenu d'origine. */
-export const base = await chargerContenu();
+/** Le contenu d'origine, avec le guide de l'enseignant·e (réponses attendues, notes). */
+export const base = await chargerContenu({ guide: true });
 
 export const etat = {
   code: null,        // la séance ouverte ; null : l'accueil « Tes séances »
   S: null,           // son document : réglages, chrono, message, bravos
+  reponses: null,    // ses réponses attendues, à part (seance.js) ; null tant qu'elles ne sont pas lues
   EQ: [], AV: [],    // ses équipes et ses avis, en direct
   MOI: null,         // l'identité de l'enseignant·e
   choisie: null,     // l'équipe dont on lit le détail
@@ -31,6 +32,9 @@ export const ui = { cacheAttendu: false, effacer: false, projection: false, ouve
  * branche ces trois gestes au démarrage. Un écran les appelle sans dépendre de lui.
  */
 export const page = { rendre: (force) => {}, ouvrir: (code) => {}, accueil: (erreur) => {} };
+
+/** Les réglages complets de la séance ouverte : ceux que lisent les équipes, plus les réponses attendues. */
+export const configSeance = () => Rg.joindreReponses(etat.S?.config, etat.reponses);
 
 let empreinte = '';
 /** Recalcule le contenu de la séance quand ses réglages changent. Vrai si quelque chose a changé. */

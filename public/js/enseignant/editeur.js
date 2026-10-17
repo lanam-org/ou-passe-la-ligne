@@ -10,7 +10,7 @@ import { mesure } from '../config.js';
 import { $, esc, typo, telecharger } from '../outils.js';
 import * as Rg from '../reglages.js';
 import { enregistrerMaVersion, reglerSeance } from '../seance.js';
-import { base, etat, ui, page } from './etat.js';
+import { base, etat, ui, page, configSeance } from './etat.js';
 
 const MAX_AJOUTS = 12;
 const ETATS_ECRITE = [['requise', 'Requise'], ['facultative', 'Facultative'], ['off', 'Pas posée']];
@@ -44,9 +44,11 @@ function modifie() {
 }
 
 export function vueReglages() {
+  // les réponses attendues arrivent à part : sans elles, « Appliquer » les effacerait
+  if (!etat.reponses) return '<div class="p-tete"><h2>Réglages de la séance</h2><p class="hint">Chargement des réglages…</p></div>';
   // sans changement en attente, l'éditeur repart toujours de la séance telle qu'elle est (un « +5 min » compris)
-  if (!ui.ed || ui.ed.cible !== 'seance') ouvrirEditeur('seance', etat.S?.config);
-  else if (!ui.ed.modifie) ui.ed.r = Rg.completer(base, etat.S?.config);
+  if (!ui.ed || ui.ed.cible !== 'seance') ouvrirEditeur('seance', configSeance());
+  else if (!ui.ed.modifie) ui.ed.r = Rg.completer(base, configSeance());
   return editeur();
 }
 
@@ -236,7 +238,7 @@ async function actionEditeur(quoi, bouton) {
   const ed = ui.ed;
   if (quoi === 'exporter') return exporterReglages();
   if (quoi === 'annuler') {
-    ouvrirEditeur(ed.cible, ed.cible === 'seance' ? etat.S?.config : ui.maVersion);
+    ouvrirEditeur(ed.cible, ed.cible === 'seance' ? configSeance() : ui.maVersion);
     ui.ed.msg = 'Changements annulés.';
     return rendreEditeur();
   }

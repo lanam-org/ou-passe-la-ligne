@@ -77,9 +77,11 @@ async function contexte(largeur = 1366, hauteur = 768) {
   return ctx;
 }
 const erreurs = [];
+const guideDemandePar = new Set();   // les pages qui ont téléchargé le guide (les réponses attendues)
 async function page(ctx, chemin, nom) {
   const p = await ctx.newPage();
   p.on('pageerror', (e) => erreurs.push(`${nom} : ${e.message}`));
+  p.on('request', (r) => { if (r.url().endsWith('/contenu/guide.json')) guideDemandePar.add(new URL(p.url()).pathname); });
   p.on('console', (m) => { if (m.type() === 'error' && !/favicon|fonts/.test(m.text())) erreurs.push(`${nom} : ${m.text()}`); });
   await p.goto(BASE + chemin);
   return p;
@@ -242,11 +244,24 @@ await prof.click('details.rg-groupe[data-k="rg|Relevés de terrain"] > summary')
 await prof.click('details.rg-item[data-k="rg|releves|0"] > summary');
 await prof.fill('[data-corr="releves|0|t"]', 'Relevé corrigé pour le test');
 await prof.fill('[data-raison="releves|0|t"]', 'Essai de correction');
+await prof.click('details.rg-groupe[data-k="rg|Questions de la banque"] > summary');
+await prof.click('details.rg-item[data-k="rg|banque|F2.1"] > summary');
+await prof.fill('[data-corr="banque|F2.1|reponse"]', 'Réponse attendue corrigée pour le test');
 dit((await prof.textContent('#ed-etat')).includes('pas encore appliqués'), 'réglages : rien ne part avant « Appliquer »');
 await capture(prof, '08b-reglages');
 await prof.click('[data-ed="appliquer"]');
 await prof.waitForFunction(() => document.querySelector('#ed-etat')?.textContent.includes('Appliqué'));
 dit(true, 'réglages appliqués à la séance');
+// la séance telle qu'une équipe la lit : la question ajoutée, mais aucune réponse attendue
+const vueEquipe = await autre.evaluate(async (cd) => JSON.stringify(await (await import('./js/donnees.js')).lire(`seances/${cd}`)), code);
+dit(vueEquipe.includes('Quel animal de Forillon') && !vueEquipe.includes('Toute réponse justifiée')
+  && !vueEquipe.includes('Réponse attendue corrigée pour le test') && !vueEquipe.includes('"reponse"'),
+  'les réponses attendues (question ajoutée, réponse corrigée) ne sont pas dans la séance que lisent les équipes');
+if (MODE === 'firebase') {
+  const prive = JSON.stringify(fauxFb.lire(`seances/${code}/prive/reponses`));
+  dit(prive.includes('Toute réponse justifiée') && prive.includes('Réponse attendue corrigée pour le test'),
+    'elles sont à part, dans le document que seul·e l’enseignant·e lit');
+}
 
 await autre.waitForSelector('text=Quel animal de Forillon', { timeout: 5000 });
 dit(true, 'la question ajoutée arrive en direct chez l’équipe à l’arrivée');
@@ -405,6 +420,10 @@ for (const o of ['questions', 'deroulement', 'mesures', 'questionnaire']) {
 }
 await prof.click('[data-onglet="questions"]');
 dit(await prof.locator('.bq').count() === 29, 'les 28 questions de la banque et la question ajoutée sont dans l’onglet Questions');
+const ongletQuestions = await prof.textContent('#prof');
+dit(ongletQuestions.includes('Toute réponse justifiée') && ongletQuestions.includes('Réponse attendue corrigée pour le test')
+  && ongletQuestions.includes('À la pointe de la péninsule gaspésienne'),
+  'l’enseignant·e y retrouve toutes les réponses attendues : du guide, de sa question ajoutée, de sa correction');
 await capture(prof, '13-enseignant-questions');
 await prof.click('[data-onglet="mesures"]');
 dit(await prof.locator('.tab').first().locator('th').count() === 3, 'les mesures montrent une colonne par équipe');
@@ -472,13 +491,15 @@ await capture(prof, '14b-nouvelle-seance-courte');
 // rétablir l'original : la correction doit disparaître pour de bon (pas une fusion qui la garderait)
 await prof.evaluate(() => document.querySelectorAll('details.rg-groupe, details.rg-item').forEach((d) => { d.open = true; }));
 await prof.click('[data-retablir="releves|0|t"]');
+await prof.click('[data-retablir="banque|F2.1|reponse"]');
 await prof.click('[data-ed="appliquer"]');
 await prof.waitForFunction(() => document.querySelector('#ed-etat')?.textContent.includes('Appliqué'));
 await prof.click('[data-ed="garder"]');
 await prof.waitForFunction(() => document.querySelector('#ed-etat')?.textContent.includes('ta version'));
 if (MODE === 'firebase') dit(Object.keys(fauxFb.lire(`seances/${code2}`).config.corrections).length === 0
+  && Object.keys(fauxFb.lire(`seances/${code2}/prive/reponses`).corrections).length === 0
   && Object.keys(fauxFb.lireCollection('enseignants')[0].reglages.corrections).length === 0,
-  'une correction retirée disparaît vraiment de la séance et de la version');
+  'une correction retirée disparaît vraiment de la séance, de ses réponses attendues et de la version');
 await prof.click('[data-onglet="direct"]');
 await prof.click('[data-effacer="demander"]');
 await prof.click('[data-effacer="oui"]');
@@ -631,10 +652,12 @@ if (MODE === 'local') {
   const coquille = new Set(JSON.parse(sw.match(/const COQUILLE = (\[[^\]]*\])/)[1].replace(/'/g, '"')));
   const fichiers = (await readdir(PUBLIC, { recursive: true, withFileTypes: true }))
     .filter((f) => f.isFile()).map((f) => join(f.parentPath ?? f.path, f.name).slice(PUBLIC.length + 1).replace(/\\/g, '/'))
-    .filter((f) => !['sw.js', 'robots.txt', '.nojekyll'].includes(f));
+    // guide.json : les réponses attendues, jamais gardées d'avance sur un Chromebook d'élève
+    .filter((f) => !['sw.js', 'robots.txt', '.nojekyll', 'contenu/guide.json'].includes(f));
   const oublis = fichiers.filter((f) => !coquille.has(f));
   dit(!oublis.length && fichiers.length + 1 === coquille.size,
     `chaque fichier du site est gardé pour le hors-ligne (sw.js)${oublis.length ? ' — manquent : ' + oublis.join(', ') : ''}`);
+  dit(!coquille.has('contenu/guide.json'), 'le guide de l’enseignant·e (réponses attendues) n’est pas gardé d’avance sur les Chromebooks');
 
   // Ce qui se publie dans une école : rien vers Google Fonts, une CSP, le lien vers la confidentialité.
   const pages = fichiers.filter((f) => f.endsWith('.html'));
@@ -666,6 +689,21 @@ if (MODE === 'local') {
   dit(c.releves[0].t === 'Titre corrigé' && !('url' in c.releves[0]) && foret(c) === foret(contenu)
     && !c.complications[0].x.includes('<img'),
     'une correction ne touche que les champs prévus : ni lien, ni tracé de la carte, ni HTML actif');
+
+  // les réponses attendues : dans le guide de l'enseignant·e, jamais dans ce que lisent les équipes
+  const guide = JSON.parse(await readFile(join(PUBLIC, 'contenu', 'guide.json'), 'utf8'));
+  const ids = new Set(contenu.banque.map((q) => q.id));
+  dit(!contenu.banque.some((q) => 'reponse' in q || 'note' in q) && contenu.banque.every((q) => guide.banque[q.id]?.reponse)
+    && Object.keys(guide.banque).every((id) => ids.has(id)),
+    'chaque question de la banque a sa réponse attendue dans contenu/guide.json, et aucune n’est dans le contenu des équipes');
+  const { separerReponses, joindreReponses } = await import('../public/js/reglages.js');
+  const { isDeepStrictEqual } = await import('node:util');
+  const rg = { ajouts: [{ id: 'Aessai', q: 'Une question ?', reponse: 'Réponse secrète' }],
+    corrections: { 'banque|F2.1|reponse': { valeur: 'Réponse corrigée' }, 'releves|0|t': { valeur: 'Titre' } } };
+  const { publics, reponses } = separerReponses(rg);
+  dit(!/secrète|Réponse corrigée/.test(JSON.stringify(publics)) && publics.corrections['releves|0|t'] && publics.ajouts[0].q
+    && isDeepStrictEqual(joindreReponses(publics, reponses), rg),
+    'les réponses attendues se séparent des réglages de la séance, puis s’y rejoignent sans perte');
 }
 if (MODE === 'local') {
   // un serveur à part, qu'on éteint : la preuve que la page vient bien de la copie gardée
@@ -706,6 +744,8 @@ if (MODE === 'local') {
   await ctxHL.close();
 }
 
+dit(guideDemandePar.has('/enseignant.html') && [...guideDemandePar].every((p) => p === '/enseignant.html'),
+  `le guide (réponses attendues) n’est téléchargé que par l’espace enseignant·e (demandé par : ${[...guideDemandePar].join(', ')})`);
 dit(erreurs.length === 0, `aucune erreur dans la console${erreurs.length ? ' :\n    ' + erreurs.join('\n    ') : ''}`);
 await navigateur.close();
 serveur.close(); fauxFb.fermer();

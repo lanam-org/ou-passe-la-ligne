@@ -13,13 +13,14 @@ rules_version = '2';
 //
 // Ce que ça garantit :
 //   · une équipe ne lit et ne modifie que SA fiche ; elle ne voit pas les réponses des autres ;
+//   · une équipe ne lit jamais les réponses attendues : elles sont à part (prive/reponses) ;
 //   · l'enseignant·e lit tout dans sa séance, et peut tout effacer ;
 //   · seuls les champs prévus sont acceptés (listes blanches) : personne ne peut
 //     ajouter un champ « prénom » par erreur ;
 //   · la version du jeu de l'enseignant·e (ses réglages) n'est lue et écrite que par elle ou lui ;
 //   · les « bravos » (une réponse saluée : équipe, question, date) vivent dans la séance :
 //     seul·e l'enseignant·e les écrit, puisque seul·e elle ou il modifie la séance ;
-//   · séances, fiches et avis portent une date d'effacement (expireLe) : la politique
+//   · séances, fiches, avis et réponses attendues portent une date d'effacement (expireLe) : la politique
 //     TTL de Firestore les efface après cette date (Loi 25 : conservation limitée).
 //     À activer une fois : voir le README, « Effacement automatique ».
 //
@@ -110,6 +111,18 @@ service cloud.firestore {
           && court(request.resource.data, 'q7') && court(request.resource.data, 'q8');
         allow read, delete: if enseignant(code);
         allow update: if false;
+      }
+
+      // Les réponses attendues de la séance (questions ajoutées, réponses corrigées) :
+      // à part, parce que toute équipe connectée lit le document de la séance.
+      // Seul·e l'enseignant·e de la séance les lit et les écrit.
+      match /prive/{doc} {
+        allow read, delete: if enseignant(code);
+        allow create, update: if enseignant(code) && doc == 'reponses'
+          && request.resource.data.keys().hasOnly(['ajouts', 'corrections', 'expireLe'])
+          && request.resource.data.ajouts is map && request.resource.data.ajouts.size() <= 12
+          && request.resource.data.corrections is map
+          && expiration(request.resource.data);
       }
     }
 

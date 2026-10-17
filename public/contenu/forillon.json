@@ -733,20 +733,15 @@
    "id": "F1.1",
    "forme": "Carte",
    "q": "Où est le parc Forillon ? Montrez-le sur la carte du Québec.",
-   "reponse": "À la pointe de la péninsule gaspésienne, près de Gaspé, entre le golfe du Saint-Laurent et la baie de Gaspé. Superficie : 244,8 km².",
-   "dansLeJeu": "Ouvre la carte du parc.",
    "sources": [
     "Parcs Canada, plan directeur 2022 · A"
    ],
-   "sort": "ecran",
-   "note": "Montrée par l'enseignant·e à la mise en route, sur la carte projetée."
+   "sort": "ecran"
   },
   {
    "id": "F1.2",
    "forme": "Hypothèse",
    "q": "Avant 1970, ce territoire était-il vide ? Notez votre hypothèse.",
-   "reponse": "Non. 225 familles y vivaient, dans six municipalités. Des traces de présence humaine y remontent à environ 9 000 ans, notamment à Penouille.",
-   "dansLeJeu": "L'hypothèse est vérifiée pendant l'exploration : c'est ce qui lance la marche.",
    "sources": [
     "Journal Le Soir, 2020 · B",
     "Encyclopédie du patrimoine culturel · B"
@@ -760,8 +755,6 @@
    "id": "F2.1",
    "forme": "Carte · point 1",
    "q": "Quel nom portait ce territoire avant d'être un parc ? Qui l'occupe ?",
-   "reponse": "Gespe'gewa'gi, territoire ancestral non cédé des Mi'gmaq. Gespeg veut dire « là où la terre prend fin ».",
-   "dansLeJeu": "Active la couche Gespe'gewa'gi sur la carte. Prépare le point de vue 4 (la Nation).",
    "sources": [
     "Parcs Canada, plan directeur 2022 · A",
     "Site d'interprétation micmac de Gespeg · A"
@@ -776,35 +769,27 @@
    "id": "F2.2",
    "forme": "Carte · point 2",
    "q": "Que faisaient les gens de Grande-Grave pour vivre ?",
-   "reponse": "Surtout la pêche à la morue, organisée par des marchands venus des îles anglo-normandes (Jersey et Guernesey). En 1798, la compagnie jersiaise Janvrin s'y installe ; à son âge d'or, près de 400 personnes y vivent. Le magasin général Hyman & Son en témoigne. Parcs Canada présente les maisons qui restent comme « les derniers témoins » d'un village de pêche typique.",
-   "dansLeJeu": "Montre un territoire habité et productif. Aide au tri (document « 214 résidences… »).",
    "sources": [
     "Parcs Canada, Grande-Grave · A",
     "Encyclopédie du patrimoine culturel · B",
     "Parcs Canada, Grande-Grave, 2023 · A"
    ],
-   "sort": "reprise",
-   "note": "L'information reste dans le relevé 2."
+   "sort": "reprise"
   },
   {
    "id": "F2.3",
    "forme": "Carte · point 3",
    "q": "Pourquoi le parc doit-il rester relié aux forêts du cœur de la Gaspésie ?",
-   "reponse": "Pour que les animaux et les plantes ne restent pas isolés. Un corridor écologique est un passage qui relie des espaces naturels ; s'il est coupé, les échanges cessent et la biodiversité s'appauvrit. En 2023, Parcs Canada consacre 2 M$ au corridor écologique Forillon, qui relie le parc et « les grandes forêts du cœur de la péninsule gaspésienne ».",
-   "dansLeJeu": "Fait apparaître l'indicateur « corridor » (continu, affaibli, rompu) utilisé au tracé.",
    "sources": [
     "Parcs Canada, 2023 (corridor) · A",
     "Ministère de l'Environnement du Québec · A"
    ],
-   "sort": "reprise",
-   "note": "L'information reste dans le relevé 3."
+   "sort": "reprise"
   },
   {
    "id": "F2.4",
    "forme": "Carte · point 4",
    "q": "Qu'y avait-il à l'intérieur de la limite du parc en 1970 ?",
-   "reponse": "214 résidences, 78 chalets, 22 bâtiments divers, 15 commerces, 3 églises, 2 écoles. Peu après le départ des familles, le gouvernement a brûlé presque tous les bâtiments.",
-   "dansLeJeu": "Fait apparaître le compte des villages à vider sur la carte.",
    "sources": [
     "Journal Le Soir, 2020 · B",
     "Canadian Geographic, 2023 · B"
@@ -819,34 +804,26 @@
    "id": "F2.5",
    "forme": "Carte · point 5",
    "q": "Après leur départ, les familles pouvaient-elles revenir dans le parc ? À quelles conditions ?",
-   "reponse": "Oui, comme des visiteurs. Depuis 2010, un laissez-passer gratuit est offert aux expropriés et à leurs descendants (trois générations). En 2020, il est étendu aux 4e, 5e et 6e générations.",
-   "dansLeJeu": "Pose la question « qui a le droit de revenir ? », reprise au débrief.",
    "sources": [
     "Parcs Canada, contexte de création · A",
     "Le Soleil, 2010 · B"
    ],
-   "sort": "reprise",
-   "note": "L'information reste dans le relevé 5."
+   "sort": "reprise"
   },
   {
    "id": "F2.6",
    "forme": "Carte · point 6",
    "q": "Les Mi'gmaq utilisent-ils encore ce territoire aujourd'hui ? Donnez un exemple.",
-   "reponse": "Oui. Le mawiomi, grand rassemblement mi'gmaq, s'est tenu dans le parc en 2017, 2018, 2019 et 2023. En août 2025, la Nation y a inauguré Um'tgi Wapg – Terre de l'aube, une expérience d'hébergement et d'interprétation.",
-   "dansLeJeu": "Sixième relevé : le dossier s'ouvre.",
    "sources": [
     "Nation Micmac de Gespeg et Canada, 2024 · A",
     "Parcs Canada, 2025 · A"
    ],
-   "sort": "reprise",
-   "note": "L'information reste dans le relevé 6."
+   "sort": "reprise"
   },
   {
    "id": "F3.1",
    "forme": "Tri",
    "q": "Quelles sont les trois informations les plus utiles pour répondre à la question du jeu ?",
-   "reponse": "Toute combinaison de trois documents utiles (voir le tableau). Meilleur tri : au moins une voix (le témoignage) et un écart entre deux sources, sans document hors sujet.",
-   "dansLeJeu": "Valide le dossier et ouvre le tracé. Bravos possibles : Tri net, Deux sources confrontées, Une voix pas qu'un chiffre.",
    "sources": [
     "Chaque document porte sa source (tableau suivant)."
    ],
@@ -859,8 +836,6 @@
    "id": "F3.2",
    "forme": "Ouverte",
    "q": "Deux sources sérieuses donnent 983 et 1 800 personnes. Laquelle a raison ?",
-   "reponse": "Les deux : elles ne comptent pas la même chose. Trois sources de 2020 donnent 983 habitants dans les 225 familles ; Radio-Canada écrit que « 1800 personnes céderont leur terrain ». Parcs Canada compte aussi près de 1 200 propriétaires qui ont perdu un lot à bois. Avant de comparer deux nombres, il faut savoir ce que chacun compte.",
-   "dansLeJeu": "Reprise au débrief. Bravo « Deux sources confrontées » si le document est gardé.",
    "sources": [
     "Journal Le Soir, 2020 · B",
     "TVA CIMT, 2020 · B",
@@ -876,51 +851,40 @@
    "id": "F3.3",
    "forme": "Ouverte",
    "q": "Pourquoi écarter les quatre autres documents ?",
-   "reponse": "• Visiteurs : chiffre de 2019, près de 50 ans après la décision. / • Forêt à 95 % : dit QUOI protéger, pas QUI peut habiter. / • Caribous : vrai, mais dans les Chic-Chocs, à plus de 100 km. / • Communiqué touristique : écrit pour attirer des visiteurs, pas pour décider.",
-   "dansLeJeu": "Condition du bravo « Tri net » (aucun document hors sujet).",
    "sources": [
     "Parcs Canada, 2020 · A",
     "Parcs Canada, plan directeur 2022 · A",
     "Gouvernement du Québec, caribou · A",
     "Parcs Canada, 2023 (saison) · A"
    ],
-   "sort": "ecran",
-   "note": "Le verdict de chaque document écarté le dit à l'écran."
+   "sort": "ecran"
   },
   {
    "id": "F4.1",
    "forme": "Choix",
    "q": "Quelles zones existe-t-il dans un parc national canadien ?",
-   "reponse": "Cinq : I Préservation spéciale, II Milieu sauvage, III Milieu naturel, IV Loisirs de plein air, V Services du parc. Le jeu en garde quatre (II et III réunies). À Forillon, la zone II couvre 96,3 % du parc.",
-   "dansLeJeu": "Donne la palette de zonage. Répond à l'attendu du programme « nommer différentes zones du parc ».",
    "sources": [
     "Parcs Canada, zonage · A",
     "Parcs Canada, plan directeur 2022 · A",
     "Progression des apprentissages, géographie · A"
    ],
-   "sort": "ecran",
-   "note": "La palette de zonage et sa légende la donnent."
+   "sort": "ecran"
   },
   {
    "id": "F4.2",
    "forme": "Choix",
    "q": "Peut-on habiter dans un parc national au Canada ?",
-   "reponse": "Oui, dans certains. La zone V vise « les agglomérations comme Banff et Jasper ». À Banff, on peut y habiter si on y travaille, si on y tient un commerce, si on y étudie, ou si on y a travaillé cinq ans avant la retraite. À Forillon, la zone V ne contient aucun village : seulement le centre opérationnel du parc et des équipements de télécommunication.",
-   "dansLeJeu": "Rend possible la zone « Village » sur la carte : des villages restent.",
    "sources": [
     "Parcs Canada, zonage · A",
     "Parcs Canada, résidence à Banff · A",
     "Parcs Canada, plan directeur 2022 · A"
    ],
-   "sort": "reprise",
-   "note": ""
+   "sort": "reprise"
   },
   {
    "id": "F4.3",
    "forme": "Carte · ouverte",
    "q": "Tracez votre ligne. Quels villages devez-vous vider ? Lesquels gardez-vous ? Le corridor est-il continu ?",
-   "reponse": "Pas de bonne réponse unique. Le jeu nomme les villages à vider ou gardés et l'état du corridor, avec un fait réel sur chaque secteur touché. Les six secteurs habités sont les principaux secteurs expropriés nommés par Parcs Canada : Cap-des-Rosiers, L'Anse-au-Griffon, Ship Head, Grande-Grave, Rivière-Morris et Penouille. En 1970, la vraie ligne les a tous pris : 244,8 km², 225 familles.",
-   "dansLeJeu": "Bravos possibles : Parc zoné, Protéger ou habiter, Corridor rétabli, Corridor tenu.",
    "sources": [
     "Parcs Canada, contexte de création · A",
     "M. Mimeault, Encyclobec · B",
@@ -939,21 +903,16 @@
    "id": "F4.4",
    "forme": "Ouverte",
    "q": "Que protège-t-on, au juste, à Forillon ?",
-   "reponse": "La nature : la forêt couvre 95 % du parc, avec le littoral et les falaises. Un patrimoine humain aussi : les maisons de Grande-Grave, pour lesquelles près de 9,8 M$ ont été annoncés (Parcs Canada, 2023).",
-   "dansLeJeu": "Prépare la question du débrief « protégé de quoi, et pour qui ? ».",
    "sources": [
     "Parcs Canada, plan directeur 2022 · A",
     "Parcs Canada, Grande-Grave, 2023 · A"
    ],
-   "sort": "reprise",
-   "note": ""
+   "sort": "reprise"
   },
   {
    "id": "F5.1",
    "forme": "Carte · ouverte",
    "q": "La route 132 traverse le parc. Une aire coupée par une route est-elle encore bien protégée ?",
-   "reponse": "Moins bien : une route coupe les passages des animaux. En 2022, le Canada investit 4,3 M$ pour effacer 5,5 km d'un ancien tronçon de la route 132 (asphalte retiré, emprise reboisée) et « restaurer la connectivité écologique de la forêt et des cours d'eau ». Regarder l'état du corridor.",
-   "dansLeJeu": "Rezoner ici donne le bravo « Ligne rouverte ».",
    "sources": [
     "Parcs Canada, 2022 (route 132) · A",
     "Ministère de l'Environnement du Québec · A"
@@ -968,33 +927,25 @@
    "id": "F5.2",
    "forme": "Ouverte",
    "q": "En juin 1970, un communiqué du gouvernement promet des emplois et des visiteurs. Le parc est « protégé » de qui, et pour qui ?",
-   "reponse": "Pas de réponse unique. Le communiqué annonce 3 000 nouveaux emplois, près de 700 000 visiteurs par an et 42 M$ par année pour la région. Beaucoup de Gaspésiens voient le futur parc comme une chance pour l'économie, et les expropriés subissent leurs pressions. Attendu : le parc protège la nature, mais il sert aussi un projet économique ; les familles, elles, partent.",
-   "dansLeJeu": "Nourrit le débrief (question F7.2).",
    "sources": [
     "Journal Le Soir, 2020 · B",
     "Le Droit, 2020 · B"
    ],
-   "sort": "ecran",
-   "note": "Consigne de la point de vue 2 (la région) ; reprise au débrief par F7.2."
+   "sort": "ecran"
   },
   {
    "id": "F5.3",
    "forme": "Choix",
    "q": "En 1970, combien de temps les familles ont-elles eu pour partir ?",
-   "reponse": "18 mois. Le 17 juillet 1970, la Loi sur le parc Forillon donne des pouvoirs d'expropriation ; le plan d'expropriation est annoncé le 22 juillet 1970.",
-   "dansLeJeu": "Le compte des villages à vider devient une échéance.",
    "sources": [
     "Journal Le Soir, 2020 · B"
    ],
-   "sort": "reprise",
-   "note": "L'information reste dans le point de vue 3 (les familles)."
+   "sort": "reprise"
   },
   {
    "id": "F5.4",
    "forme": "Ouverte",
    "q": "Le territoire porte déjà un nom. Qui l'occupe depuis le plus longtemps ? Qui décidait en 1970 ?",
-   "reponse": "Les Mi'gmaq, sur Gespe'gewa'gi. En 1970, les gouvernements du Québec et du Canada décident. La Nation Micmac de Gespeg n'est reconnue qu'en 1973 ; les Mi'gmaq ont perdu le libre accès à leur territoire.",
-   "dansLeJeu": "Ne se règle pas sur la carte : c'est la question qui change. Ouvre le bilan.",
    "sources": [
     "Nation Micmac de Gespeg et Canada, 2024 · A",
     "Parcs Canada, contexte de création · A"
@@ -1009,8 +960,6 @@
    "id": "F6.1",
    "forme": "Choix",
    "q": "Qu'a décidé le gouvernement en 1970 ?",
-   "reponse": "Tout le territoire : 244,8 km², six municipalités, 225 familles expropriées, 18 mois pour partir. Accord de 1968 : Ottawa investit 12 M$ si le territoire lui est cédé. Entente de 1969 : cession pour 99 ans ; le Québec peut le reprendre après 60 ans s'il rembourse les investissements fédéraux.",
-   "dansLeJeu": "Première comparaison du bilan.",
    "sources": [
     "Journal Le Soir, 2020 · B"
    ],
@@ -1023,33 +972,25 @@
    "id": "F6.2",
    "forme": "Ouverte",
    "q": "Était-il obligatoire de vider le territoire ?",
-   "reponse": "Selon les règles de l'époque, oui : « la loi sur les parcs nationaux interdisait de pouvoir conserver des familles dans le parc ». Mais des villes vivent dans des parcs plus anciens (Banff, Jasper). C'est une règle, pas une fatalité.",
-   "dansLeJeu": "Deuxième comparaison : ce qui existe ailleurs.",
    "sources": [
     "TVA CIMT, 2020 · B",
     "Parcs Canada, zonage · A"
    ],
-   "sort": "reprise",
-   "note": ""
+   "sort": "reprise"
   },
   {
    "id": "F6.3",
    "forme": "Choix",
    "q": "Qu'est-ce qui a changé en 2024 ?",
-   "reponse": "L'Accord de réconciliation et de reconnaissance des droits, signé le 30 janvier 2024 et annoncé le 3 avril 2024 : gouvernance partagée du parc entre le Canada et la Nation Micmac de Gespeg.",
-   "dansLeJeu": "Troisième comparaison : aujourd'hui.",
    "sources": [
     "Nation Micmac de Gespeg et Canada, 2024 · A"
    ],
-   "sort": "reprise",
-   "note": ""
+   "sort": "reprise"
   },
   {
    "id": "F7.1",
    "forme": "Ouverte",
    "q": "Qui décidait en 1970 ? Qui ne décidait pas, et pourquoi ?",
-   "reponse": "Éléments attendus : Québec et Ottawa décident ; les familles et les Mi'gmaq non. La loi fédérale interdisait les résidents ; la Nation n'est reconnue qu'en 1973.",
-   "dansLeJeu": "Au programme : acteurs, réglementation.",
    "sources": [
     "Journal Le Soir, 2020 · B",
     "TVA CIMT, 2020 · B",
@@ -1064,8 +1005,6 @@
    "id": "F7.2",
    "forme": "Ouverte",
    "q": "« Protégé » : protégé de quoi, et pour qui ? En 1970, on promettait des emplois et des visiteurs. Qui en a profité, et qui a payé ?",
-   "reponse": "Éléments attendus : la nature (forêt, corridor) et les visiteurs sont protégés ou servis ; la région espérait des emplois. Les familles expropriées et les Mi'gmaq ont payé. Pour aller plus loin : on promettait près de 700 000 visiteurs par an ; en 2019, le parc en reçoit près de 170 000.",
-   "dansLeJeu": "Au programme : conservation, patrimoine naturel.",
    "sources": [
     "Parcs Canada, plan directeur 2022 · A",
     "Parcs Canada, 2020 · A",
@@ -1081,37 +1020,29 @@
    "id": "F7.3",
    "forme": "Ouverte",
    "q": "Une nation occupe un territoire depuis très longtemps et n'en possède rien. Qu'est-ce que ça dit du mot « propriété » ?",
-   "reponse": "Éléments attendus : propriété privée et droits ancestraux ne sont pas la même chose ; territoire non cédé ; aucune réserve.",
-   "dansLeJeu": "Au programme : droits ancestraux, revendication, nation.",
    "sources": [
     "Parcs Canada, plan directeur 2022 · A",
     "Nation Micmac de Gespeg et Canada, 2024 · A",
     "Progression des apprentissages, géographie · A"
    ],
-   "sort": "reprise",
-   "note": ""
+   "sort": "reprise"
   },
   {
    "id": "F7.4",
    "forme": "Ouverte",
    "q": "En 1970, on fait partir les familles. En 2024, on partage la gouvernance. Qu'est-ce qui a changé : le territoire, ou nous ?",
-   "reponse": "Éléments attendus : le territoire est le même ; les règles et la reconnaissance ont changé (laissez-passer 2010 et 2020, accord 2024). Le dossier n'est pas clos : en 2026, des expropriés réclament 3 400 objets gardés par Parcs Canada.",
-   "dansLeJeu": "Au programme : changement, continuité.",
    "sources": [
     "Parcs Canada, contexte de création · A",
     "Nation Micmac de Gespeg et Canada, 2024 · A",
     "Mon Matane, 2026 · B",
     "Périssable"
    ],
-   "sort": "reprise",
-   "note": ""
+   "sort": "reprise"
   },
   {
    "id": "F7.5",
    "forme": "Ouverte",
    "q": "Votre ligne aurait-elle été la même avec les quatre points de vue dès le début ?",
-   "reponse": "Éléments attendus : une décision dépend de l'information disponible ; rouvrir une décision n'est pas un échec.",
-   "dansLeJeu": "Réflexion sur la démarche.",
    "sources": [
     "Aucune donnée à vérifier : question de réflexion."
    ],
@@ -1124,14 +1055,11 @@
    "id": "F7.6",
    "forme": "Pour aller plus loin",
    "q": "En Haute-Gaspésie, la MRC rejette une vingtaine de projets d'aires protégées et les Mi'gmaq dénoncent ce rejet. Qui devrait décider ?",
-   "reponse": "Éléments attendus : trois échelles (région, nation, province) ; enjeux : caribou, emplois forestiers, projet pilote annoncé en 2024. À utiliser en deuxième période ou comme situation d'évaluation.",
-   "dansLeJeu": "Transfert : même question, autre territoire.",
    "sources": [
     "Radio-Canada, 28 novembre 2024 · B",
     "Radio-Canada, 17 décembre 2024 · B"
    ],
-   "sort": "reprise",
-   "note": "Au cours suivant : transfert à un cas actuel."
+   "sort": "reprise"
   }
  ],
  "programme": {

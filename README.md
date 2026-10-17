@@ -184,13 +184,14 @@ Tout est dans le guide d'hébergement (document Word, à part). En bref : un pro
 
 - **La région se choisit à la création de la base et ne se change plus** : `northamerica-northeast1` (Montréal).
   La page Confidentialité dit que les données sont à Montréal : c'est ce choix qui le rend vrai.
-- **Effacement automatique (une fois)** : Firestore → *Durée de vie (TTL)* → trois politiques sur le champ
-  `expireLe`, pour les groupes de collections `seances`, `equipes` et `avis`. Ou, avec la CLI Google Cloud :
+- **Effacement automatique (une fois)** : Firestore → *Durée de vie (TTL)* → quatre politiques sur le champ
+  `expireLe`, pour les groupes de collections `seances`, `equipes`, `avis` et `prive`. Ou, avec la CLI Google Cloud :
 
   ```
   gcloud firestore fields ttls update expireLe --collection-group=seances --enable-ttl
   gcloud firestore fields ttls update expireLe --collection-group=equipes --enable-ttl
   gcloud firestore fields ttls update expireLe --collection-group=avis --enable-ttl
+  gcloud firestore fields ttls update expireLe --collection-group=prive --enable-ttl
   ```
 
   Firestore efface les documents expirés peu après la date (en général dans les 24 heures).
@@ -206,14 +207,15 @@ On peut aussi tout héberger chez Firebase (`firebase deploy`).
 
 | Fichier | Rôle |
 |---|---|
-| `public/contenu/forillon.json` | Tout le contenu : secteurs, relevés, documents, complications, les 28 questions et leurs réponses attendues, le bilan, les sources |
+| `public/contenu/forillon.json` | Tout le contenu du jeu : secteurs, relevés, documents, complications, les 28 questions, le bilan, les sources |
+| `public/contenu/guide.json` | Le guide de l'enseignant·e : la réponse attendue et les notes de chaque question. Seul l'espace enseignant·e le charge |
 | `public/js/jeu.js` | Les règles, sans affichage : ce que la ligne protège, les villages, le corridor, les gestes reconnus, les indicateurs |
 | `public/js/reglages.js` | Les formats, les questions posées ou ajoutées, les corrections, le chrono : le contenu « réglé » d'une séance |
 | `public/js/carte.js` | La carte et le relevé |
 | `public/js/eleve.js` | La page des équipes |
 | `public/js/enseignant.js` | L'espace enseignant·e : ouvrir une séance, l'écouter en direct, choisir l'onglet, les gestes en séance |
 | `public/js/enseignant/` | Un fichier par écran de l'espace : `accueil.js` (Tes séances), `direct.js`, `debrief.js`, `editeur.js` (Réglages, Ta version), `preparer.js` (Questions, Dossier, Déroulement), `apres.js` (Mesures, Questionnaire), `rapport.js` (rapport, impression) ; `etat.js`, l'état qu'ils partagent |
-| `public/js/seance.js` | Créer, rejoindre, effacer une séance ; la version du jeu de l'enseignant·e |
+| `public/js/seance.js` | Créer, rejoindre, effacer une séance ; ses réponses attendues, à part ; la version du jeu de l'enseignant·e |
 | `public/js/dossierdoc.js` | Le dossier documentaire, à l'écran et sur papier ; le lien de source dans le jeu |
 | `public/js/dossier.js` | La page de la version devoir |
 | `public/js/donnees.js` | La seule porte vers le stockage (Firestore ou local) |
@@ -239,6 +241,10 @@ Pour tout le monde : ouvre `public/contenu/forillon.json`. Un texte, un chiffre 
 sans toucher au code. Garde les guillemets et les virgules du format JSON. Un fichier exporté depuis
 « Réglages » liste chaque correction avec l'original, la valeur corrigée et la raison.
 
+Les réponses attendues et les notes pour l'enseignant·e sont dans `public/contenu/guide.json`, sous le même
+identifiant que la question (`F2.1`…). Une question ajoutée à la banque prend sa réponse là, jamais dans
+`forillon.json` : ce fichier-là est lu par chaque Chromebook. Le test vérifie que chaque question a sa réponse.
+
 ## La vie privée, tenue dans le code
 
 - Aucun prénom d'élève, nulle part. Une équipe est un nom d'animal ; un appareil est un
@@ -256,7 +262,8 @@ sans toucher au code. Garde les guillemets et les virgules du format JSON. Un fi
 - `mesure = false` dans `config.js` : pas de questionnaire à l'écran, pas d'export CSV.
   À passer à `true` seulement avec le certificat d'éthique et les autorisations en main.
 - **Effacement automatique** (Loi 25 : on ne garde pas plus longtemps que nécessaire) : chaque séance, fiche
-  d'équipe et avis porte un champ `expireLe` (création + `conservationJours`, 30 par défaut, dans `config.js`).
+  d'équipe, avis et document de réponses attendues porte un champ `expireLe` (création + `conservationJours`,
+  30 par défaut, dans `config.js`).
   La politique TTL de Firestore efface le document après cette date, même si personne ne clique « Effacer ».
   Elle s'active une fois dans la console (voir « Avec Firebase »). Changer le nombre de jours : `config.js`
   **et** le texte de `confidentialite.html` (et la phrase de `index.html`).
@@ -279,6 +286,14 @@ sans toucher au code. Garde les guillemets et les virgules du format JSON. Un fi
   personnalisé (autre que `…firebaseapp.com`), l'ajouter à `frame-src` et `connect-src`.
 - `404.html` garde un petit script dans la page : sa CSP l'autorise par son empreinte (`sha256-…`). Changer ce
   script change l'empreinte (le navigateur donne la bonne dans la console).
+- **Les réponses attendues restent chez l'enseignant·e.** La page des équipes ne télécharge jamais
+  `contenu/guide.json`, et le service worker ne le garde pas d'avance sur les Chromebooks : un élève curieux
+  qui ouvre les outils du navigateur (F12) n'y trouve aucune réponse. Celles que l'enseignant·e écrit (question
+  ajoutée, réponse corrigée) ne vont pas dans le document de la séance, que toute équipe lit, mais dans
+  `seances/{code}/prive/reponses`, que les règles réservent à l'enseignant·e de la séance. Limite assumée : l'espace
+  enseignant·e est une page publique, sans mot de passe ; un élève qui l'ouvre exprès y voit les réponses, comme
+  dans un guide laissé sur un bureau. Le verdict de chaque document (« utile », « hors sujet ») reste dans le jeu :
+  l'équipe le voit juste après son tri.
 - **Les corrections ne touchent que les champs prévus** (`CHAMPS` dans `reglages.js`) : une correction venue
   d'un fichier importé ou de la base qui viserait un lien, le tracé d'un secteur ou un identifiant est ignorée,
   et le texte des points de vue reste échappé. Les liens de sources ne sont suivis que s'ils sont en
@@ -306,7 +321,8 @@ npm run verifier:tout                          tout, comme GitHub avant chaque m
 
 Le test crée une séance, fait jouer une équipe de bout en bout, vérifie le suivi en
 direct, le message à la classe, les réglages changés en pleine partie (question ajoutée, question
-rendue facultative, correction, minutes, rattrapage, pause du chrono, « +5 min »), l'export des
+rendue facultative, correction, minutes, rattrapage, pause du chrono, « +5 min »), les réponses attendues
+jamais lisibles par les équipes (ni dans le contenu, ni dans la séance, ni gardées sur leur Chromebook), l'export des
 réglages, le dossier documentaire (complet, devoir, pastilles, corrections), les trois affichages (clair par défaut, et « Comme l'ordinateur » qui le suit), la reprise après un rafraîchissement, le rapport, l'effacement, la version du jeu reprise
 dans une nouvelle séance, la séance de démonstration, les bulles d'aide, le hors-ligne (serveur éteint, page rechargée,
 séance créée et rejointe sans réseau), et l'absence d'erreur, puis la connexion Google de l'enseignant·e (séances
@@ -320,7 +336,7 @@ se vérifient dans la console Firebase (Firestore → Règles → Terrain de jeu
 
 - [ ] Brancher Firebase avant la première classe (et ajouter le domaine github.io aux domaines autorisés)
 - [ ] Créer la base Firestore à Montréal (`northamerica-northeast1`)
-- [ ] Activer les trois politiques TTL sur `expireLe` (voir « Avec Firebase ») : sans elles, rien ne s'efface tout seul
+- [ ] Activer les quatre politiques TTL sur `expireLe` (voir « Avec Firebase ») : sans elles, rien ne s'efface tout seul
 - [ ] Firebase branché : se connecter une fois avec Google sur le site en ligne, et vérifier dans la console
       du navigateur qu'aucune ligne « Refused to … Content Security Policy » n'apparaît
 - [ ] Proposer à l'école ou au centre de services scolaire les détails pour son ÉFVP (évaluation des facteurs

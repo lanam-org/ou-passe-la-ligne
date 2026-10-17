@@ -19,8 +19,8 @@ import { mesure } from './config.js';
 import { $, typo, validationEnFrancais } from './outils.js';
 import * as Rg from './reglages.js';
 import { dossierHTML } from './dossierdoc.js';
-import { cheminSeance, effacerSeance, reglerSeance, reglerChrono, chronoNeuf, donnerBravo, MAX_MESSAGE } from './seance.js';
-import { base, etat, ui, page, appliquerReglages, seanceGardee, stable, chronoDe, chronoTexte } from './enseignant/etat.js';
+import { cheminSeance, cheminReponses, effacerSeance, reglerMinutes, reglerChrono, chronoNeuf, donnerBravo, MAX_MESSAGE } from './seance.js';
+import { base, etat, ui, page, appliquerReglages, configSeance, seanceGardee, stable, chronoDe, chronoTexte } from './enseignant/etat.js';
 import { afficherAccueil } from './enseignant/accueil.js';
 import { vueDirect } from './enseignant/direct.js';
 import { vueDebrief } from './enseignant/debrief.js';
@@ -62,7 +62,7 @@ async function demarrer() {
 /** Quitte la séance à l'écran (sans l'effacer) et revient à « Tes séances ». */
 function retourAccueil(erreur = '') {
   arrets.forEach((f) => f()); arrets = [];
-  Object.assign(etat, { code: null, S: null, EQ: [], AV: [], choisie: null, onglet: 'direct' });
+  Object.assign(etat, { code: null, S: null, reponses: null, EQ: [], AV: [], choisie: null, onglet: 'direct' });
   ui.ed = null;
   appliquerReglages(null);
   $('#onglets').innerHTML = '';
@@ -70,15 +70,20 @@ function retourAccueil(erreur = '') {
 }
 
 function ouvrir(code) {
-  etat.code = code; ui.ed = null;
+  etat.code = code; etat.reponses = null; ui.ed = null;
   seanceGardee.garder(code);
   arrets.forEach((f) => f());
   arrets = [
     donnees.ecouter(cheminSeance(code), (s) => {
       etat.S = s; if (!s) return finie();
-      appliquerReglages(s.config);
+      appliquerReglages(configSeance());
       lancerChrono(); rendre();
     }),
+    // les réponses attendues de la séance, à part (seance.js) : vides si le document manque
+    donnees.ecouter(cheminReponses(code), (r) => {
+      etat.reponses = r || {};
+      if (etat.S) { appliquerReglages(configSeance()); rendre(); }
+    }, (e) => { console.warn('Réponses attendues de la séance illisibles', e); etat.reponses = {}; rendre(); }),
     donnees.ecouterCollection(`${cheminSeance(code)}/equipes`, (l) => { etat.EQ = l; lancerChrono(); rendre(); })
   ];
   if (mesure) arrets.push(donnees.ecouterCollection(`${cheminSeance(code)}/avis`, (l) => { etat.AV = l; if (etat.onglet === 'questionnaire') rendre(); }));
@@ -112,7 +117,7 @@ function rendre(force = false) {
   // L'éditeur ne se redessine pas sous les doigts à chaque geste d'une équipe.
   // Il se recale seulement si la séance a changé ailleurs et qu'aucun changement n'attend.
   if (onglet === 'reglages' && !force && ui.ed?.cible === 'seance') {
-    const ailleurs = Rg.completer(base, etat.S?.config);
+    const ailleurs = Rg.completer(base, configSeance());
     if (ui.ed.modifie || stable(ailleurs) === stable(ui.ed.r)) return;
     ui.ed.r = ailleurs;
   }
@@ -220,7 +225,7 @@ document.addEventListener('click', async (ev) => {
     const id = mn.dataset.minutes;
     r.minutes[id] = Math.max(1, Math.min(90, (r.minutes[id] || 1) + Number(mn.dataset.delta)));
     mn.disabled = true;
-    await reglerSeance(code, r);
+    await reglerMinutes(code, r.minutes);
     if (ui.ed?.cible === 'seance') ui.ed.r.minutes[id] = r.minutes[id];
     return;
   }
@@ -235,7 +240,7 @@ document.addEventListener('click', async (ev) => {
     const r = Rg.completer(base, S?.config);
     r.minutes[id] = Math.max(1, Math.floor(passe / 60000));
     tm.disabled = true;
-    await reglerSeance(code, r);
+    await reglerMinutes(code, r.minutes);
     if (ui.ed?.cible === 'seance') ui.ed.r.minutes[id] = r.minutes[id];
     return;
   }

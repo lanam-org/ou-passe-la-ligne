@@ -24,14 +24,26 @@ export const mmss = (ms) => {
   return `${Math.floor(s / 60)} min ${String(s % 60).padStart(2, '0')}`;
 };
 
+const lireJSON = async (chemin) => {
+  const r = await fetch(chemin, { cache: 'no-cache' });
+  if (!r.ok) throw new Error(`Contenu introuvable (${chemin})`);
+  return r.json();
+};
+
 let cache = null;
-/** Le contenu du jeu : tout ce qui est texte, chiffre ou source vit dans ce JSON. */
-export async function chargerContenu() {
-  if (cache) return cache;
-  const r = await fetch('contenu/forillon.json', { cache: 'no-cache' });
-  if (!r.ok) throw new Error('Contenu introuvable (contenu/forillon.json)');
-  cache = await r.json();
-  return cache;
+/**
+ * Le contenu du jeu : tout ce qui est texte, chiffre ou source vit dans contenu/forillon.json.
+ * Avec `guide`, chaque question de la banque reçoit aussi sa réponse attendue et ses notes
+ * (contenu/guide.json) : l'espace enseignant·e seulement. La page des équipes ne télécharge
+ * jamais ce fichier, et le service worker ne le garde pas d'avance sur les Chromebooks.
+ */
+export async function chargerContenu({ guide = false } = {}) {
+  cache ||= await lireJSON('contenu/forillon.json');
+  if (!guide) return cache;
+  let g = null;
+  try { g = await lireJSON('contenu/guide.json'); }
+  catch (e) { console.warn('Guide de l\'enseignant·e indisponible (hors ligne ?) : le jeu reste complet, sans les réponses attendues', e); }
+  return { ...cache, banque: cache.banque.map((q) => ({ ...q, ...g?.banque?.[q.id] })) };
 }
 
 /**

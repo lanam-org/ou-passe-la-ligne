@@ -11,7 +11,8 @@
 // Tout tient dans un objet « réglages » : celui de l'enseignant·e (sa version,
 // réutilisée à chaque nouvelle séance) est copié dans la séance à sa création,
 // puis peut changer pendant la séance. Les équipes lisent les réglages de LEUR
-// séance : un changement en cours de partie arrive chez elles en direct.
+// séance : un changement en cours de partie arrive chez elles en direct. Les
+// réponses attendues, elles, n'y sont jamais (separerReponses, plus bas).
 //
 // Fonctions pures, sans affichage : la page élève et la page enseignant·e
 // calculent exactement la même chose.
@@ -161,6 +162,39 @@ export function corrigeables(base) {
     { t: 'Questions de la banque', items: base.banque.map((q) => item('banque', q.id, `${q.id} · ${q.eleve || q.q}`,
       { ...q, eleve: q.eleve || q.q })) }
   ];
+}
+
+/* ------------------------------------------------------------ les réponses attendues, à part */
+
+// Toute équipe qui a le code lit les réglages de sa séance : une réponse attendue
+// n'y va jamais. Celles de l'enseignant·e (questions ajoutées, réponses corrigées)
+// vivent dans un document à part, que seul·e l'enseignant·e lit (seance.js).
+const reponseCorrigee = (cle) => /^banque\|[^|]+\|reponse$/.test(cle);
+
+/** Coupe des réglages en deux : `publics` (la séance) et `reponses` (l'enseignant·e seulement). */
+export function separerReponses(r) {
+  const reponses = { ajouts: {}, corrections: {} };
+  if (!r) return { publics: null, reponses };
+  const publics = copie(r);
+  for (const a of publics.ajouts || []) {
+    if (a.reponse) reponses.ajouts[a.id] = a.reponse;
+    delete a.reponse;
+  }
+  for (const cle of Object.keys(publics.corrections || {})) {
+    if (!reponseCorrigee(cle)) continue;
+    reponses.corrections[cle] = publics.corrections[cle];
+    delete publics.corrections[cle];
+  }
+  return { publics, reponses };
+}
+
+/** L'inverse, côté enseignant·e : les réglages complets, réponses attendues remises. */
+export function joindreReponses(r, reponses) {
+  if (!r || !reponses) return r;
+  const j = copie(r);
+  for (const a of j.ajouts || []) if (reponses.ajouts?.[a.id]) a.reponse = reponses.ajouts[a.id];
+  j.corrections = { ...(j.corrections || {}), ...(reponses.corrections || {}) };
+  return j;
 }
 
 /** Le contenu, réglages appliqués. Ne modifie jamais `base`. */

@@ -1,0 +1,133 @@
+{
+ "_": "Le guide de l'enseignant·e : les réponses attendues et les notes de chaque question de la banque (même identifiant que dans forillon.json). Seul l'espace enseignant·e charge ce fichier : la page des équipes ne le demande jamais.",
+ "banque": {
+  "F1.1": {
+   "reponse": "À la pointe de la péninsule gaspésienne, près de Gaspé, entre le golfe du Saint-Laurent et la baie de Gaspé. Superficie : 244,8 km².",
+   "note": "Montrée par l'enseignant·e à la mise en route, sur la carte projetée.",
+   "dansLeJeu": "Ouvre la carte du parc."
+  },
+  "F1.2": {
+   "reponse": "Non. 225 familles y vivaient, dans six municipalités. Des traces de présence humaine y remontent à environ 9 000 ans, notamment à Penouille.",
+   "dansLeJeu": "L'hypothèse est vérifiée pendant l'exploration : c'est ce qui lance la marche."
+  },
+  "F2.1": {
+   "reponse": "Gespe'gewa'gi, territoire ancestral non cédé des Mi'gmaq. Gespeg veut dire « là où la terre prend fin ».",
+   "dansLeJeu": "Active la couche Gespe'gewa'gi sur la carte. Prépare le point de vue 4 (la Nation)."
+  },
+  "F2.2": {
+   "reponse": "Surtout la pêche à la morue, organisée par des marchands venus des îles anglo-normandes (Jersey et Guernesey). En 1798, la compagnie jersiaise Janvrin s'y installe ; à son âge d'or, près de 400 personnes y vivent. Le magasin général Hyman & Son en témoigne. Parcs Canada présente les maisons qui restent comme « les derniers témoins » d'un village de pêche typique.",
+   "note": "L'information reste dans le relevé 2.",
+   "dansLeJeu": "Montre un territoire habité et productif. Aide au tri (document « 214 résidences… »)."
+  },
+  "F2.3": {
+   "reponse": "Pour que les animaux et les plantes ne restent pas isolés. Un corridor écologique est un passage qui relie des espaces naturels ; s'il est coupé, les échanges cessent et la biodiversité s'appauvrit. En 2023, Parcs Canada consacre 2 M$ au corridor écologique Forillon, qui relie le parc et « les grandes forêts du cœur de la péninsule gaspésienne ».",
+   "note": "L'information reste dans le relevé 3.",
+   "dansLeJeu": "Fait apparaître l'indicateur « corridor » (continu, affaibli, rompu) utilisé au tracé."
+  },
+  "F2.4": {
+   "reponse": "214 résidences, 78 chalets, 22 bâtiments divers, 15 commerces, 3 églises, 2 écoles. Peu après le départ des familles, le gouvernement a brûlé presque tous les bâtiments.",
+   "dansLeJeu": "Fait apparaître le compte des villages à vider sur la carte."
+  },
+  "F2.5": {
+   "reponse": "Oui, comme des visiteurs. Depuis 2010, un laissez-passer gratuit est offert aux expropriés et à leurs descendants (trois générations). En 2020, il est étendu aux 4e, 5e et 6e générations.",
+   "note": "L'information reste dans le relevé 5.",
+   "dansLeJeu": "Pose la question « qui a le droit de revenir ? », reprise au débrief."
+  },
+  "F2.6": {
+   "reponse": "Oui. Le mawiomi, grand rassemblement mi'gmaq, s'est tenu dans le parc en 2017, 2018, 2019 et 2023. En août 2025, la Nation y a inauguré Um'tgi Wapg – Terre de l'aube, une expérience d'hébergement et d'interprétation.",
+   "note": "L'information reste dans le relevé 6.",
+   "dansLeJeu": "Sixième relevé : le dossier s'ouvre."
+  },
+  "F3.1": {
+   "reponse": "Toute combinaison de trois documents utiles (voir le tableau). Meilleur tri : au moins une voix (le témoignage) et un écart entre deux sources, sans document hors sujet.",
+   "dansLeJeu": "Valide le dossier et ouvre le tracé. Bravos possibles : Tri net, Deux sources confrontées, Une voix pas qu'un chiffre."
+  },
+  "F3.2": {
+   "reponse": "Les deux : elles ne comptent pas la même chose. Trois sources de 2020 donnent 983 habitants dans les 225 familles ; Radio-Canada écrit que « 1800 personnes céderont leur terrain ». Parcs Canada compte aussi près de 1 200 propriétaires qui ont perdu un lot à bois. Avant de comparer deux nombres, il faut savoir ce que chacun compte.",
+   "dansLeJeu": "Reprise au débrief. Bravo « Deux sources confrontées » si le document est gardé."
+  },
+  "F3.3": {
+   "reponse": "• Visiteurs : chiffre de 2019, près de 50 ans après la décision. / • Forêt à 95 % : dit QUOI protéger, pas QUI peut habiter. / • Caribous : vrai, mais dans les Chic-Chocs, à plus de 100 km. / • Communiqué touristique : écrit pour attirer des visiteurs, pas pour décider.",
+   "note": "Le verdict de chaque document écarté le dit à l'écran.",
+   "dansLeJeu": "Condition du bravo « Tri net » (aucun document hors sujet)."
+  },
+  "F4.1": {
+   "reponse": "Cinq : I Préservation spéciale, II Milieu sauvage, III Milieu naturel, IV Loisirs de plein air, V Services du parc. Le jeu en garde quatre (II et III réunies). À Forillon, la zone II couvre 96,3 % du parc.",
+   "note": "La palette de zonage et sa légende la donnent.",
+   "dansLeJeu": "Donne la palette de zonage. Répond à l'attendu du programme « nommer différentes zones du parc »."
+  },
+  "F4.2": {
+   "reponse": "Oui, dans certains. La zone V vise « les agglomérations comme Banff et Jasper ». À Banff, on peut y habiter si on y travaille, si on y tient un commerce, si on y étudie, ou si on y a travaillé cinq ans avant la retraite. À Forillon, la zone V ne contient aucun village : seulement le centre opérationnel du parc et des équipements de télécommunication.",
+   "note": "",
+   "dansLeJeu": "Rend possible la zone « Village » sur la carte : des villages restent."
+  },
+  "F4.3": {
+   "reponse": "Pas de bonne réponse unique. Le jeu nomme les villages à vider ou gardés et l'état du corridor, avec un fait réel sur chaque secteur touché. Les six secteurs habités sont les principaux secteurs expropriés nommés par Parcs Canada : Cap-des-Rosiers, L'Anse-au-Griffon, Ship Head, Grande-Grave, Rivière-Morris et Penouille. En 1970, la vraie ligne les a tous pris : 244,8 km², 225 familles.",
+   "dansLeJeu": "Bravos possibles : Parc zoné, Protéger ou habiter, Corridor rétabli, Corridor tenu."
+  },
+  "F4.4": {
+   "reponse": "La nature : la forêt couvre 95 % du parc, avec le littoral et les falaises. Un patrimoine humain aussi : les maisons de Grande-Grave, pour lesquelles près de 9,8 M$ ont été annoncés (Parcs Canada, 2023).",
+   "note": "",
+   "dansLeJeu": "Prépare la question du débrief « protégé de quoi, et pour qui ? »."
+  },
+  "F5.1": {
+   "reponse": "Moins bien : une route coupe les passages des animaux. En 2022, le Canada investit 4,3 M$ pour effacer 5,5 km d'un ancien tronçon de la route 132 (asphalte retiré, emprise reboisée) et « restaurer la connectivité écologique de la forêt et des cours d'eau ». Regarder l'état du corridor.",
+   "dansLeJeu": "Rezoner ici donne le bravo « Ligne rouverte »."
+  },
+  "F5.2": {
+   "reponse": "Pas de réponse unique. Le communiqué annonce 3 000 nouveaux emplois, près de 700 000 visiteurs par an et 42 M$ par année pour la région. Beaucoup de Gaspésiens voient le futur parc comme une chance pour l'économie, et les expropriés subissent leurs pressions. Attendu : le parc protège la nature, mais il sert aussi un projet économique ; les familles, elles, partent.",
+   "note": "Consigne de la point de vue 2 (la région) ; reprise au débrief par F7.2.",
+   "dansLeJeu": "Nourrit le débrief (question F7.2)."
+  },
+  "F5.3": {
+   "reponse": "18 mois. Le 17 juillet 1970, la Loi sur le parc Forillon donne des pouvoirs d'expropriation ; le plan d'expropriation est annoncé le 22 juillet 1970.",
+   "note": "L'information reste dans le point de vue 3 (les familles).",
+   "dansLeJeu": "Le compte des villages à vider devient une échéance."
+  },
+  "F5.4": {
+   "reponse": "Les Mi'gmaq, sur Gespe'gewa'gi. En 1970, les gouvernements du Québec et du Canada décident. La Nation Micmac de Gespeg n'est reconnue qu'en 1973 ; les Mi'gmaq ont perdu le libre accès à leur territoire.",
+   "dansLeJeu": "Ne se règle pas sur la carte : c'est la question qui change. Ouvre le bilan."
+  },
+  "F6.1": {
+   "reponse": "Tout le territoire : 244,8 km², six municipalités, 225 familles expropriées, 18 mois pour partir. Accord de 1968 : Ottawa investit 12 M$ si le territoire lui est cédé. Entente de 1969 : cession pour 99 ans ; le Québec peut le reprendre après 60 ans s'il rembourse les investissements fédéraux.",
+   "dansLeJeu": "Première comparaison du bilan."
+  },
+  "F6.2": {
+   "reponse": "Selon les règles de l'époque, oui : « la loi sur les parcs nationaux interdisait de pouvoir conserver des familles dans le parc ». Mais des villes vivent dans des parcs plus anciens (Banff, Jasper). C'est une règle, pas une fatalité.",
+   "note": "",
+   "dansLeJeu": "Deuxième comparaison : ce qui existe ailleurs."
+  },
+  "F6.3": {
+   "reponse": "L'Accord de réconciliation et de reconnaissance des droits, signé le 30 janvier 2024 et annoncé le 3 avril 2024 : gouvernance partagée du parc entre le Canada et la Nation Micmac de Gespeg.",
+   "note": "",
+   "dansLeJeu": "Troisième comparaison : aujourd'hui."
+  },
+  "F7.1": {
+   "reponse": "Éléments attendus : Québec et Ottawa décident ; les familles et les Mi'gmaq non. La loi fédérale interdisait les résidents ; la Nation n'est reconnue qu'en 1973.",
+   "dansLeJeu": "Au programme : acteurs, réglementation."
+  },
+  "F7.2": {
+   "reponse": "Éléments attendus : la nature (forêt, corridor) et les visiteurs sont protégés ou servis ; la région espérait des emplois. Les familles expropriées et les Mi'gmaq ont payé. Pour aller plus loin : on promettait près de 700 000 visiteurs par an ; en 2019, le parc en reçoit près de 170 000.",
+   "dansLeJeu": "Au programme : conservation, patrimoine naturel."
+  },
+  "F7.3": {
+   "reponse": "Éléments attendus : propriété privée et droits ancestraux ne sont pas la même chose ; territoire non cédé ; aucune réserve.",
+   "note": "",
+   "dansLeJeu": "Au programme : droits ancestraux, revendication, nation."
+  },
+  "F7.4": {
+   "reponse": "Éléments attendus : le territoire est le même ; les règles et la reconnaissance ont changé (laissez-passer 2010 et 2020, accord 2024). Le dossier n'est pas clos : en 2026, des expropriés réclament 3 400 objets gardés par Parcs Canada.",
+   "note": "",
+   "dansLeJeu": "Au programme : changement, continuité."
+  },
+  "F7.5": {
+   "reponse": "Éléments attendus : une décision dépend de l'information disponible ; rouvrir une décision n'est pas un échec.",
+   "dansLeJeu": "Réflexion sur la démarche."
+  },
+  "F7.6": {
+   "reponse": "Éléments attendus : trois échelles (région, nation, province) ; enjeux : caribou, emplois forestiers, projet pilote annoncé en 2024. À utiliser en deuxième période ou comme situation d'évaluation.",
+   "note": "Au cours suivant : transfert à un cas actuel.",
+   "dansLeJeu": "Transfert : même question, autre territoire."
+  }
+ }
+}

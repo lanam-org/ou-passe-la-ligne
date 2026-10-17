@@ -8,6 +8,7 @@
 import * as donnees from './donnees.js';
 import * as config from './config.js';
 import { nouvelEtat } from './jeu.js';
+import { separerReponses } from './reglages.js';
 
 /**
  * La date d'effacement automatique (Loi 25 : on ne garde pas plus longtemps que
@@ -40,6 +41,12 @@ export const idEquipe = (nom) => nom.toLowerCase().normalize('NFD').replace(/[̀
 
 export const cheminSeance = (code) => `seances/${code}`;
 export const cheminEquipe = (code, id) => `seances/${code}/equipes/${id}`;
+/**
+ * Les réponses attendues de la séance (questions ajoutées, réponses corrigées) : à part,
+ * parce que toute équipe qui a le code lit le document de la séance. Les règles Firestore
+ * réservent celui-ci à l'enseignant·e. Le document de la séance n'en contient aucune.
+ */
+export const cheminReponses = (code) => `seances/${code}/prive/reponses`;
 
 export const normaliserCode = (t) => String(t || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 5);
 export const codeValide = (t) => /^[A-HJ-KM-NP-Z2-9]{5}$/.test(t);
@@ -60,17 +67,19 @@ export const chronoNeuf = () => ({ debut: null, pause: null, pauses: [] });
  */
 export async function creerSeance({ questionnaire = false, reglages = null } = {}) {
   const moi = await donnees.identite();
+  const { publics, reponses } = separerReponses(reglages);
   for (let essai = 0; essai < 8; essai++) {
     const code = codeAuHasard();
     let existe = null;
     try { existe = await donnees.lire(cheminSeance(code)); } catch { existe = { pris: true }; }
     if (existe) continue;
+    const expireLe = expiration(null);
     await donnees.ecrire(cheminSeance(code), {
       enseignantId: moi.uid, creeLe: Date.now(), etat: 'ouverte',
-      questionnaire: !!questionnaire, signal: null,
-      config: reglages ? JSON.parse(JSON.stringify(reglages)) : null, chrono: chronoNeuf(),
-      expireLe: expiration(null)
+      questionnaire: !!questionnaire, signal: null, config: publics, chrono: chronoNeuf(), expireLe
     });
+    // après la séance : les règles vérifient que l'enseignant·e de la séance écrit ce document
+    await donnees.ecrire(cheminReponses(code), { ...reponses, expireLe });
     return code;
   }
   throw new Error('Impossible de trouver un code libre. Réessaie.');
@@ -93,9 +102,18 @@ export async function enregistrerMaVersion(uid, reglages) {
   else await donnees.ecrire(cheminVersion(uid), champs);
 }
 
-/** Remplace les réglages d'une séance en cours (questions, minutes, corrections). */
+/** Remplace les réglages d'une séance en cours (questions, minutes, corrections, réponses attendues). */
 export async function reglerSeance(code, reglages) {
-  await donnees.majPartielle(cheminSeance(code), { config: JSON.parse(JSON.stringify(reglages)) });
+  const { publics, reponses } = separerReponses(reglages);
+  await donnees.majPartielle(cheminSeance(code), { config: publics });
+  // updateDoc remplace chaque sous-table : une réponse retirée disparaît vraiment
+  try { await donnees.majPartielle(cheminReponses(code), reponses); }
+  catch { await donnees.ecrire(cheminReponses(code), { ...reponses, expireLe: expiration(null) }); }   // séance créée avant ce document
+}
+
+/** Change seulement les minutes (« +5 min », « Terminer l'étape ») : rien d'autre n'est réécrit. */
+export async function reglerMinutes(code, minutes) {
+  await donnees.majPartielle(cheminSeance(code), { 'config.minutes': minutes });
 }
 
 /** Met le chrono de la classe à jour (démarrer, pause, reprise, remise à zéro). */
@@ -153,9 +171,9 @@ export async function mesSeances(uid) {
   return l.sort((a, b) => (b.creeLe || 0) - (a.creeLe || 0));
 }
 
-/** Efface la séance entière : équipes, avis, puis la séance elle-même. */
+/** Efface la séance entière : équipes, avis, réponses attendues, puis la séance elle-même. */
 export async function effacerSeance(code) {
-  for (const sous of ['equipes', 'avis']) {
+  for (const sous of ['equipes', 'avis', 'prive']) {
     const docs = await donnees.lireCollection(`${cheminSeance(code)}/${sous}`);
     for (const d of docs) await donnees.supprimer(`${cheminSeance(code)}/${sous}/${d.id}`);
   }

@@ -19,7 +19,9 @@ const EXTERNE = 'olp-externe';
 const DELAI = 3000;
 
 // Tout le site, gardé dès la première visite. Un fichier ajouté à public/ doit
-// figurer ici : le test (outils/verifier_site.mjs) le vérifie.
+// figurer ici : le test (outils/verifier_site.mjs) le vérifie. Une exception :
+// contenu/guide.json (les réponses attendues). Gardé d'avance, il serait sur
+// chaque Chromebook ; il n'est gardé que là où l'espace enseignant·e l'a ouvert.
 const COQUILLE = [
   './', 'index.html', 'eleve.html', 'enseignant.html', 'dossier.html', 'confidentialite.html', '404.html',
   'css/site.css', 'contenu/forillon.json',
