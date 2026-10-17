@@ -105,8 +105,17 @@ export function retarder(f, ms) {
   return g;
 }
 
-/** Vrai si les dessins sont affichés ; faux : la carte devient des boutons dans un cadre « Carte à venir » (config.js). */
+/**
+ * Vrai si les dessins sont affichés ; faux : la carte devient des boutons dans un cadre « Carte à venir »,
+ * et l'image temporaire marque la place des images (config.js).
+ */
 export const IMAGES = config.images === true;
+
+/**
+ * L'image temporaire, toujours la même, là où une image est prévue (la carte, la garde-parc) :
+ * mise à l'échelle de sa place, jamais rognée ni déformée. À remplacer par les vraies images.
+ */
+export const IMAGE_TEMPORAIRE = 'images/temporaire.png';
 
 /** Le personnage de la garde-parc (fictif), en SVG. */
 const DESSIN_GARDE = `<svg viewBox="0 0 52 52" aria-hidden="true">
@@ -119,5 +128,6 @@ const DESSIN_GARDE = `<svg viewBox="0 0 52 52" aria-hidden="true">
   <path d="M23 31c2 1.6 4 1.6 6 0" stroke="#1B2A33" stroke-width="1.3" fill="none" stroke-linecap="round"/>
   <path d="M16 52c0-7 4.5-11 10-11s10 4 10 11z" fill="#3E5A4A"/></svg>`;
 
-// Sans images, pas de cadre vide à côté de la garde-parc : son nom suffit, la bulle prend la place.
-export const GARDE = IMAGES ? DESSIN_GARDE : '';
+// Sans images : l'image temporaire à la place du portrait (taille dans site.css, .garde-temp).
+export const GARDE = IMAGES ? DESSIN_GARDE
+  : `<img class="garde-temp" src="${IMAGE_TEMPORAIRE}" alt="" width="126" height="72">`;

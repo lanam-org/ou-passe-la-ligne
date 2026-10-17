@@ -4,7 +4,7 @@
 // sont numérotés et visibles : on voit tout de suite où toucher. Carte
 // schématique : positions justes, pas les formes ni les tailles — et l'écran le dit.
 
-import { esc, IMAGES } from './outils.js';
+import { esc, IMAGES, IMAGE_TEMPORAIRE } from './outils.js';
 import { releve, nomZone, nbVillages } from './jeu.js';
 
 const MOTIFS = `<defs>
@@ -127,11 +127,12 @@ export function carte(c, e, o = {}) {
 }
 
 /**
- * La carte, en attendant l'image : un cadre vide « Carte à venir », et dedans
+ * La carte, en attendant l'image : un cadre « Carte à venir », et dedans
  * les mêmes gestes en boutons simples — les relevés numérotés, les sept
  * secteurs avec leur zone (couleur ET motif ET nom). Mêmes attributs que la
  * carte dessinée (data-releve, data-sect) : le jeu, les mesures et les tests
- * ne voient pas la différence.
+ * ne voient pas la différence. L'image temporaire marque la place de la carte,
+ * sous les boutons : les gestes restent en haut, visibles sans défiler.
  */
 function carteVide(c, e, { avecReleves, cliquable, mini }) {
   const pastille = (z) => `<svg width="16" height="16" aria-hidden="true"><rect width="16" height="16" rx="3"
@@ -155,6 +156,7 @@ function carteVide(c, e, { avecReleves, cliquable, mini }) {
     ${mini ? '' : '<p class="vide-t">Carte à venir</p>'}
     ${releves}${avecReleves && !cliquable ? '' : secteurs}
     ${e.gespeg && !mini ? `<p class="vide-gespeg">Gespe'gewa'gi couvre les sept secteurs, dedans comme dehors de la ligne.</p>` : ''}
+    <img class="vide-img" src="${IMAGE_TEMPORAIRE}" alt="" width="306" height="175">
   </div>`;
 }
 

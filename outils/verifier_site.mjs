@@ -195,9 +195,14 @@ await suivant(eleve);
 // ---------------------------------------------------------------- étape 2
 for (let i = 0; i < 6; i++) { await eleve.click(`[data-releve="${i}"]`); await eleve.waitForTimeout(50); }
 dit(/^https:\/\//.test(await eleve.getAttribute('.trouve .src-l', 'href') || ''), 'étape 2 : chaque relevé donne le lien de sa source');
-dit(IMAGES ? await eleve.locator('svg.carte').count() === 1
-  : await eleve.locator('.carte--vide').count() === 1 && !(await eleve.locator('svg.carte').count()) && !(await eleve.locator('.guide .image-vide').count()),
-  IMAGES ? 'images : la carte dessinée est là' : 'images à venir : cadre vide pour la carte, relevés en boutons, pas de cadre vide à côté de la garde-parc');
+// sans les dessins, l'image temporaire (toujours la même, chargée en entier) marque la place de la carte et de la garde-parc
+const imagesTemp = () => eleve.evaluate(() => [...document.querySelectorAll('.carte--vide img.vide-img, .guide img.garde-temp')]
+  .map((i) => ({ src: new URL(i.src).pathname, l: i.naturalWidth, h: i.naturalHeight, ratio: i.clientWidth / i.clientHeight })));
+const temp = await imagesTemp();
+dit(IMAGES ? await eleve.locator('svg.carte').count() === 1 && !temp.length
+  : await eleve.locator('.carte--vide').count() === 1 && !(await eleve.locator('svg.carte').count()) && temp.length === 2
+    && temp.every((i) => i.src === '/images/temporaire.png' && i.l === 306 && i.h === 175 && Math.abs(i.ratio - 306 / 175) < 0.05),
+  IMAGES ? 'images : la carte dessinée est là' : 'images à venir : relevés en boutons, et l’image temporaire à la place de la carte et du portrait de la garde-parc, à l’échelle, sans déformation');
 dit(await sansDefiler(eleve, '[data-releve="0"]') && await sansDefiler(eleve, '#carnet .trouve'),
   'étape 2 : la carte reste en place, le relevé trouvé s’affiche à côté, sans défiler');
 await eleve.click('[data-releve="1"]');

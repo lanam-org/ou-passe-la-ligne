@@ -44,8 +44,8 @@ export const mesure = false;
 
 /**
  * Les images du jeu (la carte dessinée de la presqu'île, la garde-parc).
- * `false` : des cadres vides « Image à venir » à leur place, pour discuter de
- * ce qui ira là. La carte devient de simples boutons (relevés, sept secteurs) :
+ * `false` : l'image temporaire (images/temporaire.png) marque leur place, en attendant
+ * les vraies images. La carte devient de simples boutons (relevés, sept secteurs) :
  * le jeu reste jouable. `true` : les dessins reviennent.
  */
 export const images = false;

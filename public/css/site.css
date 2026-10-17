@@ -796,7 +796,7 @@ body[data-espace="prof"] .dd-opt{color:var(--encre)}
 .dd-fam-t .pastille{font-family:var(--f);font-size:13.5px}
 
 /* =====================================================================
-   IMAGES À VENIR — des cadres vides à la place des dessins (config.js : images = false)
+   IMAGES À VENIR — l'image temporaire à la place des dessins (config.js : images = false)
    ===================================================================== */
 .carte--vide{display:block;width:100%;max-height:none;height:auto;padding:14px 12px 12px;border:2px dashed var(--fort);
   border-radius:var(--r-s);background:transparent;position:relative}
@@ -820,6 +820,13 @@ button.vide-sect:hover{border-color:var(--primaire);background:var(--primaire-do
 .vide-sect-t b{font-size:14.5px}
 .vide-sect-t small{font-size:12.5px;color:var(--doux)}
 .vide-gespeg{margin-top:12px;font-size:13.5px;color:var(--gespeg);font-weight:600}
+/* l'image temporaire : sous les boutons, à sa taille (jamais agrandie, elle resterait nette) ; réduite sur un
+   petit écran ; jamais rognée ni déformée */
+.vide-img{display:block;width:100%;max-width:306px;height:auto;margin:12px auto 0}
+/* à la place du portrait : assez grande pour se lire, plus petite sur un téléphone (la bulle garde sa largeur) */
+.guide--temp{grid-template-columns:126px minmax(0,1fr)}
+.garde-temp{display:block;width:126px;height:72px;object-fit:contain}
+@media (max-width:560px){.guide--temp{grid-template-columns:70px minmax(0,1fr)}.garde-temp{width:70px;height:40px}}
 @media print{.carte--vide{border-color:#BFBFBF}}
 
 /* hors ligne (js/horsligne.js) : une bande en bas de l'écran, tant que le réseau manque.
@@ -955,8 +962,6 @@ body[data-espace="prof"] .aide-b:focus-visible{outline-color:var(--prof-txt)}
 .marque-l:hover{text-decoration:underline;text-underline-offset:3px}
 
 /* ===================================================== l'action toujours visible (élève) */
-/* sans dessin, la garde-parc n'a plus de cadre vide : la bulle prend toute la largeur */
-.guide--seul{grid-template-columns:minmax(0,1fr)}
 
 /* documents : deux lignes par carte (nature, titre) ; « Lire » ouvre le reste sous la carte */
 .doc-c{display:flex;flex-direction:column;gap:2px}

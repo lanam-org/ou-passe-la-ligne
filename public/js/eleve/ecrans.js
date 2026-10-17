@@ -219,7 +219,7 @@ export const gabarit = () => `
     <div class="jeu">
       <section class="scene">
         <div class="scene-h"><h2 id="titre" tabindex="-1">…</h2><span class="hint" id="minutes"></span></div>
-        <div class="guide${GARDE ? '' : ' guide--seul'}">${GARDE}<div class="bulle">
+        <div class="guide${IMAGES ? '' : ' guide--temp'}">${GARDE}<div class="bulle">
           <p class="nom">Jeanne Element <small>· garde-parc (personnage fictif)</small></p>
           <p id="guide-txt">…</p></div></div>
         <div class="scene-c" id="scene"></div>

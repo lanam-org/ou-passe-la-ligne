@@ -5,7 +5,7 @@ Un jeu de géographie en équipe pour le 1er cycle du secondaire : tracer la lim
 peut aussi choisir 35 minutes, deux périodes (100 minutes) ou une durée sur mesure, et tout régler.
 
 Prototype de recherche, en prévalidation : le contenu et les questions sont encore discutés,
-et les images sont volontairement des cadres vides.
+et une image « temporaire » marque la place des images à venir.
 
 **Essayer en ligne** : la page GitHub Pages de ce dépôt (lien dans la colonne « About »). C'est le mode
 démonstration : tout reste dans le navigateur de la personne qui essaie, rien n'est envoyé nulle part.
@@ -60,10 +60,12 @@ aucune donnée d'élève, pour les intégrer ensuite à `forillon.json`.
 
 ## Les images : à venir
 
-`images = false` dans `public/js/config.js` : la carte dessinée et la garde-parc sont remplacées par des cadres
-vides « Image à venir », pour décider ensemble de ce qui ira là (prévalidation du contenu). La carte reste jouable :
-les relevés et les sept secteurs deviennent de simples boutons, avec les mêmes gestes et les mêmes mesures.
-`images = true` ramène les dessins. Test : `node outils/verifier_site.mjs images`.
+`images = false` dans `public/js/config.js` : la carte dessinée et la garde-parc attendent leurs vraies images
+(prévalidation du contenu). À leur place, toujours la même image, `public/images/temporaire.png` (« TEMPORAIRE ») :
+dans le cadre « Carte à venir », sous les boutons, à la largeur du cadre ; à la place du portrait de la garde-parc,
+assez grande pour se lire. Mise à l'échelle de sa place, jamais rognée ni déformée (le test le vérifie). La carte
+reste jouable : les relevés et les sept secteurs deviennent de simples boutons, avec les mêmes gestes et les mêmes
+mesures. `images = true` ramène les dessins. Test : `node outils/verifier_site.mjs images`.
 
 ## L'affichage : clair, sombre, contraste élevé
 
@@ -139,7 +141,8 @@ point de vue, la conséquence d'un geste) s'affiche à droite, dans le carnet ; 
 carte, et la phrase sous « Continuer » mène à la réponse qui manque. Les textes longs s'ouvrent à la demande
 (« Lire » sur chaque document, les trois derniers blocs de la décision de 1970). Les gestes reconnus
 s'annoncent d'un « Bravo » en jouant ; leur liste attend le retour sur la démarche. Sans images
-(`images = false`), la garde-parc n'a pas de cadre vide. Le test vérifie la règle à chaque étape.
+(`images = false`), l'image temporaire de la carte vient sous les boutons : les gestes restent en haut. Le test
+vérifie la règle à chaque étape.
 
 ## Les bulles d'aide, la première fois
 
