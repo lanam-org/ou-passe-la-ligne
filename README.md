@@ -236,6 +236,7 @@ On peut aussi tout héberger chez Firebase (`firebase deploy`).
 | `firestore.rules` | Les règles de sécurité de la base |
 | `outils/verifier_site.mjs` | Le test de bout en bout |
 | `outils/verifier_contrastes.py` | Les contrastes des trois affichages |
+| `outils/relecture_gespeg.mjs` | Le dossier de relecture pour la Nation Micmac de Gespeg (`outils/relecture/`, HTML et PDF) |
 
 ## Changer le contenu
 
@@ -324,6 +325,7 @@ node outils/verifier_site.mjs firebase         double de Firestore, deux navigat
 node outils/verifier_site.mjs firebase mesure  idem, collecte allumée
 python3 outils/verifier_contrastes.py          contrastes des trois affichages
 npm run verifier:tout                          tout, comme GitHub avant chaque mise en ligne
+npm run relecture                              le dossier de relecture pour Gespeg, à jour du contenu
 ```
 
 Le test crée une séance, fait jouer une équipe de bout en bout, vérifie le suivi en
@@ -357,5 +359,6 @@ se vérifient dans la console Firebase (Firestore → Règles → Terrain de jeu
 - [ ] Essayer sur un vrai Chromebook d'école, sur le Wi-Fi de l'école
 - [ ] Vérifier les règles dans le terrain de jeu de la console (quatre cas listés dans le guide)
 - [ ] Après chaque nouvelle version du site : republier les règles (`firebase deploy`)
-- [ ] Relecture du contenu par la Nation Micmac de Gespeg
+- [ ] Relecture du contenu par la Nation Micmac de Gespeg : envoyer `outils/relecture/relecture-gespeg.pdf`
+      (regénéré avec `npm run relecture`), puis corriger le contenu selon ses remarques
 - [ ] Le deuxième dossier (Beauharnois) dans un second fichier de contenu

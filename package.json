@@ -9,7 +9,8 @@
     "verifier:firebase": "node outils/verifier_site.mjs firebase",
     "verifier:mesure": "node outils/verifier_site.mjs firebase mesure",
     "verifier:contrastes": "python3 outils/verifier_contrastes.py",
-    "verifier:tout": "npm run verifier && npm run verifier:images && npm run verifier:firebase && npm run verifier:mesure && npm run verifier:contrastes"
+    "verifier:tout": "npm run verifier && npm run verifier:images && npm run verifier:firebase && npm run verifier:mesure && npm run verifier:contrastes",
+    "relecture": "node outils/relecture_gespeg.mjs"
   },
   "devDependencies": {
     "@axe-core/playwright": "4.13.0",
