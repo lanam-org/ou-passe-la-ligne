@@ -1076,8 +1076,14 @@ body[data-espace="prof"] .aide-b:focus-visible{outline-color:var(--prof-txt)}
 .ap-note{margin-top:14px;padding:12px 14px;border-left:4px solid var(--eco);border-radius:var(--r-s);
   background:color-mix(in srgb,var(--eco) 8%,var(--surface))}
 .barre-d .lien{text-decoration:none}
+/* la fiche pour l'école (ecoles.html) : des tableaux larges, qui défilent seuls sur un petit écran */
+.ap-imprimer{margin-top:14px}
+.ap-sect .tab td,.ap-sect .tab th{font-size:14.5px;line-height:1.5;max-width:none}
+.ap-sect .tab tbody th{color:var(--encre);width:28%;border-bottom:1px solid var(--trait);vertical-align:top;padding:9px 10px}
+.ap-tab{min-width:680px}
 @media (max-width:560px){.ap-donnee dl{grid-template-columns:1fr}.ap-sect{padding:18px 16px}}
-@media print{.ap-nav,.barre{display:none}.ap-sect,.ap-cartes li{box-shadow:none}}
+@media print{.ap-nav,.barre,.ap-imprimer{display:none}.ap-sect,.ap-cartes li{box-shadow:none}
+  .ap-sect{break-inside:auto;border-color:#9A9A9A}.ap-tab{min-width:0}.tab-w{overflow:visible}.ap-sect .tab tr{break-inside:avoid}}
 
 /* ===================================================== retours du premier essai */
 /* onglets de l'espace enseignant·e : un menu déroulant quand la fenêtre est étroite */

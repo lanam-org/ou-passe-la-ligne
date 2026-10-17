@@ -82,6 +82,8 @@ export async function afficherAccueil(erreur = '') {
         <button class="btn btn--f" data-dossier-avance="complet">Dossier complet, pour toi</button></div>
       <p class="hint" style="margin-top:10px">Tes corrections (ta version du jeu) s'y appliquent. En ligne :
         <a href="dossier.html" target="_blank" rel="noopener">la version élève</a>.</p>
+      <p class="hint" style="margin-top:6px">Ta direction ou ton centre de services demande ce que le site fait des données ?
+        <a href="ecoles.html" target="_blank" rel="noopener">La fiche pour l'école</a>, à leur transmettre.</p>
     </section>
     ${demo}
     <section class="p-sect"><div class="p-sect-h"><h3>Ta version du jeu</h3></div>

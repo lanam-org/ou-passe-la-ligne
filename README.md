@@ -17,6 +17,7 @@ démonstration : tout reste dans le navigateur de la personne qui essaie, rien n
 | `dossier.html` | les élèves, avant la séance | La version devoir du dossier documentaire : le portrait et les documents, sans les surprises ; imprimable |
 | `enseignant.html` | l'enseignant·e | Se connecter (Google, facultatif), retrouver ses séances, en créer une, suivre en direct, chrono de classe, envoyer un message, réglages, débrief, questions, dossier documentaire, mesures, rapport imprimable |
 | `confidentialite.html` | tout le monde (parents, écoles, service informatique) | Ce que le site enregistre, pourquoi, où, combien de temps ; la responsable et ses coordonnées ; les droits ; les adresses à autoriser dans le filtre de l'école. Liée en bas de chaque page |
+| `ecoles.html` | la direction, la ou le responsable de la vie privée, le service informatique | La fiche pour l'école : les éléments factuels d'une ÉFVP (inventaire des données, cycle de vie, fournisseurs et lieux, sécurité, risques), imprimable. Liée depuis Confidentialité et l'accueil de l'espace enseignant·e |
 
 ## Le dossier documentaire
 
@@ -227,6 +228,7 @@ On peut aussi tout héberger chez Firebase (`firebase deploy`).
 | `public/js/aide.js` | Les bulles d'aide, la première fois, et le bouton « ? » |
 | `public/js/secours.js` | Le message clair quand une page ne peut pas démarrer ou qu'une action échoue |
 | `public/confidentialite.html` | Confidentialité et à propos (Loi 25) |
+| `public/ecoles.html`, `public/js/imprimer.js` | La fiche pour l'école (ÉFVP), et son bouton « Imprimer » |
 | `public/polices/` | Les polices, hébergées sur le site, et leur licence OFL |
 | `.github/workflows/publier.yml` | Vérifier, puis mettre en ligne sur GitHub Pages |
 | `firestore.rules` | Les règles de sécurité de la base |
@@ -266,11 +268,14 @@ identifiant que la question (`F2.1`…). Une question ajoutée à la banque pren
   30 par défaut, dans `config.js`).
   La politique TTL de Firestore efface le document après cette date, même si personne ne clique « Effacer ».
   Elle s'active une fois dans la console (voir « Avec Firebase »). Changer le nombre de jours : `config.js`
-  **et** le texte de `confidentialite.html` (et la phrase de `index.html`).
+  **et** le texte de `confidentialite.html` et de `ecoles.html` (et la phrase de `index.html`).
 - **La page « Confidentialité et à propos »** (`confidentialite.html`) répond à la Loi 25 : responsable et
   coordonnées, ce qui est recueilli et pourquoi, où (Firestore à Montréal, Firebase Authentication chez Google,
   hors Québec), combien de temps, les droits, la plainte à la Commission d'accès à l'information. À mettre à jour
   si le site change (nouveau champ, nouvel hébergeur, collecte allumée).
+- **La fiche pour l'école** (`ecoles.html`) donne à une école ou à un centre de services les éléments de son ÉFVP.
+  Elle se tient à jour avec `confidentialite.html` : un nouveau champ, un nouveau fournisseur ou un nouvel hébergeur
+  change les deux pages. À la mise en service de Firebase, retirer l'encadré « État actuel » (prototype, démonstration seulement).
 - La consigne aux équipes le dit : pas de prénom, ni dans le nom de l'équipe, ni dans les réponses.
 - « Ta version du jeu » se supprime d'un bouton (« Supprimer ma version »).
 
@@ -339,8 +344,8 @@ se vérifient dans la console Firebase (Firestore → Règles → Terrain de jeu
 - [ ] Activer les quatre politiques TTL sur `expireLe` (voir « Avec Firebase ») : sans elles, rien ne s'efface tout seul
 - [ ] Firebase branché : se connecter une fois avec Google sur le site en ligne, et vérifier dans la console
       du navigateur qu'aucune ligne « Refused to … Content Security Policy » n'apparaît
-- [ ] Proposer à l'école ou au centre de services scolaire les détails pour son ÉFVP (évaluation des facteurs
-      relatifs à la vie privée), avant la version en classe
+- [ ] Transmettre la fiche pour l'école (`ecoles.html`) à l'école ou au centre de services scolaire, pour son ÉFVP,
+      avant la version en classe ; à la mise en service de Firebase, mettre à jour son encadré « État actuel »
 - [ ] Essayer sur un vrai Chromebook d'école, sur le Wi-Fi de l'école
 - [ ] Vérifier les règles dans le terrain de jeu de la console (quatre cas listés dans le guide)
 - [ ] Après chaque nouvelle version du site : republier les règles (`firebase deploy`)

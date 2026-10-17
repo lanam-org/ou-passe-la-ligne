@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="fr-CA">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'none'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="robots" content="noindex">
+<meta name="description" content="Les éléments factuels pour l'évaluation des facteurs relatifs à la vie privée (ÉFVP) d'une école ou d'un centre de services scolaire.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231B5E8F'/%3E%3Cpath d='M5 22 L12 12 L17 18 L21 13 L27 22 Z' fill='%23F6F4EF'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="css/site.css">
+<script src="js/theme.js"></script>
+<script src="js/horsligne.js" defer></script>
+<script src="js/imprimer.js" defer></script>
+<title>Fiche pour l'école (ÉFVP) — Où passe la ligne</title>
+</head>
+<body data-espace="info">
+<a class="evitement" href="#contenu">Aller au contenu</a>
+<header class="barre">
+  <div class="barre-in">
+    <div class="marque"><a class="marque-l" href="index.html">Où passe la ligne</a><small>Fiche pour l'école</small></div>
+    <div class="barre-d"><a class="lien" href="confidentialite.html">← Confidentialité</a><span data-theme-ici></span></div>
+  </div>
+</header>
+<main class="apropos" id="contenu">
+  <div class="ap-tete">
+    <h1>Fiche pour l'école : vie privée et sécurité</h1>
+    <p class="lead">Pour la direction, la ou le responsable de la protection des renseignements personnels et le service
+      informatique d'une école ou d'un centre de services scolaire. Elle réunit les éléments factuels d'une évaluation des
+      facteurs relatifs à la vie privée (ÉFVP) ; elle ne remplace pas celle de votre organisme.</p>
+    <p class="ap-meta">Mise à jour le 16 octobre 2026 · Responsable : <a href="confidentialite.html#responsable">Ana Lucia Munteanu (ÉTS)</a>
+      · a-lmunteanu@hotmail.ca</p>
+    <div class="p-actions ap-imprimer"><button class="btn btn--f" type="button" data-imprimer-page>Imprimer ou enregistrer en PDF</button></div>
+  </div>
+
+  <p class="ap-note"><b>État actuel : prototype en prévalidation.</b> Seule la version de démonstration est en ligne : tout
+    reste dans le navigateur de l'appareil, rien n'est envoyé à un serveur. La version en classe (plusieurs Chromebooks,
+    base Firebase) n'est pas encore en service ; cette fiche la décrit telle qu'elle sera configurée, et sera mise à jour à
+    sa mise en service. Le questionnaire de recherche « Ton avis » reste désactivé tant que le certificat d'éthique de l'ÉTS
+    et les autorisations requises ne sont pas obtenus.</p>
+
+  <nav class="ap-nav" aria-label="Sur cette page">
+    <a href="#bref">En bref</a><a href="#inventaire">Les données</a><a href="#cycle">Cycle de vie</a>
+    <a href="#tiers">Fournisseurs et lieux</a><a href="#securite">Sécurité</a><a href="#risques">Risques</a>
+    <a href="#droits">Droits et incidents</a><a href="#reseau">Réseau</a>
+  </nav>
+
+  <section class="ap-sect" id="bref">
+    <h2>En bref</h2>
+    <div class="tab-w"><table class="tab">
+      <caption class="cache-visuel">Le site en bref</caption>
+      <tbody>
+        <tr><th scope="row">L'outil</th><td>Un jeu de géographie en équipe pour le 1<sup>er</sup> cycle du secondaire (Forillon, 1970),
+          dans le navigateur. Rien à installer. Une équipe de deux ou trois élèves par Chromebook.</td></tr>
+        <tr><th scope="row">Renseignements personnels des élèves</th><td>Aucun n'est demandé : pas de nom, pas de compte, pas de
+          courriel, pas d'âge, pas d'école. Une équipe porte le nom d'un animal de Forillon. Seul risque résiduel : un prénom écrit
+          malgré la consigne dans une réponse (voir « Risques »).</td></tr>
+        <tr><th scope="row">L'enseignant·e</th><td>Sans compte par défaut. La connexion Google est facultative (pour retrouver ses
+          séances sur un autre ordinateur) ; son nom et son courriel restent chez Google et ne sont jamais écrits dans la base du jeu.</td></tr>
+        <tr><th scope="row">Où</th><td>La base de données au Canada (Montréal). La connexion anonyme chez Google, en partie aux
+          États-Unis. Les pages du site sont des fichiers publics, sans donnée d'élève.</td></tr>
+        <tr><th scope="row">Combien de temps</th><td>Jusqu'à ce que l'enseignant·e efface la séance (un bouton), et au plus tard
+          30 jours après sa création (effacement automatique).</td></tr>
+        <tr><th scope="row">Ni publicité ni suivi</th><td>Aucune statistique de visite, aucun témoin tiers, aucun réseau social,
+          aucun profilage, aucune décision automatisée au sujet d'un élève. Rien n'est vendu ni partagé.</td></tr>
+        <tr><th scope="row">Code source</th><td>Public, pour que votre service informatique puisse l'examiner :
+          <a href="https://github.com/lanam-org/ou-passe-la-ligne" target="_blank" rel="noopener noreferrer">github.com/lanam-org/ou-passe-la-ligne</a>.</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <section class="ap-sect" id="inventaire">
+    <h2>Les données, une à une</h2>
+    <div class="tab-w"><table class="tab ap-tab">
+      <caption class="cache-visuel">Inventaire des données</caption>
+      <thead><tr><th scope="col">Donnée</th><th scope="col">Renseignement personnel ?</th><th scope="col">Pourquoi</th>
+        <th scope="col">Où</th><th scope="col">Qui y a accès</th><th scope="col">Conservation</th></tr></thead>
+      <tbody>
+        <tr><td><b>Réponses écrites d'une équipe</b> (texte libre, 400 caractères au plus par réponse)</td>
+          <td>Non visé. La consigne, à l'écran, interdit tout prénom ; un élève pourrait quand même en écrire un.</td>
+          <td>Suivre la classe en direct, animer le retour en classe, imprimer le rapport de séance.</td>
+          <td>Cloud Firestore, Montréal</td><td>L'équipe (depuis son appareil) et l'enseignant·e de la séance</td>
+          <td>Effacées avec la séance ; 30 jours au plus</td></tr>
+        <tr><td><b>Fiche d'équipe</b> : nom d'animal, étape atteinte, carte zonée, documents retenus, temps par étape,
+          compteurs de gestes (retours en arrière, clics hors de la carte)</td>
+          <td>Non</td><td>Suivre la classe, reprendre la partie après un rafraîchissement.</td>
+          <td>Cloud Firestore, Montréal</td><td>L'équipe et l'enseignant·e de la séance</td><td>30 jours au plus</td></tr>
+        <tr><td><b>Identifiant anonyme d'un appareil</b> (suite de caractères créée par Firebase Authentication)</td>
+          <td>Pseudonyme : seul, il ne permet pas de savoir qui est l'élève.</td>
+          <td>Savoir quelle fiche d'équipe appartient à quel appareil.</td>
+          <td>Firebase Authentication (Google)</td><td>Google</td><td>Tant que le projet existe</td></tr>
+        <tr><td><b>Séance</b> : code de cinq caractères, réglages, chrono, message à la classe, « bravos » de l'enseignant·e,
+          identifiant technique de l'enseignant·e</td>
+          <td>Non</td><td>Faire fonctionner la séance.</td><td>Cloud Firestore, Montréal</td>
+          <td>L'enseignant·e ; les équipes qui ont le code lisent les réglages, sans les réponses attendues</td>
+          <td>30 jours au plus</td></tr>
+        <tr><td><b>Compte Google de l'enseignant·e</b> (facultatif) : nom, adresse courriel</td>
+          <td>Oui (adulte)</td><td>Retrouver ses séances depuis un autre ordinateur.</td>
+          <td>Firebase Authentication (Google) ; jamais dans la base du jeu</td><td>Google</td>
+          <td>Tant que l'enseignant·e garde son accès ; supprimé sur demande</td></tr>
+        <tr><td><b>Version du jeu de l'enseignant·e</b> : questions ajoutées, corrections, minutes</td>
+          <td>Non (aucune donnée d'élève)</td><td>Reprendre ses réglages à chaque séance.</td>
+          <td>Cloud Firestore, Montréal</td><td>L'enseignant·e</td><td>Jusqu'à ce qu'elle ou il la supprime</td></tr>
+        <tr><td><b>Adresse IP</b> de l'appareil</td><td>Peut l'être, selon le contexte</td>
+          <td>Envoyer les pages ; établir la connexion.</td>
+          <td>Journaux techniques de l'hébergeur des pages et de Google</td><td>Ces fournisseurs</td>
+          <td>Selon leurs politiques ; le site lui-même ne la conserve pas</td></tr>
+        <tr><td><b>Stockage du navigateur</b> : affichage choisi, bulles d'aide vues, équipe et séance en cours</td>
+          <td>Non</td><td>Préférences ; reprendre après un rafraîchissement.</td>
+          <td>L'appareil seulement ; jamais envoyé</td><td>L'appareil</td><td>Jusqu'à l'effacement des données du navigateur</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <section class="ap-sect" id="cycle">
+    <h2>Le cycle de vie</h2>
+    <ul>
+      <li><b>Collecte</b> : seulement ce que l'équipe fait dans le jeu et les réponses qu'elle écrit. Le site ne demande jamais
+        d'information sur l'élève.</li>
+      <li><b>Utilisation</b> : faire fonctionner la séance, l'afficher à l'enseignant·e, imprimer le rapport. Les indicateurs de
+        l'espace enseignant·e décrivent ce qu'une équipe a fait dans le jeu ; ils ne la notent pas.</li>
+      <li><b>Communication</b> : à personne d'autre que l'équipe et l'enseignant·e de la séance. Aucune donnée n'est exportée
+        vers un tiers. L'export pour la recherche est désactivé.</li>
+      <li><b>Conservation</b> : le rapport de séance s'imprime ou s'enregistre en PDF, puis la séance s'efface ; rien ne doit
+        rester en ligne.</li>
+      <li><b>Destruction</b> : « Effacer la séance » supprime les équipes, leurs réponses et la séance. Sans action de
+        l'enseignant·e, chaque document porte une date d'effacement : la base le supprime 30 jours après la création de la séance.</li>
+    </ul>
+  </section>
+
+  <section class="ap-sect" id="tiers">
+    <h2>Les fournisseurs, et où les données sont traitées</h2>
+    <div class="tab-w"><table class="tab ap-tab">
+      <caption class="cache-visuel">Fournisseurs et lieux de traitement</caption>
+      <thead><tr><th scope="col">Fournisseur</th><th scope="col">Service</th><th scope="col">Ce qu'il reçoit</th><th scope="col">Lieu</th></tr></thead>
+      <tbody>
+        <tr><td>Google</td><td>Cloud Firestore (base de données)</td><td>Séances, fiches d'équipe, réponses écrites</td>
+          <td>Canada : région <code>northamerica-northeast1</code> (Montréal)</td></tr>
+        <tr><td>Google</td><td>Firebase Authentication (connexion)</td><td>Identifiants anonymes des appareils ; compte Google de
+          l'enseignant·e s'il se connecte</td><td>Notamment aux États-Unis</td></tr>
+        <tr><td>Google</td><td><code>www.gstatic.com</code></td><td>Le téléchargement du code public de Firebase</td><td>Réseau mondial de Google</td></tr>
+        <tr><td>GitHub (Microsoft)</td><td>GitHub Pages (hébergement des pages)</td><td>Les demandes de pages, comme pour tout site
+          web. Aucune donnée du jeu.</td><td>Notamment aux États-Unis</td></tr>
+      </tbody>
+    </table></div>
+    <p style="margin-top:12px">Une partie du traitement se fait donc hors du Québec : la connexion anonyme et, le cas échéant, le
+      compte Google de l'enseignant·e. Les réponses des équipes, elles, restent dans la base, à Montréal. Les données sont
+      chiffrées pendant leur transport (HTTPS) et, chez Google Cloud, pendant leur stockage.</p>
+    <p>Votre organisme exige une entente écrite (confidentialité, destruction des données) ? Écrivez à la responsable.</p>
+  </section>
+
+  <section class="ap-sect" id="securite">
+    <h2>Les mesures de sécurité</h2>
+    <ul>
+      <li><b>Aucun compte élève</b> : chaque appareil reçoit un identifiant anonyme ; l'équipe choisit un nom parmi quinze
+        animaux, imposés par la base elle-même.</li>
+      <li><b>Règles de la base</b> : ce qui n'est pas autorisé est refusé. Une équipe ne lit et ne modifie que sa propre fiche ;
+        seul·e l'enseignant·e qui a créé la séance lit toutes les fiches et peut tout effacer. Seuls les champs prévus sont acceptés
+        (liste blanche) : personne ne peut ajouter un champ « prénom ». La taille des données est limitée.</li>
+      <li><b>Réponses attendues réservées</b> : les équipes ne les reçoivent jamais, ni dans le contenu du jeu, ni dans la séance.</li>
+      <li><b>Pages protégées</b> : une politique de sécurité du contenu (CSP) sur chaque page n'autorise que les scripts du site et
+        ceux de Firebase. Le texte écrit par les élèves ou par l'enseignant·e s'affiche toujours comme du texte, jamais comme
+        du code. Les polices font partie du site ; aucun service de statistiques ni de publicité.</li>
+      <li><b>Effacement</b> : un bouton pour l'enseignant·e, et l'effacement automatique après 30 jours.</li>
+      <li><b>Vérifié avant chaque mise en ligne</b> : une séance complète est jouée automatiquement dans un vrai navigateur
+        (séance, équipes, réglages, effacement, hors-ligne, accessibilité) ; si une vérification échoue, rien n'est publié.</li>
+    </ul>
+  </section>
+
+  <section class="ap-sect" id="risques">
+    <h2>Les risques, et ce qui les réduit</h2>
+    <div class="tab-w"><table class="tab ap-tab">
+      <caption class="cache-visuel">Risques et mesures</caption>
+      <thead><tr><th scope="col">Risque</th><th scope="col">Ce qui le réduit</th></tr></thead>
+      <tbody>
+        <tr><td>Un élève écrit un prénom, ou un renseignement sur lui, dans une réponse.</td>
+          <td>La consigne est à l'écran (« pas de prénom, ni ici ni dans vos réponses ») et l'enseignant·e la rappelle. Les réponses
+          ne sont lues que par l'équipe et son enseignant·e, qui peut effacer la séance à tout moment ; sinon, effacement
+          automatique en 30 jours.</td></tr>
+        <tr><td>Quelqu'un hors de la classe devine le code d'une séance.</td>
+          <td>Plus de 28 millions de codes possibles. Le code permet de lire les réglages de la séance et d'y créer sa propre
+          fiche, jamais de lire les réponses des autres équipes. L'enseignant·e voit chaque équipe arriver en direct et peut
+          fermer la séance.</td></tr>
+        <tr><td>Une équipe lit les réponses d'une autre équipe.</td><td>Refusé par les règles de la base.</td></tr>
+        <tr><td>Les données restent en ligne trop longtemps.</td>
+          <td>Effacement par l'enseignant·e, et automatique après 30 jours.</td></tr>
+        <tr><td>Communication hors du Québec.</td>
+          <td>Seulement des identifiants anonymes (et le compte Google de l'enseignant·e qui choisit de se connecter). Aucun
+          nom d'élève n'existe dans le système.</td></tr>
+        <tr><td>Le Wi-Fi de l'école décroche.</td>
+          <td>Le jeu continue sur l'appareil ; ce que l'équipe fait part au retour du réseau.</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <section class="ap-sect" id="droits">
+    <h2>Droits et incidents</h2>
+    <p>Une demande d'accès, de rectification ou d'effacement s'adresse à la responsable ; réponse dans les 30 jours. Comme les
+      élèves sont anonymes, indiquer le code de la séance et le nom de l'équipe. Pour une séance en cours, le plus rapide est
+      l'enseignant·e : son espace efface la séance en un clic.</p>
+    <p>En cas d'incident de confidentialité présentant un risque de préjudice sérieux, la responsable avise la Commission
+      d'accès à l'information et les personnes concernées, comme la loi le prévoit. Le détail est sur la page
+      <a href="confidentialite.html">Confidentialité et à propos</a>.</p>
+  </section>
+
+  <section class="ap-sect" id="reseau">
+    <h2>Pour le filtre du réseau</h2>
+    <p>Si le filtre de l'école bloque le site, voici les adresses à autoriser :</p>
+    <ul>
+      <li>l'adresse du site lui-même ;</li>
+      <li>pour la version en classe : <code>www.gstatic.com</code>, <code>firestore.googleapis.com</code>,
+        <code>identitytoolkit.googleapis.com</code> et <code>securetoken.googleapis.com</code> ;</li>
+      <li>pour la connexion Google de l'enseignant·e seulement : <code>apis.google.com</code>, <code>accounts.google.com</code>
+        et l'adresse <code>firebaseapp.com</code> du projet.</li>
+    </ul>
+    <p>Le site ne fait télécharger aucun programme et n'utilise aucun témoin tiers.</p>
+  </section>
+</main>
+<footer class="pied-site"><a href="confidentialite.html">Confidentialité et à propos</a><span>Prototype de recherche · ÉTS</span></footer>
+</body>
+</html>

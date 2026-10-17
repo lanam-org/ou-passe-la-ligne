@@ -23,12 +23,12 @@ const DELAI = 3000;
 // contenu/guide.json (les réponses attendues). Gardé d'avance, il serait sur
 // chaque Chromebook ; il n'est gardé que là où l'espace enseignant·e l'a ouvert.
 const COQUILLE = [
-  './', 'index.html', 'eleve.html', 'enseignant.html', 'dossier.html', 'confidentialite.html', '404.html',
+  './', 'index.html', 'eleve.html', 'enseignant.html', 'dossier.html', 'confidentialite.html', 'ecoles.html', '404.html',
   'css/site.css', 'contenu/forillon.json',
   'polices/atkinson-hyperlegible-next.woff2', 'polices/atkinson-hyperlegible-next-italique.woff2',
   'polices/atkinson-hyperlegible-mono.woff2', 'polices/OFL.txt',
   'js/aide.js', 'js/carte.js', 'js/config.js', 'js/demo.js', 'js/donnees.js', 'js/dossier.js', 'js/dossierdoc.js',
-  'js/eleve.js', 'js/enseignant.js', 'js/horsligne.js', 'js/jeu.js', 'js/local.js', 'js/outils.js',
+  'js/eleve.js', 'js/enseignant.js', 'js/horsligne.js', 'js/imprimer.js', 'js/jeu.js', 'js/local.js', 'js/outils.js',
   'js/reglages.js', 'js/seance.js', 'js/secours.js', 'js/theme.js',
   'js/enseignant/accueil.js', 'js/enseignant/apres.js', 'js/enseignant/debrief.js', 'js/enseignant/direct.js',
   'js/enseignant/editeur.js', 'js/enseignant/etat.js', 'js/enseignant/preparer.js', 'js/enseignant/rapport.js'
