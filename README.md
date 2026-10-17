@@ -211,7 +211,8 @@ On peut aussi tout héberger chez Firebase (`firebase deploy`).
 | `public/js/reglages.js` | Les formats, les questions posées ou ajoutées, les corrections, le chrono : le contenu « réglé » d'une séance |
 | `public/js/carte.js` | La carte et le relevé |
 | `public/js/eleve.js` | La page des équipes |
-| `public/js/enseignant.js` | L'espace enseignant·e |
+| `public/js/enseignant.js` | L'espace enseignant·e : ouvrir une séance, l'écouter en direct, choisir l'onglet, les gestes en séance |
+| `public/js/enseignant/` | Un fichier par écran de l'espace : `accueil.js` (Tes séances), `direct.js`, `debrief.js`, `editeur.js` (Réglages, Ta version), `preparer.js` (Questions, Dossier, Déroulement), `apres.js` (Mesures, Questionnaire), `rapport.js` (rapport, impression) ; `etat.js`, l'état qu'ils partagent |
 | `public/js/seance.js` | Créer, rejoindre, effacer une séance ; la version du jeu de l'enseignant·e |
 | `public/js/dossierdoc.js` | Le dossier documentaire, à l'écran et sur papier ; le lien de source dans le jeu |
 | `public/js/dossier.js` | La page de la version devoir |

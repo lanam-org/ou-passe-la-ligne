@@ -31,7 +31,7 @@
   }
   function appliquer() {
     var choix = lire(), r = document.documentElement, t = effectif(choix);
-    // pendant l'impression du rapport, le papier reste clair (voir enseignant.js)
+    // pendant l'impression du rapport, le papier reste clair (voir enseignant/rapport.js)
     if (document.body && document.body.classList.contains('imprime')) { r.setAttribute('data-theme-choix', choix); return; }
     if (r.getAttribute('data-theme') !== t) {
       // changer d'affichage d'un coup : pas de fondu de couleurs d'un thème à l'autre

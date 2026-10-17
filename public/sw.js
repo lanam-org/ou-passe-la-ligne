@@ -27,7 +27,9 @@ const COQUILLE = [
   'polices/atkinson-hyperlegible-mono.woff2', 'polices/OFL.txt',
   'js/aide.js', 'js/carte.js', 'js/config.js', 'js/demo.js', 'js/donnees.js', 'js/dossier.js', 'js/dossierdoc.js',
   'js/eleve.js', 'js/enseignant.js', 'js/horsligne.js', 'js/jeu.js', 'js/local.js', 'js/outils.js',
-  'js/reglages.js', 'js/seance.js', 'js/secours.js', 'js/theme.js'
+  'js/reglages.js', 'js/seance.js', 'js/secours.js', 'js/theme.js',
+  'js/enseignant/accueil.js', 'js/enseignant/apres.js', 'js/enseignant/debrief.js', 'js/enseignant/direct.js',
+  'js/enseignant/editeur.js', 'js/enseignant/etat.js', 'js/enseignant/preparer.js', 'js/enseignant/rapport.js'
 ];
 
 const IMMUABLE = /^https:\/\/www\.gstatic\.com\/firebasejs\//;
