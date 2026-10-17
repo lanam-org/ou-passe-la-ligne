@@ -12,6 +12,7 @@
     "verifier:tout": "npm run verifier && npm run verifier:images && npm run verifier:firebase && npm run verifier:mesure && npm run verifier:contrastes"
   },
   "devDependencies": {
+    "@axe-core/playwright": "4.13.0",
     "playwright": "1.56.0"
   }
 }

@@ -334,6 +334,12 @@ séance créée et rejointe sans réseau), et l'absence d'erreur, puis la connex
 retrouvées sur un autre ordinateur, compte relié, rien de personnel dans la base). Les captures vont
 dans `outils/captures/`.
 
+**L'accessibilité, écran par écran.** En mode local, axe-core audite 39 écrans (chaque étape de l'équipe, chaque onglet
+de l'enseignant·e, les affichages sombre et contraste élevé, les bulles d'aide, les pages d'information en clair et en
+sombre) selon les critères WCAG 2.2 de niveaux A et AA. Un seul écart, et rien n'est mis en ligne : le message dit
+quel écran, quelle règle et quel élément. axe ne voit pas tout (l'ordre de lecture, la clarté d'un texte) : un essai au
+clavier et avec un lecteur d'écran reste utile à chaque grand changement.
+
 Ce que le double ne prouve pas : les règles de sécurité et les quotas réels. Les règles
 se vérifient dans la console Firebase (Firestore → Règles → Terrain de jeu des règles).
 

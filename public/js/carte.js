@@ -39,8 +39,9 @@ export function carte(c, e, o = {}) {
       <title>${esc(s.nom)} — ${esc(nomZone(c, z))} · ${esc(s.fait)}</title></path>`;
   }).join('');
 
+  // le nom écrit sur la carte : déjà dit par le secteur lui-même (aria-label), pas deux fois au lecteur d'écran
   const noms = mini ? '' : c.secteurs.map((s) =>
-    `<text class="sect-nom" x="${s.tx}" y="${s.ty}" text-anchor="middle">${esc(s.nom)}</text>`).join('');
+    `<text class="sect-nom" x="${s.tx}" y="${s.ty}" text-anchor="middle" aria-hidden="true">${esc(s.nom)}</text>`).join('');
 
   // le corridor : de l'intérieur de la Gaspésie (à l'ouest) vers la forêt du parc
   const etat = (z) => !z ? 'rompu' : (z === 'preservation' || z === 'sauvage') ? 'continu' : 'affaibli';
@@ -93,7 +94,10 @@ export function carte(c, e, o = {}) {
     ? "Le secteur reste en dehors du parc : il n'est pas protégé, et personne ne part."
     : esc(c.zones[outil].q)}</p>`;
 
-  const svg = !IMAGES ? carteVide(c, e, { avecReleves, cliquable, mini }) : `<svg class="carte${mini ? ' carte--mini' : ''}" viewBox="0 0 460 380" role="img"
+  // Une image en lecture seule ; un groupe dès qu'elle contient des secteurs ou des relevés à cliquer
+  // (une « image » ne peut pas contenir de boutons : les lecteurs d'écran ne les verraient pas).
+  const role = cliquable || avecReleves ? 'group' : 'img';
+  const svg = !IMAGES ? carteVide(c, e, { avecReleves, cliquable, mini }) : `<svg class="carte${mini ? ' carte--mini' : ''}" viewBox="0 0 460 380" role="${role}"
       aria-label="Carte schématique de la presqu'île de Forillon, sept secteurs à zoner">
     ${MOTIFS}
     <rect x="0" y="0" width="460" height="380" fill="var(--mer)"/>

@@ -660,9 +660,10 @@ body.avec-signal .bravo-zone{top:150px}
 .rg-form h4{font-size:16px;margin:0}
 .rg-form-g{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:0 18px}
 .rg-groupe{border-top:1px solid var(--trait);padding:10px 0}
-.rg-groupe > summary{font-weight:700;cursor:pointer;font-size:16px}
-.rg-item{margin:8px 0 0 14px}
-.rg-item > summary{cursor:pointer;font-size:15px}
+/* des cibles d'au moins 24 px de haut (WCAG 2.5.8), même quand les titres s'empilent */
+.rg-groupe > summary{font-weight:700;cursor:pointer;font-size:16px;padding:4px 0}
+.rg-item{margin:6px 0 0 14px}
+.rg-item > summary{cursor:pointer;font-size:15px;padding:4px 0}
 .rg-champ{padding:2px 0 8px 14px;border-left:3px solid transparent}
 .rg-champ--corrige{border-left-color:var(--eco)}
 .rg-corr .btn{margin-top:10px;padding:8px 14px;font-size:14.5px}

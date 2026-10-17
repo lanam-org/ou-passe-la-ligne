@@ -88,6 +88,22 @@ async function page(ctx, chemin, nom) {
 }
 const capture = (p, nom) => p.screenshot({ path: join(CAPTURES, `${MODE}-${nom}.png`), fullPage: false });
 
+// L'accessibilité, écran par écran : axe-core, critères WCAG 2.2 de niveaux A et AA. En mode local seulement
+// (les écrans sont les mêmes avec le double de Firestore). Un écart = une règle enfreinte sur un écran.
+let AxeBuilder = null;
+try { ({ default: AxeBuilder } = await import('@axe-core/playwright')); } catch { /* signalé à la fin */ }
+const ecartsAxe = [];
+let ecransAudites = 0;
+async function auditer(p, ecran) {
+  if (!AxeBuilder || MODE !== 'local') return;
+  // une apparition en fondu (un bravo, un geste reconnu) se lit une fois finie, pas à mi-transparence
+  await p.evaluate(() => Promise.all(document.getAnimations()
+    .filter((a) => a.effect?.getComputedTiming().endTime !== Infinity).map((a) => a.finished.catch(() => {}))));
+  const r = await new AxeBuilder({ page: p }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']).analyze();
+  ecransAudites++;
+  for (const v of r.violations) ecartsAxe.push(`${ecran} : ${v.id} — ${v.help} (${v.nodes.length}× ; ex. ${v.nodes[0]?.target.join(' ')})`);
+}
+
 console.log(`\nMode ${MODE}${MESURE ? ' + mesure' : ''}${IMAGES ? ' + images' : ''} — ${BASE}`);
 const ctxProf = await contexte();
 const ctxEleve = MODE === 'local' ? ctxProf : await contexte();
@@ -103,12 +119,14 @@ await prof.waitForSelector('#code-seance');
 const code = (await prof.textContent('#code-seance')).trim();
 dit(/^[A-HJ-KM-NP-Z2-9]{5}$/.test(code), `séance créée, code ${code}`);
 await capture(prof, '01-enseignant-vide');
+await auditer(prof, 'enseignant · en direct, sans équipe');
 
 // ---------------------------------------------------------------- une équipe rejoint
 const eleve = await page(ctxEleve, `/eleve.html?code=${code}`, 'équipe');
 await eleve.waitForSelector('#f-rejoindre');
 dit(await eleve.inputValue('#code') === code, 'le code est prérempli depuis le lien');
 await capture(eleve, '02-rejoindre');
+await auditer(eleve, 'équipe · rejoindre');
 await eleve.check('input[name=nom][value="Orignal"]');
 await eleve.click('button[type=submit]');
 await eleve.waitForSelector('#titre');
@@ -125,6 +143,7 @@ await autre.check('input[name=nom][value="Orignal"]');
 await autre.click('button[type=submit]');
 await autre.waitForSelector('.erreur');
 dit(/déjà pris/.test(await autre.textContent('.erreur')), 'un même nom ne peut pas être pris deux fois');
+await auditer(autre, 'équipe · rejoindre, avec une erreur');
 await autre.check('input[name=nom][value="Phoque gris"]');
 await autre.click('button[type=submit]');
 await autre.waitForSelector('#titre');
@@ -147,6 +166,7 @@ dit(await eleve.locator('#hint [data-aller="F1.2"]').count() === 1, 'étape 1 : 
 await ecrire(eleve, 'F1.2', 'Non, des familles y vivaient sûrement.');
 dit(!(await eleve.isDisabled('#suivant')), "étape 1 : l'hypothèse écrite débloque la suite");
 await capture(eleve, '03-arrivee');
+await auditer(eleve, 'équipe · étape 1');
 await suivant(eleve);
 
 // ---------------------------------------------------------------- étape 2
@@ -166,6 +186,7 @@ await ecrire(eleve, 'F2.1', "Gespe'gewa'gi, le territoire des Mi'gmaq.");
 await ecrire(eleve, 'F2.4', 'Des maisons, des chalets, des commerces, des églises et des écoles.');
 dit(!(await eleve.isDisabled('#suivant')), 'étape 2 : relevés et réponses débloquent le dossier');
 await capture(eleve, '04-exploration');
+await auditer(eleve, 'équipe · étape 2, carte et relevé');
 await suivant(eleve);
 
 // ---------------------------------------------------------------- étape 3
@@ -175,6 +196,7 @@ dit(await eleve.locator('.verdict').count() === 3 && !(await eleve.locator('.doc
 dit(await eleve.locator('.bravo').count() === 1, 'étape 3 : un « bravo » nomme le geste, sans score');
 await ecrire(eleve, 'F3.2', 'Les deux : elles ne comptent pas la même chose.');
 await capture(eleve, '05-dossier');
+await auditer(eleve, 'équipe · étape 3, verdicts');
 await suivant(eleve);
 
 // ---------------------------------------------------------------- étape 4
@@ -186,6 +208,7 @@ dit(await eleve.locator('.effet').count() === 1, 'étape 4 : le geste affiche au
 dit(await sansDefiler(eleve, '.effet'), 'étape 4 : la conséquence se voit à côté de la carte, sans défiler');
 await ecrire(eleve, 'F4.3', 'On garde Cap-des-Rosiers en zone village, le corridor reste continu.');
 await capture(eleve, '06-trace');
+await auditer(eleve, 'équipe · étape 4, tracé et conséquence');
 await suivant(eleve);
 
 // ---------------------------------------------------------------- étape 5
@@ -202,6 +225,7 @@ await eleve.click('[data-outil="plein"]');
 await eleve.click('[data-sect="penouille"]');
 await ecrire(eleve, 'F5.4', "Les Mi'gmaq, depuis des temps immémoriaux.");
 await capture(eleve, '07-complications');
+await auditer(eleve, 'équipe · étape 5, point de vue');
 await suivant(eleve);
 
 // ---------------------------------------------------------------- l'enseignant·e suit, et envoie un message
@@ -210,16 +234,19 @@ await prof.waitForSelector('#detail');
 const detail = await prof.textContent('#detail');
 dit(detail.includes('la route coupe les passages'), "l'enseignant·e lit les réponses de l'équipe en direct");
 await capture(prof, '08-enseignant-direct');
+await auditer(prof, 'enseignant · en direct, détail d’une équipe');
 // le « bravo » : l'enseignant·e salue une réponse, l'équipe le voit tout de suite, sans score
 await prof.click('#detail [data-bravo="F5.4"]');
 await eleve.waitForSelector('.bravo--ens', { timeout: 5000 });
 dit((await eleve.textContent('.bravo--ens')).includes('Le territoire porte déjà un nom'), 'un « bravo » de l’enseignant·e arrive chez l’équipe, avec sa question');
 await prof.waitForSelector('#detail [data-bravo="F5.4"][aria-pressed="true"]');
 await capture(eleve, '08c-bravo-equipe');
+await auditer(eleve, 'équipe · bravo de l’enseignant·e');
 await prof.click('[data-signal="temps"]');
 await eleve.waitForSelector('#signal:not([hidden])', { timeout: 5000 });
 dit((await eleve.textContent('#signal')).includes('5 minutes'), 'le message de l’enseignant·e arrive chez l’équipe');
 await capture(eleve, '09-signal');
+await auditer(eleve, 'équipe · message à la classe');
 await eleve.click('[data-fermer-signal]');
 // un message écrit par l'enseignant·e : il arrive tel quel, et le HTML ne s'exécute pas
 await prof.fill('#f-signal [name=texte]', 'Relisez la consigne <b>maintenant</b>');
@@ -249,6 +276,7 @@ await prof.click('details.rg-item[data-k="rg|banque|F2.1"] > summary');
 await prof.fill('[data-corr="banque|F2.1|reponse"]', 'Réponse attendue corrigée pour le test');
 dit((await prof.textContent('#ed-etat')).includes('pas encore appliqués'), 'réglages : rien ne part avant « Appliquer »');
 await capture(prof, '08b-reglages');
+await auditer(prof, 'enseignant · réglages, sections ouvertes');
 await prof.click('[data-ed="appliquer"]');
 await prof.waitForFunction(() => document.querySelector('#ed-etat')?.textContent.includes('Appliqué'));
 dit(true, 'réglages appliqués à la séance');
@@ -281,6 +309,7 @@ await capture(autre, '09b-reglages-eleve');
 await eleve.waitForSelector('.rattrapage', { timeout: 5000 });
 dit((await eleve.textContent('.rattrapage')).includes('Quel animal'), 'l’équipe déjà plus loin la retrouve dans « À rattraper »');
 await capture(eleve, '09c-rattrapage');
+await auditer(eleve, 'équipe · à rattraper');
 await eleve.fill('.rattrapage [data-rep^="A"]', "L'orignal.");
 
 await prof.click('[data-ed="garder"]');
@@ -314,6 +343,7 @@ await prof.waitForSelector('.dossier');
 const nDossier = await prof.locator('.dossier .dd-item').count();
 dit(nDossier === 26 && await prof.locator('.dossier .dd-item--surprise').count() === 9,
   `dossier complet : ${nDossier} éléments, les surprises signalées`);
+await auditer(prof, 'enseignant · dossier documentaire');
 dit(await prof.locator('.dossier .dd-cite a[href^="https://"]').count() >= 30 && (await prof.textContent('.dossier')).includes('Traduction libre'),
   'chaque source a sa copie, son lien, et sa traduction si elle est en anglais');
 dit((await prof.textContent('.dossier')).includes('Relevé corrigé pour le test'), 'les corrections de la séance s’appliquent au dossier');
@@ -340,6 +370,7 @@ dit(ddTexte.includes('Version devoir') && !ddTexte.includes('La route 132 traver
 await dd.check('#pastilles');
 dit(await dd.locator('.dd-leg .pastille').count() > 4 && await dd.locator('.dd-item .pastille').count() > 4, 'pastilles : chaque document dit à quelle question il sert');
 await capture(dd, '09e-dossier-devoir');
+await auditer(dd, 'dossier.html · version devoir, pastilles');
 await dd.close();
 await prof.click('[data-onglet="direct"]');
 
@@ -359,6 +390,7 @@ for (const [t, nomT] of [['light', 'clair'], ['dark', 'sombre'], ['contrast', 'c
   dit(await theme(autre) === t && await theme(prof) === t, `affichage ${nomT} choisi, chez l’équipe et chez l’enseignant·e`);
   const fond = await autre.evaluate(() => getComputedStyle(document.body).backgroundColor);
   await capture(autre, `16-${nomT}-eleve`); await capture(prof, `16-${nomT}-prof`);
+  if (t !== 'light') { await auditer(autre, `équipe · affichage ${nomT}`); await auditer(prof, `enseignant · affichage ${nomT}`); }
   if (t === 'contrast') dit(fond === 'rgb(255, 255, 255)', 'contraste élevé : fond blanc, texte noir');
 }
 await autre.emulateMedia({ colorScheme: 'dark' });
@@ -385,12 +417,14 @@ await eleve.waitForSelector('#titre');
 dit((await eleve.textContent('#titre')).includes('La décision de 1970'), 'après un rafraîchissement, l’équipe reprend à « La décision de 1970 »');
 dit((await eleve.inputValue('[data-rep="F6.1"]')).includes('Tout le territoire'), 'et retrouve sa réponse');
 await capture(eleve, '10-bilan');
+await auditer(eleve, 'équipe · étape 6, bilan');
 await suivant(eleve);
 
 // ---------------------------------------------------------------- étape 7
 await eleve.click('#d-sources summary');
 await eleve.waitForTimeout(150);
 await capture(eleve, '11-debrief');
+await auditer(eleve, 'équipe · étape 7, retour sur la démarche');
 await suivant(eleve);
 if (MESURE) {
   await eleve.waitForSelector('[data-avis="q1"]');
@@ -405,6 +439,7 @@ if (MESURE) {
   await eleve.waitForSelector('.merci-t');
   dit(await eleve.locator('.recap .vos-rep dt').count() >= 5 && await eleve.locator('[data-imprimer-fin]').count() === 1,
     'la partie se termine sur un écran de fin, avec toutes les réponses à relire ou imprimer');
+  await auditer(eleve, 'équipe · fin de partie');
 }
 
 // ---------------------------------------------------------------- l'espace enseignant·e
@@ -415,8 +450,10 @@ const db = await prof.textContent('#prof');
 dit(db.includes("Les Mi'gmaq, depuis des temps immémoriaux"), 'le débrief rassemble les réponses des équipes');
 dit(db.includes('✦ bravo'), 'au débrief, la réponse saluée d’un « bravo » passe en premier, marquée ✦');
 await capture(prof, '12-enseignant-debrief');
+await auditer(prof, 'enseignant · débrief');
 for (const o of ['questions', 'deroulement', 'mesures', 'questionnaire']) {
   await prof.click(`[data-onglet="${o}"]`); await prof.waitForTimeout(150);
+  await auditer(prof, `enseignant · onglet ${o}`);
 }
 await prof.click('[data-onglet="questions"]');
 dit(await prof.locator('.bq').count() === 29, 'les 28 questions de la banque et la question ajoutée sont dans l’onglet Questions');
@@ -464,6 +501,7 @@ await petit.waitForSelector('#f-rejoindre');
 const deborde = await petit.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 1);
 dit(!deborde, 'à 400 px de large, la page ne déborde pas');
 await capture(petit, '14-petit-ecran');
+await auditer(petit, 'équipe · rejoindre, 400 px de large');
 
 // ---------------------------------------------------------------- effacer la séance
 await prof.click('[data-onglet="direct"]');
@@ -471,6 +509,7 @@ await prof.click('[data-effacer="demander"]');
 await prof.click('[data-effacer="oui"]');
 await prof.waitForSelector('#creer', { timeout: 8000 });
 dit(true, 'la séance est effacée ; l’espace propose d’en créer une nouvelle');
+await auditer(prof, 'enseignant · accueil « Tes séances »');
 await autre.waitForSelector('#signal:not([hidden])', { timeout: 5000 });
 dit((await autre.textContent('#signal')).includes('terminée'), 'les équipes encore en jeu voient « séance terminée »');
 if (MODE === 'firebase') dit(fauxFb.etat().documents === fauxFb.lireCollection('enseignants').length,
@@ -510,6 +549,7 @@ await prof.click('[data-ma-version]');
 await prof.waitForSelector('[data-ed="enregistrer"]');
 await prof.fill('[data-min="debrief"]', '20');
 await capture(prof, '14c-ma-version');
+await auditer(prof, 'enseignant · ta version du jeu');
 await prof.click('[data-ed="enregistrer"]');
 await prof.waitForFunction(() => document.querySelector('#ed-etat')?.textContent.includes('Enregistré'));
 await prof.click('[data-retour]');
@@ -614,6 +654,7 @@ if (MODE === 'local') {
   dit(!chevauche && (await pa.textContent('.aide-t')).split(/\s+/).length <= 8,
     'aide : une bulle courte, collée au bouton qu’elle explique, sans le cacher');
   await capture(pa, '18-aide-premiere-fois');
+  await auditer(pa, 'enseignant · bulle d’aide ouverte');
   await pa.click('#creer');     // la bulle ne bloque rien : on agit, elle s’efface
   await pa.waitForSelector('#code-seance');
   dit(!(await pa.locator('.aide-bulle[data-bulle="en-creer"]:not([hidden])').count()), 'aide : agir ferme la bulle');
@@ -744,6 +785,23 @@ if (MODE === 'local') {
   await ctxHL.close();
 }
 
+// les pages d'information, en clair et en sombre, puis le bilan de l'accessibilité
+if (MODE === 'local') {
+  const ctxI = await contexte();
+  const pi = await page(ctxI, '/index.html', 'pages d’information');
+  for (const [chemin, nom] of [['/index.html', 'accueil du site'], ['/confidentialite.html', 'confidentialité'],
+    ['/ecoles.html', 'fiche pour l’école'], ['/404.html', 'page introuvable']]) {
+    for (const schema of ['light', 'dark']) {
+      await pi.emulateMedia({ colorScheme: schema });
+      await pi.goto(BASE + chemin);
+      await auditer(pi, `${nom} (${schema === 'dark' ? 'sombre' : 'clair'})`);
+    }
+  }
+  await ctxI.close();
+  dit(AxeBuilder && ecransAudites > 30 && !ecartsAxe.length, !AxeBuilder ? 'accessibilité : axe-core manque (lance « npm install »)'
+    : `accessibilité (axe-core, WCAG 2.2 A et AA) : ${ecransAudites} écrans audités, ${ecartsAxe.length
+      ? `${ecartsAxe.length} écart(s) :\n    ${ecartsAxe.join('\n    ')}` : 'aucun écart'}`);
+}
 dit(guideDemandePar.has('/enseignant.html') && [...guideDemandePar].every((p) => p === '/enseignant.html'),
   `le guide (réponses attendues) n’est téléchargé que par l’espace enseignant·e (demandé par : ${[...guideDemandePar].join(', ')})`);
 dit(erreurs.length === 0, `aucune erreur dans la console${erreurs.length ? ' :\n    ' + erreurs.join('\n    ') : ''}`);
