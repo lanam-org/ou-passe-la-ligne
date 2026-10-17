@@ -14,7 +14,6 @@ export const esc = (t) => String(t ?? '').replace(/[&<>"]/g, (c) =>
 export const typo = (html) => String(html).split(/(<textarea[\s\S]*?<\/textarea>|<[^>]*>)/).map((morceau, i) =>
   i % 2 ? morceau : morceau.replace(/ ([:;?!»])/g, '\u00a0$1').replace(/« /g, '«\u00a0')).join('');
 
-export const nb = (n) => Number(n).toLocaleString('fr-CA');
 // une page pour une classe au Québec n'écrit pas « 3.5 »
 export const dec = (n, d = 1) => Number(n).toLocaleString('fr-CA',
   { minimumFractionDigits: d, maximumFractionDigits: d });
@@ -41,7 +40,8 @@ export async function chargerContenu() {
  */
 export function messageErreur(e, defaut) {
   const code = String(e?.code || '');
-  if (!code) return e?.message || defaut;
+  // une erreur de programmation (TypeError…) a un message technique en anglais : jamais à l'écran
+  if (!code) return e?.name === 'Error' && e.message ? e.message : defaut;
   if (/permission-denied|insufficient/.test(code)) return 'La base a refusé cette action : la séance est peut-être fermée, ou elle n’est pas à toi.';
   if (/unavailable|network|deadline|offline/.test(code)) return 'Pas de connexion pour le moment. Vérifie le Wi-Fi, puis réessaie.';
   if (/not-found/.test(code)) return 'Cette séance n’existe plus : elle a peut-être été effacée.';
@@ -93,7 +93,7 @@ export function retarder(f, ms) {
   return g;
 }
 
-/** Vrai si les dessins sont affichés ; faux : des cadres vides « Image à venir » (config.js). */
+/** Vrai si les dessins sont affichés ; faux : la carte devient des boutons dans un cadre « Carte à venir » (config.js). */
 export const IMAGES = config.images === true;
 
 /** Le personnage de la garde-parc (fictif), en SVG. */
@@ -106,10 +106,6 @@ const DESSIN_GARDE = `<svg viewBox="0 0 52 52" aria-hidden="true">
   <circle cx="23" cy="27" r="1.2" fill="#1B2A33"/><circle cx="29" cy="27" r="1.2" fill="#1B2A33"/>
   <path d="M23 31c2 1.6 4 1.6 6 0" stroke="#1B2A33" stroke-width="1.3" fill="none" stroke-linecap="round"/>
   <path d="M16 52c0-7 4.5-11 10-11s10 4 10 11z" fill="#3E5A4A"/></svg>`;
-
-/** Un cadre vide, à la place d'une image dont on discutera. */
-export const imageVide = (quoi, o = {}) => `<span class="image-vide${o.rond ? ' image-vide--rond' : ''}" role="img"
-  aria-label="Image à venir : ${esc(quoi)}" title="Image à venir : ${esc(quoi)}">${o.court ? '' : `<span>Image à venir</span>`}</span>`;
 
 // Sans images, pas de cadre vide à côté de la garde-parc : son nom suffit, la bulle prend la place.
 export const GARDE = IMAGES ? DESSIN_GARDE : '';

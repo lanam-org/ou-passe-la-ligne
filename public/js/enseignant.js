@@ -281,7 +281,7 @@ function vueDirect() {
         ${texteSignal(sg) ? '<button class="lien" data-signal="">Retirer le message</button>' : ''}
       </div>
       <form class="signal-perso" id="f-signal" autocomplete="off">
-        <label class="champ"><span>Ou votre propre message (${MAX_MESSAGE} caractères au plus)</span>
+        <label class="champ"><span>Ou votre propre message, sans prénom (${MAX_MESSAGE} caractères au plus)</span>
           <input name="texte" maxlength="${MAX_MESSAGE}" placeholder="Ex. : Relisez la consigne avant de continuer."></label>
         <button class="btn btn--f" type="submit">Envoyer</button>
       </form>

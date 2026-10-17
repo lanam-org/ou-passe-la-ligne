@@ -23,7 +23,8 @@ const copie = (o) => JSON.parse(JSON.stringify(o));
 
 /* ------------------------------------------------------------ les formats */
 
-// Les 12 questions de la version allégée, écrites en équipe (le reste est oral ou porté par l'écran)
+// Le socle de tous les formats : huit questions écrites et trois orales. Un format ne précise que ce qui
+// en diffère (50 min rend quatre écrites facultatives ; deux périodes ajoute les questions de reprise).
 const ECRITES_STANDARD = ['F1.2', 'F2.1', 'F2.4', 'F3.2', 'F4.3', 'F5.1', 'F5.4', 'F6.1'];
 const ORALES_STANDARD = ['F7.1', 'F7.2', 'F7.5'];
 
@@ -88,7 +89,7 @@ export function modeQuestion(q) {
 /** L'étape d'une question de la banque : F2.x → l'exploration, etc. */
 export const etapeQuestion = (c, q) => q.etape || c.etapes[Number(q.id[1]) - 1]?.id;
 
-/** L'état d'une question dans le format standard (la version allégée). */
+/** L'état d'une question dans le socle commun, quand un format ne la précise pas. */
 function etatStandard(q) {
   const m = modeQuestion(q);
   if (m === 'ecrite') return ECRITES_STANDARD.includes(q.id) ? 'requise' : 'off';

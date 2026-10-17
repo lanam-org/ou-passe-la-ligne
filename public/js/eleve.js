@@ -75,11 +75,11 @@ function accueil(prerempli = '', erreur = '', nomChoisi = '') {   // le nom choi
       <p class="hint" style="margin-top:6px">Un seul ordinateur par équipe. Pas de prénom, ni ici ni dans vos réponses :
         votre équipe porte le nom d'un animal de Forillon.</p>
       <form id="f-rejoindre" autocomplete="off" novalidate>
-        <label class="champ"><span>Code de la séance (au tableau)</span>
+        <label class="champ champ-code"><span>Code de la séance (au tableau)</span>
           <input id="code" name="code" inputmode="text" maxlength="5" required
             value="${esc(prerempli)}" placeholder="K7P2M" aria-describedby="code-aide"></label>
         <p id="code-aide" class="avert">Les cinq caractères écrits au tableau.</p>
-        <fieldset class="noms"><legend>Le nom de votre équipe</legend>
+        <fieldset class="noms-equipe"><legend>Le nom de votre équipe</legend>
           <div class="noms-g">${NOMS_EQUIPES.map((n, i) => `<label class="nom-c">
             <input type="radio" name="nom" value="${esc(n)}" ${i === 0 ? 'required' : ''} ${n === nomChoisi ? 'checked' : ''}>
             <span><span class="nom-e" aria-hidden="true">${EMOJIS_EQUIPES[n] || ''}</span>${esc(n)}</span></label>`).join('')}</div>

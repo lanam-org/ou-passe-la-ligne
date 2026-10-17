@@ -36,10 +36,14 @@ service cloud.firestore {
     function expiration(d) { return !('expireLe' in d) || d.expireLe is timestamp; }
     // un texte libre court (réponses du questionnaire)
     function court(d, k) { return !(k in d) || (d[k] is string && d[k].size() <= 300); }
-    // les seuls noms d'équipe possibles : un client trafiqué ne peut pas afficher un autre nom en classe
-    function nomPermis(n) {
-      return n in ['Fou de Bassan', 'Phoque gris', 'Petit rorqual', 'Orignal', 'Ours noir', 'Castor', 'Renard roux',
-        'Porc-épic', 'Guillemot', 'Petit pingouin', 'Mouette tridactyle', 'Cormoran', 'Grand héron', 'Lynx', 'Martin-pêcheur'];
+    // Les seuls noms d'équipe possibles, chacun avec l'identifiant de sa fiche (idEquipe dans seance.js) :
+    // un client trafiqué ne peut ni afficher un autre nom en classe, ni prendre deux fois le même nom.
+    function nomPermis(n, id) {
+      return {'Fou de Bassan': 'fou-de-bassan', 'Phoque gris': 'phoque-gris', 'Petit rorqual': 'petit-rorqual',
+        'Orignal': 'orignal', 'Ours noir': 'ours-noir', 'Castor': 'castor', 'Renard roux': 'renard-roux',
+        'Porc-épic': 'porc-epic', 'Guillemot': 'guillemot', 'Petit pingouin': 'petit-pingouin',
+        'Mouette tridactyle': 'mouette-tridactyle', 'Cormoran': 'cormoran', 'Grand héron': 'grand-heron',
+        'Lynx': 'lynx', 'Martin-pêcheur': 'martin-pecheur'}.get(n, '') == id;
     }
     // le message écrit par l'enseignant·e : 140 caractères au plus
     function messageCourt(d) {
@@ -79,7 +83,7 @@ service cloud.firestore {
                'temps', 'releves', 'docs', 'juge', 'zones', 'comps', 'gespeg', 'gespegVu', 'historique',
                'corridorRompu', 'mentions', 'reponses', 'fini', 'compteurs', 'expireLe'])
           && expiration(request.resource.data)
-          && request.resource.data.nom is string && nomPermis(request.resource.data.nom)
+          && request.resource.data.nom is string && nomPermis(request.resource.data.nom, equipe)
           && request.resource.data.reponses is map && request.resource.data.reponses.size() <= 40;
         allow update: if connecte()
           && resource.data.appareil == request.auth.uid

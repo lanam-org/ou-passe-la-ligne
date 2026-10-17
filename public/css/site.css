@@ -81,7 +81,7 @@
 *{box-sizing:border-box}
 [hidden]{display:none !important}
 html{scroll-padding-top:90px}
-body{margin:0;background:var(--fond);color:var(--encre);
+body{margin:0;background:var(--fond);color:var(--encre);padding-bottom:var(--hors-ligne-h,0px);
   font-family:var(--f);font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
 h1,h2,h3{margin:0;font-weight:800;letter-spacing:-.01em;line-height:1.2;text-wrap:balance}
 p{margin:0}
@@ -101,19 +101,8 @@ button{font:inherit;color:inherit;cursor:pointer;border:0;background:none;text-a
 .marque{display:flex;align-items:baseline;gap:10px;min-width:0;margin-right:auto}
 .marque h1{font-size:19px}
 .marque span{font-size:14px;color:var(--doux);white-space:nowrap}
-.outils-h{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
 .lien{font-size:14px;font-weight:600;color:var(--primaire);padding:8px 10px;border-radius:8px}
 .lien:hover{background:var(--primaire-doux)}
-.interr{display:inline-flex;align-items:center;gap:9px;font-size:14px;font-weight:600;
-  color:var(--doux);padding:6px 10px;border-radius:8px}
-.interr:hover{background:var(--fond-2)}
-.interr .pis{width:34px;height:20px;border-radius:999px;background:var(--fort);position:relative;
-  transition:background .15s;flex:0 0 auto}
-.interr .pis::after{content:"";position:absolute;top:3px;left:3px;width:14px;height:14px;
-  border-radius:50%;background:var(--surface);transition:transform .15s}
-.interr[aria-pressed="true"]{color:var(--encre)}
-.interr[aria-pressed="true"] .pis{background:var(--primaire)}
-.interr[aria-pressed="true"] .pis::after{transform:translateX(14px)}
 
 /* progression : une barre segmentée, un seul libellé — celui où l'on est */
 .prog{max-width:1200px;margin:0 auto;padding:0 20px 11px}
@@ -157,7 +146,7 @@ button{font:inherit;color:inherit;cursor:pointer;border:0;background:none;text-a
 .guide b{color:var(--primaire)}
 
 /* ---- barre d'action : collée en bas, toujours au même endroit ---- */
-.pied{position:sticky;bottom:0;z-index:20;margin-top:18px;display:flex;gap:12px;align-items:center;
+.pied{position:sticky;bottom:var(--hors-ligne-h,0px);z-index:20;margin-top:18px;display:flex;gap:12px;align-items:center;
   padding:12px 0 14px;background:var(--fond);border-top:1px solid var(--trait)}
 .pied .btn{white-space:nowrap}
 .pied .hint{margin-left:auto;text-align:right}
@@ -190,8 +179,6 @@ button{font:inherit;color:inherit;cursor:pointer;border:0;background:none;text-a
 
 /* ---- contenu enseignant·e : un seul style, reconnaissable, masqué par défaut ---- */
 .prof{border:1px dashed var(--roche);background:color-mix(in srgb,var(--roche) 7%,var(--surface))}
-.prof .etq{display:inline-block;font-size:12px;font-weight:700;color:var(--roche);
-  border:1px solid currentColor;border-radius:999px;padding:1px 9px;margin-bottom:8px}
 .badge{font-size:13px;border:1px solid var(--bord);border-radius:999px;padding:2px 10px;
   color:var(--doux);white-space:nowrap;background:var(--surface)}
 .note{margin-top:22px;border-radius:var(--r);padding:16px 20px}
@@ -246,8 +233,6 @@ button{font:inherit;color:inherit;cursor:pointer;border:0;background:none;text-a
 .bz{display:block;height:100%;min-width:3px}
 
 /* ---- relevés de terrain ---- */
-.jauge-c{height:8px;background:var(--fond-2);border-radius:999px;overflow:hidden}
-.jauge-r{height:100%;background:var(--primaire);transition:width .35s ease}
 .trouve{margin-top:16px;border-left:4px solid var(--primaire);border-radius:4px var(--r-s) var(--r-s) 4px;
   padding:14px 16px;background:var(--primaire-doux)}
 .trouve .sur{color:var(--primaire)}
@@ -256,7 +241,7 @@ button{font:inherit;color:inherit;cursor:pointer;border:0;background:none;text-a
 .trouve-s{font-size:13px;color:var(--pale);margin-top:8px}
 
 /* ---- documents : une carte = une case à cocher ---- */
-.docs{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
+.docs{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px}   /* trois par rangée sur un Chromebook */
 .doc{position:relative;border:1px solid var(--bord);border-radius:var(--r-s);background:var(--surface);
   padding:14px 44px 14px 15px;display:flex;flex-direction:column;gap:6px;height:100%;
   transition:border-color .12s,box-shadow .12s}
@@ -302,7 +287,6 @@ button{font:inherit;color:inherit;cursor:pointer;border:0;background:none;text-a
 .fige summary .sur{font-weight:600}
 .fige .corps-f{padding:0 14px 13px 30px;font-size:14.5px;line-height:1.6;color:var(--doux)}
 .fige .corps-f p + p{margin-top:8px}
-.comp-sep{margin:22px 0 12px;padding-top:18px;border-top:1px solid var(--trait)}
 
 /* ---- gestes reconnus ---- */
 .mentions{display:flex;flex-direction:column;gap:7px}
@@ -317,15 +301,15 @@ button{font:inherit;color:inherit;cursor:pointer;border:0;background:none;text-a
 .bravo-zone{position:fixed;right:max(20px,calc((100vw - 1160px) / 2));bottom:calc(24px + var(--hors-ligne-h,0px));
   z-index:40;display:flex;justify-content:flex-end;width:min(340px,calc(100vw - 40px));pointer-events:none}
 @media (max-width:960px){.bravo-zone{bottom:calc(92px + var(--hors-ligne-h,0px))}}
-.bravo{width:100%;max-width:440px;background:var(--nuit);color:var(--nuit-txt);
-  border-radius:14px;padding:11px 16px 12px;box-shadow:0 14px 34px -12px rgba(0,0,0,.5);
+.bravo{position:relative;pointer-events:auto;width:100%;max-width:440px;background:var(--nuit);color:var(--nuit-txt);
+  border-radius:14px;padding:11px 44px 12px 16px;box-shadow:0 14px 34px -12px rgba(0,0,0,.5);
   animation:bravo-in .35s cubic-bezier(.2,.9,.3,1.2), bravo-out .45s ease-in 4.1s forwards}
 .bravo-sur{font-size:13px;font-weight:700;color:#F2C46B;margin:0 0 2px}
 .bravo-l{display:grid;grid-template-columns:18px minmax(0,1fr);gap:8px;margin:3px 0 0;
   font-size:14.5px;line-height:1.45}
 .bravo-i{color:#F2C46B;text-align:center}
 @keyframes bravo-in{from{transform:translateY(10px);opacity:0}to{transform:none;opacity:1}}
-@keyframes bravo-out{to{transform:translateY(6px);opacity:0}}
+@keyframes bravo-out{to{transform:translateY(6px);opacity:0;visibility:hidden}}   /* disparue, elle ne capte plus les clics */
 @media (prefers-reduced-motion:reduce){.bravo{animation:none}}
 
 /* petit écran : l'en-tête ne colle plus, la barre d'action reste */
@@ -364,27 +348,17 @@ button{font:inherit;color:inherit;cursor:pointer;border:0;background:none;text-a
 @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]):not([data-theme="contrast"]){ --fond-prof:#0B1318; --prof-bande:#223A48; } }
 :root[data-theme="dark"]{ --fond-prof:#0B1318; --prof-bande:#223A48; }
 
-.espaces{display:inline-flex;gap:2px;padding:3px;border-radius:999px;background:var(--fond-2);
-  border:1px solid var(--trait)}
-.espaces button{display:inline-flex;align-items:center;gap:7px;font-size:14px;font-weight:700;
-  padding:8px 15px;border-radius:999px;color:var(--doux);min-height:40px}
-.espaces button:hover{color:var(--encre)}
-.espaces button[aria-pressed="true"]{background:var(--surface);color:var(--encre);
-  box-shadow:0 1px 3px rgba(0,0,0,.14)}
 
 body[data-espace="prof"]{background:var(--fond-prof)}
 body[data-espace="prof"] .barre{background:var(--prof-bande);color:var(--prof-txt);border-bottom:0;
   backdrop-filter:none}
-body[data-espace="prof"] .marque span{color:#F2C46B;font-weight:700}
-body[data-espace="prof"] .espaces{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.18)}
-body[data-espace="prof"] .espaces button{color:#C5D2DA}
-body[data-espace="prof"] .espaces button[aria-pressed="true"]{background:#F2C46B;color:#1B2A33}
+body[data-espace="prof"] .marque span{color:#D9BE88;font-weight:700}
 
 .onglets{max-width:1200px;margin:0 auto;padding:0 20px;display:flex;gap:4px;overflow-x:auto}
 .onglets button{padding:11px 14px 12px;font-size:15px;font-weight:700;color:#C5D2DA;
   border-bottom:3px solid transparent;white-space:nowrap}
 .onglets button:hover{color:#fff}
-.onglets button[aria-current="page"]{color:#fff;border-bottom-color:#F2C46B}
+.onglets button[aria-current="page"]{color:#fff;border-bottom-color:#D9BE88}
 
 .espace-prof{max-width:1200px}
 .p-tete{margin-bottom:18px}
@@ -422,7 +396,6 @@ ul.obs li{display:grid;grid-template-columns:18px minmax(0,1fr);gap:9px;align-it
 .case{width:16px;height:16px;border:2px solid var(--bord);border-radius:4px;margin-top:3px}
 
 /* mesures */
-.ind-g{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px}
 .ind{background:var(--fond-2);border-radius:var(--r-s);padding:13px 15px}
 .ind h4{margin:0 0 9px;font-size:15px}
 .ind .l{display:grid;grid-template-columns:14px minmax(0,1fr) auto;gap:8px}
@@ -482,7 +455,7 @@ ul.obs li{display:grid;grid-template-columns:18px minmax(0,1fr);gap:9px;align-it
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]):not([data-theme="contrast"]) .mode-local{background:#3A2C10;color:#F2D9A6;border-color:#5C4519}}
 :root[data-theme="dark"] .mode-local{background:#3A2C10;color:#F2D9A6;border-color:#5C4519}
 .marque small{font-size:14px;color:var(--doux);white-space:nowrap}
-.envoi{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--pale)}
+.envoi{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--pale);white-space:nowrap}
 .envoi::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--fort)}
 .envoi[data-ok="1"]::before{background:var(--env)}
 .envoi[data-ok="0"]::before{background:var(--eco)}
@@ -505,11 +478,12 @@ ul.obs li{display:grid;grid-template-columns:18px minmax(0,1fr);gap:9px;align-it
 .rejoindre{max-width:760px;margin:0 auto}
 .rejoindre h2{font-size:clamp(24px,3vw,30px);margin-top:4px}
 .champ{display:flex;flex-direction:column;gap:6px;margin-top:22px;font-weight:700}
-.champ input{font:inherit;font-family:var(--f-d);font-size:28px;letter-spacing:.18em;text-transform:uppercase;
-  padding:10px 14px;border-radius:var(--r-s);border:2px solid var(--bord);background:var(--surface);color:var(--encre);max-width:260px}
+.champ input{font:inherit;font-weight:400;padding:10px 12px;border-radius:var(--r-s);border:1px solid var(--bord);
+  background:var(--surface);color:var(--encre)}
+/* le code de séance : grand, espacé, en capitales, comme au tableau */
+.champ-code input{font-family:var(--f-d);font-size:28px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;
+  padding:10px 14px;border-width:2px;max-width:260px}
 .champ input:focus{outline:3px solid var(--primaire);outline-offset:1px;border-color:var(--primaire)}
-.noms{border:0;padding:0;margin:22px 0 0}
-.noms legend{font-weight:700;margin-bottom:10px;padding:0}
 .noms-g{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px}
 .nom-c{position:relative}
 .nom-c input{position:absolute;opacity:0;inset:0;cursor:pointer}
@@ -517,6 +491,10 @@ ul.obs li{display:grid;grid-template-columns:18px minmax(0,1fr);gap:9px;align-it
   background:var(--surface);font-weight:600;min-height:46px}
 .nom-c input:checked + span{background:var(--primaire);border-color:var(--primaire);color:var(--sur-primaire)}
 .nom-c input:focus-visible + span{outline:3px solid var(--primaire);outline-offset:2px}
+.nom-c input + span{display:flex;align-items:center;line-height:1.25}
+/* l'emoji devant le nom : il ne reprend pas le cadre de la carte (.nom-c span) */
+.nom-c .nom-e{flex:none;display:inline-block;width:1.5em;min-height:0;margin:0 6px 0 0;padding:0;border:0;border-radius:0;
+  background:none;font-size:18px;font-weight:400;line-height:1;text-align:center}
 .erreur{margin-top:16px;padding:11px 14px;border-radius:var(--r-s);border-left:4px solid var(--action);
   background:color-mix(in srgb,var(--action) 8%,var(--surface));font-weight:600}
 
@@ -531,7 +509,6 @@ ul.obs li{display:grid;grid-template-columns:18px minmax(0,1fr);gap:9px;align-it
 .lead{font-size:16.5px;line-height:1.65;max-width:60ch}
 .texte{margin-top:15px;font-size:15px;line-height:1.65;max-width:62ch}
 h3.sous{font-size:17px;margin-top:26px;padding-top:20px;border-top:2px solid var(--trait)}
-.comp-sep{font-size:17px}
 .carnet-l{margin:12px 0 0;padding-left:19px;font-size:13.5px;line-height:1.5}
 .carnet-l li{margin-top:5px}
 .vos-rep{margin:12px 0 0}
@@ -549,7 +526,6 @@ h3.sous{font-size:17px;margin-top:26px;padding-top:20px;border-top:2px solid var
 .signal .btn--f{background:transparent;color:var(--nuit-txt);border-color:rgba(255,255,255,.4)}
 
 /* =============================== espace enseignant·e : la séance en direct */
-.code-g{display:flex;gap:18px 28px;align-items:center;flex-wrap:wrap}
 .p-tete .code-v,.code-v{font-family:var(--f-d);font-size:clamp(40px,6vw,64px);font-weight:600;letter-spacing:.14em;line-height:1}
 .p-tete .code-u,.code-u{font-size:15px;color:var(--doux);word-break:break-all}
 .p-tete .chrono,.chrono{font-size:34px;font-weight:800;line-height:1.1;color:var(--encre);font-variant-numeric:tabular-nums;margin:4px 0 6px}
@@ -618,7 +594,7 @@ h3.sous{font-size:17px;margin-top:26px;padding-top:20px;border-top:2px solid var
 
 body.avec-signal .bravo-zone{top:150px}
 @media (max-width:700px){body.avec-signal .bravo-zone{top:auto}}
-.champ input::placeholder{letter-spacing:.12em;opacity:.45}
+.champ-code input::placeholder{letter-spacing:.12em;opacity:.45}
 
 /* le rapport de séance, sur papier ou en PDF.
    Style d'impression neutre : noir et gris, filets fins, aucun aplat de couleur.
@@ -660,15 +636,14 @@ body.avec-signal .bravo-zone{top:150px}
 .formats legend{font-weight:700;font-size:15px}
 .duree-v{align-items:center;margin:0 0 14px}
 .duree-v .hint{flex:1 1 260px}
-.rg-barre{position:sticky;bottom:12px;z-index:5;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;
+.rg-barre{position:sticky;bottom:calc(12px + var(--hors-ligne-h,0px));z-index:5;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;
   margin:16px 0 0;padding:12px 16px;border-radius:var(--r-s);background:var(--surface);border:1px solid var(--bord);box-shadow:var(--ombre)}
 #ed-etat[data-modifie]{color:var(--eco);font-weight:700}
 .formats-b .btn[aria-pressed="true"]{background:var(--primaire);color:var(--sur-primaire);border-color:var(--primaire)}
 .minutes-g{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:4px 14px;align-items:end}
 .rg .champ{margin-top:14px;font-weight:600;font-size:14.5px;gap:5px}
-.rg .champ input,.rg .champ textarea,.rg .champ select,.rg-q select{font:inherit;font-size:15.5px;letter-spacing:normal;text-transform:none;
+.rg .champ input,.rg .champ textarea,.rg .champ select,.rg-q select{font:inherit;font-size:15.5px;font-weight:400;
   width:100%;padding:8px 10px;border-radius:var(--r-s);border:1px solid var(--bord);background:var(--surface);color:var(--encre)}
-.rg .champ input,.rg .champ textarea,.rg .champ select,.rg-q select{font-weight:400}
 .rg .champ input[type=number]{font-family:var(--f);font-variant-numeric:tabular-nums;max-width:110px}
 .rg .champ textarea{resize:vertical;line-height:1.45}
 .rg fieldset.champ{border:0;padding:0}
@@ -729,7 +704,7 @@ body.avec-signal .bravo-zone{top:150px}
    zones (sinon tout devient d'une seule couleur), les barres pleines prennent un contour. */
 @media (forced-colors: active){
   svg{forced-color-adjust:none}
-  .prog-seg button,.eq-seg i,.jauge-c{border:1px solid CanvasText}
+  .prog-seg button,.eq-seg i{border:1px solid CanvasText}
   .envoi::before{forced-color-adjust:none}
   .btn{border:1px solid ButtonText}
 }
@@ -760,7 +735,7 @@ body[data-espace="prof"] .theme-c{color:var(--prof-txt)}
   padding:1px 8px;border-radius:999px;border:1.5px solid currentColor;white-space:nowrap}
 .dd-pastilles{display:inline-flex;gap:5px;flex-wrap:wrap}
 
-.src-l{display:inline-block;margin-top:6px;font-size:14px;font-weight:600;color:var(--primaire);text-decoration:underline;
+.src-l{display:inline-block;margin-top:6px;padding:3px 0;font-size:14px;font-weight:600;color:var(--primaire);text-decoration:underline;
   text-underline-offset:3px}
 .verdict .src-l{display:block;font-size:13.5px}
 
@@ -822,21 +797,18 @@ body[data-espace="prof"] .dd-opt{color:var(--encre)}
 /* =====================================================================
    IMAGES À VENIR — des cadres vides à la place des dessins (config.js : images = false)
    ===================================================================== */
-.image-vide{display:flex;align-items:center;justify-content:center;width:100%;height:100%;min-height:40px;
-  border:2px dashed var(--fort);border-radius:var(--r-s);background:transparent;color:var(--pale);
-  font-size:12px;font-weight:600;text-align:center}
-.image-vide--rond{border-radius:50%;aspect-ratio:1}
-.carte--vide{display:block;width:100%;padding:16px;border:2px dashed var(--fort);
+.carte--vide{display:block;width:100%;max-height:none;height:auto;padding:14px 12px 12px;border:2px dashed var(--fort);
   border-radius:var(--r-s);background:transparent;position:relative}
+/* l'étiquette « Carte à venir » se pose sur le cadre pointillé : elle ne prend aucune hauteur */
+.carte--vide .vide-t{position:absolute;top:-10px;left:14px;margin:0;padding:0 6px;background:var(--surface);font-size:12.5px;line-height:18px}
 .carte--vide.carte--mini{min-height:0;padding:10px}
 .vide-t{font-size:15px;font-weight:700;color:var(--pale);text-align:center}
-.vide-s{font-size:13.5px;color:var(--pale);text-align:center;margin:2px 0 14px}
-.vide-releves{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px}
+.vide-releves{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:8px}   /* six boutons, sans orphelin */
 .vide-pin{min-height:44px;padding:8px 12px;border-radius:var(--r-s);border:2px solid var(--primaire);
   color:var(--primaire);background:var(--surface);font-weight:700;font-size:15px;text-align:center}
 .vide-pin:hover{background:var(--primaire-doux)}
 .vide-pin--vu{border-color:var(--env);color:var(--env)}
-.vide-secteurs{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px}
+.vide-secteurs{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px}   /* sept secteurs sur deux rangées */
 .carte--mini .vide-secteurs{grid-template-columns:1fr;gap:4px}
 .vide-sect{display:flex;gap:9px;align-items:center;min-height:48px;padding:7px 10px;border-radius:var(--r-s);
   border:1px solid var(--bord);background:var(--surface);color:var(--encre);text-align:left}
@@ -847,9 +819,7 @@ button.vide-sect:hover{border-color:var(--primaire);background:var(--primaire-do
 .vide-sect-t b{font-size:14.5px}
 .vide-sect-t small{font-size:12.5px;color:var(--doux)}
 .vide-gespeg{margin-top:12px;font-size:13.5px;color:var(--gespeg);font-weight:600}
-@media print{.carte--vide{border-color:#BFBFBF}.image-vide{border-color:#BFBFBF;color:#595959}}
-.carte--vide{max-height:none;height:auto}
-.guide .image-vide{width:48px;height:48px;min-height:0}
+@media print{.carte--vide{border-color:#BFBFBF}}
 
 /* hors ligne (js/horsligne.js) : une bande en bas de l'écran, tant que le réseau manque.
    --hors-ligne-h (posée par le script) remonte d'autant la barre « Suivant » et celle des réglages. */
@@ -857,14 +827,12 @@ button.vide-sect:hover{border-color:var(--primaire);background:var(--primaire-do
   background:var(--nuit);color:var(--nuit-txt);font-size:15px;line-height:1.4;text-align:center;
   border-top:1px solid transparent}  /* couleurs forcées : le contour reste visible */
 .horsligne[hidden]{display:none}
-body{padding-bottom:var(--hors-ligne-h,0px)}
-.pied{bottom:var(--hors-ligne-h,0px)}
-.rg-barre{bottom:calc(12px + var(--hors-ligne-h,0px))}
 @media print{.horsligne{display:none}}
 
 /* bulles d'aide (js/aide.js) : une à la fois, sans voile, collées à ce qu'elles expliquent */
-.aide-b{width:36px;height:36px;border-radius:50%;border:1px solid currentColor;background:transparent;color:inherit;
-  font:inherit;font-size:16px;font-weight:700;line-height:1;cursor:pointer;flex:none}
+.aide-b{display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 12px 0 4px;border-radius:999px;
+  border:1px solid currentColor;background:transparent;color:inherit;font:inherit;font-size:14px;font-weight:700;line-height:1;
+  text-align:center;cursor:pointer;flex:none}
 .theme-c + .aide-b{margin-left:8px}
 .aide-b:hover{background:color-mix(in srgb,currentColor 12%,transparent)}
 .aide-b:focus-visible{outline:3px solid var(--primaire);outline-offset:2px}
@@ -932,25 +900,16 @@ body[data-espace="prof"] .aide-b:focus-visible{outline-color:var(--prof-txt)}
 .parcours small{color:var(--pale);margin-left:6px;font-variant-numeric:tabular-nums;white-space:nowrap}
 
 /* élève : rejoindre — un seul style d'étiquette */
-.rejoindre .noms{font-size:16px;color:var(--encre);line-height:1.45;margin-top:24px}
-.rejoindre .noms legend{font-size:16px;font-weight:700}
+.noms-equipe{border:0;padding:0;margin:24px 0 0;font-size:16px;color:var(--encre);line-height:1.45}
+.noms-equipe legend{font-size:16px;font-weight:700;margin-bottom:10px;padding:0}
 .rejoindre .nom-c span{font-size:15px}
 
 /* élève : la fin, une carte à sa taille */
 .scene.fin{max-width:560px;margin:24px auto 0}
 
-/* relevés en cadre vide : six boutons, sans orphelin */
-.vide-releves{grid-template-columns:repeat(auto-fit,minmax(96px,1fr))}
 
-/* voyant d'enregistrement */
-.envoi{white-space:nowrap}
 
-/* accueil du site : la note sous les portes, à la largeur du texte */
-.accueil .portes + .avert{max-width:72ch}
 
-/* compteur du carnet : un chiffre lisible, pas une police de code */
-.compte{font-size:22px;font-weight:800;font-variant-numeric:tabular-nums;margin-top:9px}
-.compte span{font-size:15px;font-weight:600;color:var(--doux)}
 /* petit écran : chiffres clés en liste (valeur à gauche), jamais d'orphelin */
 @media (max-width:560px){
   .paires{grid-template-columns:1fr;gap:8px}
@@ -967,7 +926,7 @@ body[data-espace="prof"] .aide-b:focus-visible{outline-color:var(--prof-txt)}
 /* le lien « Confidentialité et à propos », en bas de chaque page */
 .pied-site{max-width:1200px;margin:0 auto;padding:18px 20px calc(28px + var(--hors-ligne-h,0px));
   display:flex;flex-wrap:wrap;gap:6px 18px;font-size:14px;color:var(--doux);border-top:1px solid var(--trait)}
-.pied-site a{color:var(--primaire);font-weight:600;text-underline-offset:3px}
+.pied-site a{display:inline-block;padding:4px 0;color:var(--primaire);font-weight:600;text-underline-offset:3px}
 @media print{.pied-site,.evitement{display:none}}
 
 /* js/secours.js : la page n'a pas pu démarrer, ou une action n'a pas abouti */
@@ -1021,21 +980,13 @@ body[data-espace="prof"] .aide-b:focus-visible{outline-color:var(--prof-txt)}
   border-right:1px solid rgba(255,255,255,.18)}
 .onglets-g:last-child{border-right:0;margin-right:0;padding-right:0}
 .onglets-t{font-size:12.5px;font-weight:700;color:#A9B9C3;margin:0 4px 0 2px;white-space:nowrap}
-/* carte en attente d'image : une étiquette discrète, et les sept secteurs sur deux rangées */
-.carte--vide .vide-t{font-size:13px;margin-bottom:10px}
-.vide-secteurs{grid-template-columns:repeat(auto-fill,minmax(160px,1fr))}
 /* points de vue : celui qui arrive s'affiche dans le carnet, à droite, et se signale une fois */
 .carnet .comp{margin:0;padding:14px 16px}
 .carnet .comp h3{font-size:17px;margin:4px 0 7px}
 .carnet .comp .serif{font-size:15px;line-height:1.6}
 .comp--neuf{animation:pose .55s ease-out}
 @media (prefers-reduced-motion:reduce){.comp--neuf{animation:none}}
-/* l'étiquette « Carte à venir » se pose sur le cadre pointillé : elle ne prend aucune hauteur */
-.carte--vide{position:relative;padding:14px 12px 12px}
-.carte--vide .vide-t{position:absolute;top:-10px;left:14px;margin:0;padding:0 6px;background:var(--surface);font-size:12.5px;line-height:18px}
 .fige summary b{font-weight:700}
-/* cartes de documents plus courtes : trois par rangée sur un Chromebook */
-.docs{grid-template-columns:repeat(auto-fill,minmax(210px,1fr))}
 
 /* ===================================================== accessibilité (audit du 16 octobre) */
 /* texte pour les lecteurs d'écran seulement */
@@ -1043,9 +994,6 @@ body[data-espace="prof"] .aide-b:focus-visible{outline-color:var(--prof-txt)}
   clip:rect(0 0 0 0);white-space:nowrap;border:0}
 /* le titre de l'étape reçoit le focus à chaque nouvelle étape : pas de cadre, il n'est pas un contrôle */
 #titre:focus{outline:none}
-/* cibles d'au moins 24 px de haut (WCAG 2.5.8) */
-.pied-site a{display:inline-block;padding:4px 0}
-.src-l{padding:3px 0}
 /* 320 px de large (WCAG 1.4.10) : les libellés longs du bouton passent à la ligne, la phrase d'aide dessous */
 @media (max-width:480px){
   .pied{flex-wrap:wrap}
@@ -1076,16 +1024,12 @@ body[data-espace="prof"] .aide-b:focus-visible{outline-color:var(--prof-txt)}
 @media (prefers-reduced-motion:reduce){.bravo--ens{animation:none}}
 
 /* ===================================================== retouches avant le playtest */
-/* le « ? » de l'aide, centré dans son rond (les boutons sont alignés à gauche par défaut) */
-.aide-b{display:inline-grid;place-items:center;padding:0;text-align:center}
 
-/* la bulle « Bravo » se ferme d'un × ; elle redevient inerte une fois disparue */
-.bravo{position:relative;pointer-events:auto;padding-right:44px}
+/* la bulle « Bravo » se ferme d'un × */
 .bravo-x{position:absolute;top:6px;right:6px;width:30px;height:30px;display:grid;place-items:center;border-radius:50%;
   color:var(--nuit-txt);font-size:20px;line-height:1;text-align:center}
 .bravo-x:hover{background:rgba(255,255,255,.14)}
 .bravo-x:focus-visible{outline:2px solid #F2C46B;outline-offset:1px}
-@keyframes bravo-out{to{transform:translateY(6px);opacity:0;visibility:hidden}}
 
 /* accueil : la note de confidentialité, petite et sur une ligne */
 .accueil-note{margin-top:22px;font-size:13px;color:var(--pale);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -1179,9 +1123,6 @@ body[data-espace="prof"] .aide-b:focus-visible{outline-color:var(--prof-txt)}
 :root[data-theme="dark"] body[data-espace="prof"]{
   --primaire:#7FA9C6; --primaire-h:#9BBCD3;
 }
-/* l'accent doré de l'espace enseignant·e, adouci */
-body[data-espace="prof"] .marque span{color:#D9BE88}
-.onglets button[aria-current="page"]{border-bottom-color:#D9BE88}
 
 /* ===================================================== en-tête : le nom du site et « ← Accueil » ramènent à l'accueil */
 .marque h1 .marque-l{font-size:inherit}
@@ -1191,13 +1132,10 @@ body[data-espace="prof"] .retour-site{color:var(--prof-txt)}
 body[data-espace="prof"] .retour-site:hover{background:rgba(255,255,255,.12)}
 
 /* le guide : un vrai libellé à côté du « ? » */
-.aide-b{width:auto;padding:0 12px 0 4px;border-radius:999px;display:inline-flex;align-items:center;gap:6px;font-size:14px}
 .aide-b > span:first-child{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;
   border:1px solid currentColor;font-weight:800}
 @media (max-width:560px){.aide-b{padding:0;width:36px;justify-content:center}.aide-b .aide-b-t,.aide-b > span:first-child{border:0}.aide-b .aide-b-t{display:none}}
 
-/* équipes : un emoji devant le nom, sur l'écran « Rejoindre » */
-.nom-e{display:inline-block;width:1.5em;margin-right:4px;font-size:18px;line-height:1;text-align:center}
 
 /* réponses : le compteur de caractères, discret */
 .qe-compte{margin-top:4px;font-size:12.5px;color:var(--pale);text-align:right;font-variant-numeric:tabular-nums}
@@ -1205,8 +1143,6 @@ body[data-espace="prof"] .retour-site:hover{background:rgba(255,255,255,.12)}
 /* espace enseignant·e : message écrit, durée sur mesure, détail du chrono, lien à copier */
 .signal-perso{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;margin-top:14px}
 .signal-perso .champ{flex:1 1 320px;margin:0}
-.signal-perso input{width:100%;font:inherit;font-size:15px;padding:10px 12px;border-radius:var(--r-s);border:1px solid var(--bord);
-  background:var(--surface);color:var(--encre)}
 .duree-mesure{width:5.5em;margin:0 4px;font:inherit;font-size:15px;padding:4px 8px;border-radius:8px;border:1px solid var(--bord);
   background:var(--surface);color:var(--encre)}
 .chrono-detail{margin-top:8px;font-size:14px;color:var(--doux)}
@@ -1214,11 +1150,5 @@ body[data-espace="prof"] .retour-site:hover{background:rgba(255,255,255,.12)}
 .chrono-detail ol{margin:6px 0 0;padding-left:20px;line-height:1.6}
 .code-u a{color:var(--primaire);font-weight:700;overflow-wrap:anywhere}
 .lien-copier{padding:2px 8px;font-size:13.5px}
-/* le message écrit : un texte normal (les champs .champ du code de séance sont en grandes capitales espacées) */
-.signal-perso .champ input{font-family:var(--f);font-size:15px;letter-spacing:normal;text-transform:none}
-/* l'emoji vit dans la carte du nom : il ne reprend pas le cadre de la carte (.nom-c span) */
-.nom-c .nom-e{display:inline-block;width:1.5em;margin:0 6px 0 0;padding:0;border:0;border-radius:0;background:none;
-  font-size:18px;line-height:1;text-align:center;vertical-align:-2px}
-.nom-c input + span{display:flex;align-items:center;min-height:46px;line-height:1.25}
-.nom-c .nom-e{flex:none;vertical-align:0}
-.nom-c .nom-e{min-height:0;font-weight:400}
+.signal-perso .champ input{width:100%;font-size:15px}
+
