@@ -121,6 +121,29 @@ dit(/^[A-HJ-KM-NP-Z2-9]{5}$/.test(code), `séance créée, code ${code}`);
 await capture(prof, '01-enseignant-vide');
 await auditer(prof, 'enseignant · en direct, sans équipe');
 
+// le code QR : dessiné dans la page, il se lit (jsQR, comme une caméra) et mène au lien direct
+const { default: jsQR } = await import('jsqr');
+const lireQR = () => prof.evaluate(async () => {
+  const n = 400;
+  const svg = document.querySelector('.qr').cloneNode(true);
+  svg.setAttribute('width', n); svg.setAttribute('height', n);
+  const img = new Image();
+  img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(new XMLSerializer().serializeToString(svg));
+  await img.decode();
+  const cv = Object.assign(document.createElement('canvas'), { width: n, height: n });
+  const ctx = cv.getContext('2d');
+  ctx.drawImage(img, 0, 0, n, n);
+  return { n, rgba: Array.from(ctx.getImageData(0, 0, n, n).data) };
+});
+const pixels = await lireQR();
+const qrLu = jsQR(Uint8ClampedArray.from(pixels.rgba), pixels.n, pixels.n);
+dit(qrLu?.data === `${BASE}/eleve.html?code=${code}`, `le code QR se lit et mène au lien direct de la séance (lu : ${qrLu?.data ?? 'rien'})`);
+await prof.click('[data-qr]');
+dit(await prof.locator('.tete-code--qr').count() === 1 && await prof.getAttribute('[data-qr]', 'aria-pressed') === 'true'
+  && await prof.evaluate(() => document.activeElement?.matches('[data-qr]')), '« Agrandir le code QR » le montre en grand, et le focus reste sur le bouton');
+await capture(prof, '01b-code-qr-grand');
+await prof.click('[data-qr]');
+
 // ---------------------------------------------------------------- une équipe rejoint
 const eleve = await page(ctxEleve, `/eleve.html?code=${code}`, 'équipe');
 await eleve.waitForSelector('#f-rejoindre');

@@ -7,9 +7,26 @@ import * as J from '../jeu.js';
 import * as Rg from '../reglages.js';
 import { carte, blocReleve } from '../carte.js';
 import { SIGNAUX, texteSignal, MAX_MESSAGE, aUnBravo } from '../seance.js';
+import { encode } from '../vendor/uqr.js';
 import { etat, ui, qid, etapeDe, chronoDe, chronoTexte, autresReponses } from './etat.js';
 
 const lienEleve = () => new URL(`eleve.html?code=${etat.code}`, location.href).href;
+
+/**
+ * Le code QR du lien direct, dessiné dans la page (aucun service extérieur). Noir sur blanc dans
+ * tous les affichages, avec sa marge de quatre modules : c'est ce que lisent les caméras.
+ * Gardé une fois calculé : l'onglet se redessine toutes les cinq secondes.
+ */
+const qrFaits = new Map();
+function codeQR(lien) {
+  if (!qrFaits.has(lien)) {
+    const { size, data } = encode(lien, { ecc: 'M', border: 4 });
+    const d = data.flatMap((ligne, y) => ligne.map((noir, x) => (noir ? `M${x} ${y}h1v1h-1z` : ''))).join('');
+    qrFaits.set(lien, `<svg class="qr" viewBox="0 0 ${size} ${size}" role="img" aria-label="Code QR du lien direct vers la séance"
+      shape-rendering="crispEdges"><rect width="${size}" height="${size}" fill="#fff"/><path d="${d}" fill="#000"/></svg>`);
+  }
+  return qrFaits.get(lien);
+}
 
 function etatTemps(e) {
   if (e.fini) return { cls: 't--ok', txt: 'terminé' };
@@ -54,13 +71,21 @@ export function vueDirect() {
       <h2 class="cache-visuel">En direct</h2>
       <p class="retour"><button class="lien" data-retour="1">← Tes séances</button></p>
       <div class="tete-g">
-        <section class="p-sect tete-code">
-          <p class="sur">Code de la séance</p>
-          <p class="code-v" id="code-seance">${esc(code)}</p>
-          <p class="code-u">À afficher au tableau.</p>
+        <section class="p-sect tete-code${ui.qrGrand ? ' tete-code--qr' : ''}">
+          <div class="code-g">
+            <div>
+              <p class="sur">Code de la séance</p>
+              <p class="code-v" id="code-seance">${esc(code)}</p>
+              <p class="code-u">À afficher au tableau.</p>
+            </div>
+            <div class="qr-f">${codeQR(lien)}
+              <button class="lien" type="button" data-qr aria-pressed="${!!ui.qrGrand}">${ui.qrGrand ? 'Réduire le code QR' : 'Agrandir le code QR'}</button>
+            </div>
+          </div>
           <p class="code-u">Lien direct : <a href="${esc(lien)}" target="_blank" rel="noopener">${esc(lien)}</a>
             <button class="lien lien-copier" type="button" data-copier="${esc(lien)}">Copier</button>${donnees.mode === 'local'
-            ? '<br><span class="hint">Démonstration : ce lien ne marche que dans ce navigateur.</span>' : ''}</p>
+            ? '<br><span class="hint">Démonstration : ce lien et ce code QR ne marchent que dans ce navigateur.</span>'
+            : '<br><span class="hint">Le code QR mène au même lien : la caméra du Chromebook l\'ouvre, le code déjà rempli.</span>'}</p>
         </section>
         <section class="p-sect tete-chrono">
           <p class="sur">Chrono de la classe${ch.pause ? ' <span class="badge badge--pause">en pause</span>' : ''}</p>

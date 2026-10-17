@@ -15,7 +15,7 @@ démonstration : tout reste dans le navigateur de la personne qui essaie, rien n
 | `index.html` | tout le monde | Choisir : équipe ou enseignant·e |
 | `eleve.html` | une équipe, un Chromebook | Entrer le code, choisir un nom d'animal, jouer les 7 étapes : Arriver, Faire le portrait du territoire, Se questionner, Prendre position, D'autres points de vue, La décision de 1970, Revenir sur sa démarche |
 | `dossier.html` | les élèves, avant la séance | La version devoir du dossier documentaire : le portrait et les documents, sans les surprises ; imprimable |
-| `enseignant.html` | l'enseignant·e | Se connecter (Google, facultatif), retrouver ses séances, en créer une, suivre en direct, chrono de classe, envoyer un message, réglages, débrief, questions, dossier documentaire, mesures, rapport imprimable |
+| `enseignant.html` | l'enseignant·e | Se connecter (Google, facultatif), retrouver ses séances, en créer une, suivre en direct, afficher le code et son code QR, chrono de classe, envoyer un message, réglages, débrief, questions, dossier documentaire, mesures, rapport imprimable |
 | `confidentialite.html` | tout le monde (parents, écoles, service informatique) | Ce que le site enregistre, pourquoi, où, combien de temps ; la responsable et ses coordonnées ; les droits ; les adresses à autoriser dans le filtre de l'école. Liée en bas de chaque page |
 | `ecoles.html` | la direction, la ou le responsable de la vie privée, le service informatique | La fiche pour l'école : les éléments factuels d'une ÉFVP (inventaire des données, cycle de vie, fournisseurs et lieux, sécurité, risques), imprimable. Liée depuis Confidentialité et l'accueil de l'espace enseignant·e |
 
@@ -214,6 +214,7 @@ On peut aussi tout héberger chez Firebase (`firebase deploy`).
 | `public/js/reglages.js` | Les formats, les questions posées ou ajoutées, les corrections, le chrono : le contenu « réglé » d'une séance |
 | `public/js/carte.js` | La carte et le relevé |
 | `public/js/eleve.js` | La page des équipes |
+| `public/js/vendor/uqr.js` | L'encodeur de codes QR (uqr 0.1.3, licence MIT), copié tel quel : aucun service extérieur |
 | `public/js/enseignant.js` | L'espace enseignant·e : ouvrir une séance, l'écouter en direct, choisir l'onglet, les gestes en séance |
 | `public/js/enseignant/` | Un fichier par écran de l'espace : `accueil.js` (Tes séances), `direct.js`, `debrief.js`, `editeur.js` (Réglages, Ta version), `preparer.js` (Questions, Dossier, Déroulement), `apres.js` (Mesures, Questionnaire), `rapport.js` (rapport, impression) ; `etat.js`, l'état qu'ils partagent |
 | `public/js/seance.js` | Créer, rejoindre, effacer une séance ; ses réponses attendues, à part ; la version du jeu de l'enseignant·e |
@@ -330,9 +331,9 @@ rendue facultative, correction, minutes, rattrapage, pause du chrono, « +5 min 
 jamais lisibles par les équipes (ni dans le contenu, ni dans la séance, ni gardées sur leur Chromebook), l'export des
 réglages, le dossier documentaire (complet, devoir, pastilles, corrections), les trois affichages (clair par défaut, et « Comme l'ordinateur » qui le suit), la reprise après un rafraîchissement, le rapport, l'effacement, la version du jeu reprise
 dans une nouvelle séance, la séance de démonstration, les bulles d'aide, le hors-ligne (serveur éteint, page rechargée,
-séance créée et rejointe sans réseau), et l'absence d'erreur, puis la connexion Google de l'enseignant·e (séances
-retrouvées sur un autre ordinateur, compte relié, rien de personnel dans la base). Les captures vont
-dans `outils/captures/`.
+séance créée et rejointe sans réseau), le code QR (décodé comme le ferait une caméra, avec jsQR : il mène au lien
+direct) et l'absence d'erreur, puis la connexion Google de l'enseignant·e (séances retrouvées sur un autre ordinateur,
+compte relié, rien de personnel dans la base). Les captures vont dans `outils/captures/`.
 
 **L'accessibilité, écran par écran.** En mode local, axe-core audite 39 écrans (chaque étape de l'équipe, chaque onglet
 de l'enseignant·e, les affichages sombre et contraste élevé, les bulles d'aide, les pages d'information en clair et en
@@ -356,5 +357,4 @@ se vérifient dans la console Firebase (Firestore → Règles → Terrain de jeu
 - [ ] Vérifier les règles dans le terrain de jeu de la console (quatre cas listés dans le guide)
 - [ ] Après chaque nouvelle version du site : republier les règles (`firebase deploy`)
 - [ ] Relecture du contenu par la Nation Micmac de Gespeg
-- [ ] Un code QR pour rejoindre la séance (aujourd'hui : le code et le lien)
 - [ ] Le deuxième dossier (Beauharnois) dans un second fichier de contenu

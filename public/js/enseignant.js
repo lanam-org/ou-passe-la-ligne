@@ -244,6 +244,8 @@ document.addEventListener('click', async (ev) => {
     if (ui.ed?.cible === 'seance') ui.ed.r.minutes[id] = r.minutes[id];
     return;
   }
+  // le code QR en grand, pour le tableau ; le focus reste sur le bouton redessiné
+  if (ev.target.closest('[data-qr]')) { ui.qrGrand = !ui.qrGrand; rendre(); $('[data-qr]')?.focus(); return; }
   const cp = ev.target.closest('[data-copier]');
   if (cp) {
     try { await navigator.clipboard.writeText(cp.dataset.copier); cp.textContent = 'Copié ✓'; }

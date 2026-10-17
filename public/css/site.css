@@ -883,6 +883,13 @@ body[data-espace="prof"] .aide-b:focus-visible{outline-color:var(--prof-txt)}
 @media (max-width:860px){.tete-g{grid-template-columns:1fr}}
 .tete-code .code-v{margin:6px 0 10px}
 .tete-code .code-u{font-size:14px}
+/* le code QR, à côté du code de séance ; « Agrandir » le montre en grand, pour le tableau */
+.code-g{display:flex;flex-wrap:wrap;gap:12px 20px;align-items:flex-start;justify-content:space-between}
+.qr-f{display:flex;flex-direction:column;align-items:center;gap:4px}
+.qr{display:block;width:112px;height:112px;border-radius:6px;outline:1px solid var(--trait)}
+.tete-code--qr,.tete-code--qr + .tete-chrono{grid-column:1 / -1}
+.tete-code--qr .code-g{flex-direction:column;align-items:center;text-align:center}
+.tete-code--qr .qr{width:min(62vh,480px);height:auto;aspect-ratio:1}
 .tete-chrono .signaux{margin-top:10px}
 
 /* détail d'une équipe : documents retenus */
