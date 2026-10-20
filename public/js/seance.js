@@ -82,7 +82,7 @@ export async function creerSeance({ questionnaire = false, reglages = null } = {
     await donnees.ecrire(cheminReponses(code), { ...reponses, expireLe });
     return code;
   }
-  throw new Error('Impossible de trouver un code libre. Réessaie.');
+  throw new Error('Impossible de trouver un code libre. Réessayez.');
 }
 
 /* La version du jeu de l'enseignant·e : ses réglages, réutilisés à chaque nouvelle séance. */
@@ -149,18 +149,18 @@ export async function rejoindre(c, code, nom) {
   if (!s) throw new Error(donnees.mode === 'local'
     ? 'Aucune séance avec ce code dans ce navigateur. En version de démonstration, une séance n\'existe que dans le navigateur '
       + 'où elle a été créée : ouvrez la page des équipes dans un autre onglet de ce même navigateur.'
-    : 'Aucune séance avec ce code. Vérifie les cinq caractères au tableau.');
+    : 'Aucune séance avec ce code. Vérifiez les cinq caractères au tableau.');
   if (s.etat !== 'ouverte') throw new Error('Cette séance est terminée.');
   const id = idEquipe(nom);
   const chemin = cheminEquipe(code, id);
   let deja = null;
   try { deja = await donnees.lire(chemin); }
-  catch { throw new Error(`« ${nom} » est déjà pris. Choisis un autre nom.`); }
-  if (deja && deja.appareil !== moi.uid) throw new Error(`« ${nom} » est déjà pris. Choisis un autre nom.`);
+  catch { throw new Error(`« ${nom} » est déjà pris. Choisissez un autre nom.`); }
+  if (deja && deja.appareil !== moi.uid) throw new Error(`« ${nom} » est déjà pris. Choisissez un autre nom.`);
   if (deja) return { code, id, etat: deja, reprise: true };
   const etat = nouvelEtat(c, nom, moi.uid);
   try { await donnees.ecrire(chemin, { ...etat, expireLe: expiration(s) }); }
-  catch { throw new Error(`« ${nom} » vient d'être pris. Choisis un autre nom.`); }
+  catch { throw new Error(`« ${nom} » vient d'être pris. Choisissez un autre nom.`); }
   return { code, id, etat, reprise: false };
 }
 
@@ -178,6 +178,18 @@ export async function effacerSeance(code) {
     for (const d of docs) await donnees.supprimer(`${cheminSeance(code)}/${sous}/${d.id}`);
   }
   await donnees.supprimer(cheminSeance(code));
+}
+
+/*
+ * L'aperçu élève : l'enseignant·e voit le jeu comme une équipe, avec les réglages qu'elle ou il regarde (ceux de la
+ * séance, un brouillon pas encore appliqué, ou un format), sans rejoindre de séance ni créer d'équipe. Les réglages
+ * passent par le stockage du navigateur (même appareil) ; la page des équipes, ouverte avec ?apercu=1, les lit et
+ * n'enregistre rien (eleve.js).
+ */
+export const CLE_APERCU = 'forillon:apercu';
+export function ouvrirApercu(reglages) {
+  try { localStorage.setItem(CLE_APERCU, JSON.stringify({ config: reglages || null, t: Date.now() })); } catch { /* vide */ }
+  window.open('eleve.html?apercu=1', '_blank', 'noopener');
 }
 
 /** Les messages à toute la classe : des phrases prêtes, ou un message écrit par l'enseignant·e (« perso »). */

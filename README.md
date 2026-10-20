@@ -14,7 +14,7 @@ démonstration : tout reste dans le navigateur de la personne qui essaie, rien n
 |---|---|---|
 | `index.html` | tout le monde | Choisir : équipe ou enseignant·e |
 | `eleve.html` | une équipe, un Chromebook | Entrer le code, choisir un nom d'animal, jouer les 7 étapes : Arriver, Faire le portrait du territoire, Se questionner, Prendre position, D'autres points de vue, La décision de 1970, Revenir sur sa démarche |
-| `dossier.html` | les élèves, avant la séance | La version devoir du dossier documentaire : le portrait et les documents, sans les surprises ; imprimable |
+| `dossier.html` | les élèves, avant la séance | Le dossier élève (le dossier documentaire à lire avant la séance) : le portrait et les documents, sans les surprises ; imprimable |
 | `enseignant.html` | l'enseignant·e | Se connecter (Google, facultatif), retrouver ses séances, en créer une, suivre en direct, afficher le code et son code QR, chrono de classe, envoyer un message, réglages, débrief, questions, dossier documentaire, mesures, rapport imprimable, trousse d'essai (« Démarrer en 5 minutes », grille d'observation) |
 | `confidentialite.html` | tout le monde (parents, écoles, service informatique) | Ce que le site enregistre, pourquoi, où, combien de temps ; la responsable et ses coordonnées ; les droits ; les adresses à autoriser dans le filtre de l'école. Liée en bas de chaque page |
 | `ecoles.html` | la direction, la ou le responsable de la vie privée, le service informatique | La fiche pour l'école : les éléments factuels d'une ÉFVP (inventaire des données, cycle de vie, fournisseurs et lieux, sécurité, risques), imprimable. Liée depuis Confidentialité et l'accueil de l'espace enseignant·e |
@@ -25,36 +25,39 @@ Le jeu ne dépend d'aucun lien extérieur : chaque relevé, document, point de v
 dans `forillon.json`, la phrase exacte de sa source (`copie`, avec sa traduction si elle est en anglais), le lien et la date
 de vérification. Dans le jeu, chaque relevé, verdict et point de vue donne le lien de sa source.
 
-- Onglet « Dossier » (espace enseignant·e) : tout le dossier, surprises signalées ; impression complète ou version devoir.
+- Onglet « Dossier » (espace enseignant·e) : tout le dossier, surprises signalées ; impression complète ou dossier élève.
 - D'avance, sans créer de séance : l'accueil de l'espace enseignant·e, « Avant la séance » → « Imprimer le dossier
-  élève » (sans les surprises ni les pastilles) ou « Dossier complet, pour toi ». La version du jeu de l'enseignant·e
+  élève » (sans les surprises ni les pastilles) ou « Dossier complet, version enseignant·e ». La version du jeu de l'enseignant·e
   (ses corrections) s'y applique.
-- `dossier.html?code=XXXXX` : la version devoir, avec les corrections de la séance. Les éléments marqués `surprise`
+- `dossier.html?code=XXXXX` : le dossier élève, avec les corrections de la séance. Les éléments marqués `surprise`
   (ceux qui servent à contredire ce que l'équipe croyait) n'y sont jamais.
 - Pastilles : à quelle question sert chaque document (`sert`), dans la couleur de sa famille (`dossier.questions`).
-  L'identifiant est toujours écrit. Elles révèlent quels documents servent : la version devoir les cache par défaut.
+  L'identifiant est toujours écrit. Elles révèlent quels documents servent : le dossier élève les cache par défaut.
 
 ## Ce que l'enseignant·e peut régler
 
-Dans l'onglet « Réglages » d'une séance, avant ou pendant la partie (« Appliquer à la séance ») :
+Dans l'onglet « Réglages » d'une séance, avant ou pendant la partie (« Appliquer à la séance »). Un sommaire en haut
+mène à chaque section ; les onglets Questions et Dossier y mènent aussi, ouverts au bon endroit :
 
 - La durée. Trois formats : courte (35 min), standard (50 min, par défaut), deux périodes (100 min, les
   28 questions, coupure après le tracé) ; ou « Sur mesure » : la durée totale tapée à l'accueil, répartie
   comme le standard, puis l'onglet Réglages s'ouvre pour choisir les questions. Ensuite chaque étape à la
   minute près. En direct, « +5 min », « −5 min » (jusqu'à 1 min) ou « Terminer l'étape maintenant » pour
   l'étape où se trouvent la plupart des équipes.
-- Les questions. Chacune des 28 questions de la banque : requise, facultative ou pas posée. Et jusqu'à
+- Les questions. Chacune des 28 questions de la banque : requise, facultative ou retirée, trois choix visibles
+  (et, sous chaque question de l'onglet Questions, « Rendre facultative ou retirer »). Et jusqu'à
   douze questions ajoutées (écrites en équipe ou orales au débrief). Une équipe déjà plus loin retrouve
   une nouvelle question requise dans « À rattraper ». Une réponse déjà écrite n'est jamais effacée.
-- Les corrections. Un chiffre, un texte ou une source du jeu se corrige, avec sa raison ; l'original
-  est gardé et « Rétablir l'original » le remet.
+- Corriger un texte ou un chiffre du jeu. Un chiffre, un texte ou une source se corrige, avec sa raison ;
+  l'original est gardé et « Rétablir l'original » le remet. « Chercher un mot ou un chiffre » (« 983 ») ouvre le bon
+  texte ; « Corriger ce texte », sous chaque document de l'onglet Dossier et chaque question, mène au bon champ.
 - Le chrono. Il démarre avec la première équipe et avance à la seconde ; Pause, Reprendre, Remettre à
   zéro ; « Le détail, étape par étape » donne les minutes et le nombre de questions de chaque étape.
   Chaque équipe voit le temps qui reste à son étape (en ocre une fois dépassé, sans jamais bloquer).
 - Les messages à la classe : « 5 minutes restantes », « 2 minutes restantes », « Pause », « Bloqués ?
   Levez la main », « Au retour en classe », ou un message écrit (140 caractères, affiché tel quel).
 
-« Ta version du jeu » (à l'accueil, ou « Enregistrer aussi comme ma version ») garde ces réglages et les
+« Votre version du jeu » (à l'accueil, ou « Enregistrer aussi comme votre version ») garde ces réglages et les
 reprend à chaque nouvelle séance. « Exporter (JSON) » sort les questions ajoutées et les corrections, sans
 aucune donnée d'élève, pour les intégrer ensuite à `forillon.json`.
 
@@ -147,6 +150,29 @@ Pour un essai du jeu (playtest), deux pages à imprimer depuis l'accueil de l'es
 Les deux se construisent à partir du contenu (`observer`, `plan`) et des réglages (durées, format) : rien à
 mettre à jour à la main. Le test les imprime en PDF dans `outils/captures/`.
 
+## Retours d'essai, pris en compte
+
+Les essais avec des enseignant·es (18 fonctions à trouver seul·e, la liste de la grille d'observation) ont changé :
+- clé en main d'abord : l'onglet Réglages montre la durée ; minutes par étape, questions une à une, ajouts, corrections
+  et partage sont repliés sous « Réglages avancés » (les liens des onglets Questions et Dossier les ouvrent) ;
+- la barre d'onglets suit l'ordre d'une séance, chaque groupe titré au-dessus de ses onglets (Avant la classe :
+  Réglages, Questions, Dossier, Déroulement · Pendant la classe : En direct, Débrief · Après, pour la recherche :
+  Mesures, Questionnaire) et commence par « ← Vos séances » ; la case du questionnaire de recherche n'apparaît à
+  l'accueil qu'en mode recherche ;
+- les états d'une question sont trois choix visibles, et chaque question, chaque document mène à son réglage ;
+- la démonstration est sous « Créer la séance » ; « Les équipes » annonce le « ✦ Bravo » ;
+- l'espace enseignant·e dit « vous », comme le reste du site, et nomme ce qui est réservé à l'enseignant·e
+  (« Dossier complet, version enseignant·e ») ; la version à lire d'avance s'appelle partout « dossier élève » ;
+- le dossier documentaire distingue les documents de terrain (les relevés, étape 2) des documents du dossier (étape 3).
+- « less is more » : ce qui s'affiche d'abord est réduit, rien n'est retiré. À l'accueil, le dossier élève reste en vue ;
+  dossier complet, version du jeu, trousse d'essai et fiche pour l'école attendent sous « Plus d'outils ». En direct,
+  « Écrire votre propre message » et le minutage détaillé sont repliés. Le groupe « pour la recherche » (Mesures,
+  Questionnaire) se replie derrière son titre ;
+- **l'aperçu élève** : « Voir le jeu comme une équipe » (accueil, avec la durée choisie), « Voir comme une équipe »
+  (En direct) et « Aperçu élève » (Réglages, même avant d'appliquer) ouvrent la page des équipes en aperçu
+  (`eleve.html?apercu=1`) : ni séance ni équipe, rien n'est enregistré, toutes les étapes s'ouvrent d'un clic. Les
+  réglages passent par le stockage du navigateur de l'enseignant·e (`ouvrirApercu`, `seance.js`).
+
 ## Un écran, une chose à faire
 
 Règle de mise en page côté équipe : **ce qu'il y a à faire maintenant se voit sans défiler**, sur un
@@ -234,10 +260,10 @@ On peut aussi tout héberger chez Firebase (`firebase deploy`).
 | `public/js/eleve/` | `ecrans.js` (une fonction par étape, l'écran de fin), `questions.js` (questions écrites, « À rattraper »), `annonces.js` (gestes reconnus, « bravos », message de l'enseignant·e, lecteur d'écran), `envoi.js` (l'enregistrement et le voyant « Enregistré ») ; `etat.js`, l'état qu'ils partagent |
 | `public/js/vendor/uqr.js` | L'encodeur de codes QR (uqr 0.1.3, licence MIT), copié tel quel : aucun service extérieur |
 | `public/js/enseignant.js` | L'espace enseignant·e : ouvrir une séance, l'écouter en direct, choisir l'onglet, les gestes en séance |
-| `public/js/enseignant/` | Un fichier par écran de l'espace : `accueil.js` (Tes séances), `direct.js`, `debrief.js`, `editeur.js` (Réglages, Ta version), `preparer.js` (Questions, Dossier, Déroulement), `apres.js` (Mesures, Questionnaire), `rapport.js` (rapport, impression), `trousse.js` (la trousse d'essai) ; `etat.js`, l'état qu'ils partagent |
+| `public/js/enseignant/` | Un fichier par écran de l'espace : `accueil.js` (Vos séances), `direct.js`, `debrief.js`, `editeur.js` (Réglages, Votre version du jeu), `preparer.js` (Questions, Dossier, Déroulement), `apres.js` (Mesures, Questionnaire), `rapport.js` (rapport, impression), `trousse.js` (la trousse d'essai) ; `etat.js`, l'état qu'ils partagent |
 | `public/js/seance.js` | Créer, rejoindre, effacer une séance ; ses réponses attendues, à part ; la version du jeu de l'enseignant·e |
 | `public/js/dossierdoc.js` | Le dossier documentaire, à l'écran et sur papier ; le lien de source dans le jeu |
-| `public/js/dossier.js` | La page de la version devoir |
+| `public/js/dossier.js` | La page du dossier élève |
 | `public/js/donnees.js` | La seule porte vers le stockage (Firestore ou local) |
 | `public/js/theme.js` | Le menu « Affichage » : clair, sombre, contraste élevé, comme l'ordinateur |
 | `public/js/local.js` | Le stockage local, pour la démonstration |
@@ -297,7 +323,7 @@ identifiant que la question (`F2.1`…). Une question ajoutée à la banque pren
   Elle se tient à jour avec `confidentialite.html` : un nouveau champ, un nouveau fournisseur ou un nouvel hébergeur
   change les deux pages. À la mise en service de Firebase, retirer l'encadré « État actuel » (prototype, démonstration seulement).
 - La consigne aux équipes le dit : pas de prénom, ni dans le nom de l'équipe, ni dans les réponses.
-- « Ta version du jeu » se supprime d'un bouton (« Supprimer ma version »).
+- « Votre version du jeu » se supprime d'un bouton (« Supprimer votre version »).
 
 ## La sécurité, tenue dans le code
 

@@ -27,9 +27,9 @@
     prof: [
       ['en-creer', '#creer', 'Donne le code à mettre au tableau.'],
       ['en-code', '#code-seance', 'Au tableau : les équipes l’entrent.'],
-      ['en-equipe', '.eq[data-equipe]', 'Cliquez une équipe pour voir le détail.'],
+      ['en-equipe', '.eq[data-equipe]', 'Cliquez une équipe : ses réponses, et ✦ Bravo.'],
       ['en-signal', '[data-signal="temps"]', 'Un message sur l’écran de chaque équipe.'],
-      ['en-reglages', '[data-onglet="reglages"]', 'Durée, questions, corrections : même en cours.'],
+      ['en-reglages', '[data-onglet="reglages"]', 'Durée, questions, textes à corriger : même en cours.'],
       ['en-dossier', '[data-onglet="dossier"]', 'Le dossier documentaire, à imprimer.'],
       ['en-rapport', '[data-rapport]', 'Imprimez-le avant d’effacer la séance.']
     ],

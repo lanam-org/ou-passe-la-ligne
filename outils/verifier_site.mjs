@@ -112,8 +112,8 @@ const ctxEleve = MODE === 'local' ? ctxProf : await contexte();
 const prof = await page(ctxProf, '/enseignant.html', 'enseignant');
 await prof.waitForSelector('#creer');
 if (MESURE) await prof.check('#opt-avis');
-dit(MESURE ? !(await prof.isDisabled('#opt-avis')) : await prof.isDisabled('#opt-avis'),
-  MESURE ? 'collecte allumée : le questionnaire peut être activé' : 'collecte éteinte : le questionnaire est verrouillé');
+dit(MESURE ? !(await prof.isDisabled('#opt-avis')) : !(await prof.locator('#opt-avis').count()),
+  MESURE ? 'collecte allumée : le questionnaire peut être activé' : 'collecte éteinte : pas de case « questionnaire » à l’accueil');
 await prof.click('#creer');
 await prof.waitForSelector('#code-seance');
 const code = (await prof.textContent('#code-seance')).trim();
@@ -277,6 +277,8 @@ await capture(eleve, '09-signal');
 await auditer(eleve, 'équipe · message à la classe');
 await eleve.click('[data-fermer-signal]');
 // un message écrit par l'enseignant·e : il arrive tel quel, et le HTML ne s'exécute pas
+dit(!(await prof.isVisible('#f-signal [name=texte]')), '« less is more » : le message écrit attend, replié, sous les messages prêts');
+await prof.click('details.msg-perso > summary');
 await prof.fill('#f-signal [name=texte]', 'Relisez la consigne <b>maintenant</b>');
 await prof.click('#f-signal button[type=submit]');
 await eleve.waitForFunction(() => document.querySelector('#signal')?.textContent.includes('Relisez la consigne'), null, { timeout: 5000 });
@@ -288,18 +290,21 @@ await eleve.click('[data-fermer-signal]');
 await prof.click('[data-onglet="reglages"]');
 await prof.waitForSelector('.rg-barre');
 dit(await prof.inputValue('[data-min="dossier"]') === '8', 'réglages : la séance part du format standard, 50 min (8 min au dossier)');
-await prof.selectOption('[data-etatq="F1.2"]', 'facultative');
+dit(!(await prof.isVisible('[data-etatq="F1.2"]')) && await prof.isVisible('[data-format="courte"]'),
+  'réglages : d’abord la durée ; le reste attend, replié, sous « Réglages avancés »');
+await prof.click('details.rg-avance > summary');
+await prof.check('[data-etatq="F1.2"][value="facultative"]');
 await prof.selectOption('#f-ajout select[name=etape]', 'arrivee');
 await prof.fill('#f-ajout textarea[name=q]', 'Quel animal de Forillon choisiriez-vous comme emblème ?');
 await prof.fill('#f-ajout textarea[name=reponse]', 'Toute réponse justifiée.');
 await prof.click('#f-ajout button[type=submit]');
 await prof.waitForSelector('.rg-q--ajout');
 await prof.fill('[data-min="arrivee"]', '2');
-await prof.click('details.rg-groupe[data-k="rg|Relevés de terrain"] > summary');
+await prof.click('details.rg-groupe[data-k="rg|Documents de terrain (les relevés, étape 2)"] > summary');
 await prof.click('details.rg-item[data-k="rg|releves|0"] > summary');
 await prof.fill('[data-corr="releves|0|t"]', 'Relevé corrigé pour le test');
 await prof.fill('[data-raison="releves|0|t"]', 'Essai de correction');
-await prof.click('details.rg-groupe[data-k="rg|Questions de la banque"] > summary');
+await prof.click('details.rg-groupe[data-k="rg|Questions et réponses attendues"] > summary');
 await prof.click('details.rg-item[data-k="rg|banque|F2.1"] > summary');
 await prof.fill('[data-corr="banque|F2.1|reponse"]', 'Réponse attendue corrigée pour le test');
 dit((await prof.textContent('#ed-etat')).includes('pas encore appliqués'), 'réglages : rien ne part avant « Appliquer »');
@@ -308,6 +313,23 @@ await auditer(prof, 'enseignant · réglages, sections ouvertes');
 await prof.click('[data-ed="appliquer"]');
 await prof.waitForFunction(() => document.querySelector('#ed-etat')?.textContent.includes('Appliqué'));
 dit(true, 'réglages appliqués à la séance');
+// l'aperçu élève : le jeu tel que les équipes le voient, avec ces réglages, sans séance ni équipe
+{
+  const [ap] = await Promise.all([ctxProf.waitForEvent('page'), prof.click('[data-apercu="brouillon"]')]);
+  ap.on('pageerror', (e) => erreurs.push(`aperçu : ${e.message}`));
+  await ap.waitForSelector('#titre');
+  const equipesDeLaSeance = () => prof.evaluate(async (cd) => (await (await import('./js/donnees.js')).lireCollection(`seances/${cd}/equipes`)).length, code);
+  const nEquipes = await equipesDeLaSeance();
+  dit((await ap.textContent('.apercu-bande')).includes('Rien n') && (await ap.textContent('#scene')).includes('Quel animal de Forillon')
+    && await ap.isHidden('#etat-envoi'), 'aperçu élève : la question ajoutée est là ; « rien n’est enregistré »');
+  await ap.click('[data-etape="4"]');
+  await ap.waitForTimeout(150);
+  dit((await ap.textContent('#titre')).includes('points de vue') && await ap.locator('[data-sect]').count() > 0,
+    'aperçu élève : toutes les étapes s’ouvrent d’un clic (ici, les points de vue)');
+  await ap.waitForTimeout(400);
+  dit(nEquipes === 2 && await equipesDeLaSeance() === nEquipes, 'aperçu élève : aucune équipe n’est créée dans la séance');
+  await ap.close();
+}
 // la séance telle qu'une équipe la lit : la question ajoutée, mais aucune réponse attendue
 const vueEquipe = await autre.evaluate(async (cd) => JSON.stringify(await (await import('./js/donnees.js')).lire(`seances/${cd}`)), code);
 dit(vueEquipe.includes('Quel animal de Forillon') && !vueEquipe.includes('Toute réponse justifiée')
@@ -341,7 +363,7 @@ await auditer(eleve, 'équipe · à rattraper');
 await eleve.fill('.rattrapage [data-rep^="A"]', "L'orignal.");
 
 await prof.click('[data-ed="garder"]');
-await prof.waitForFunction(() => document.querySelector('#ed-etat')?.textContent.includes('ta version'));
+await prof.waitForFunction(() => document.querySelector('#ed-etat')?.textContent.includes('votre version'));
 dit(true, 'les réglages s’enregistrent aussi comme version de l’enseignant·e');
 const [dlR] = await Promise.all([prof.waitForEvent('download'), prof.click('[data-ed="exporter"]')]);
 const exporte = JSON.parse(await (await import('node:fs/promises')).readFile(await dlR.path(), 'utf8'));
@@ -378,9 +400,9 @@ dit((await prof.textContent('.dossier')).includes('Relevé corrigé pour le test
 await prof.evaluate(() => { window.__printAvant = window.print; window.print = () => { window.__dossierImprime = (window.__dossierImprime || 0) + 1; }; });
 await prof.click('[data-dossier-imprimer="devoir"]');
 const papierDevoir = await prof.textContent('#papier');
-dit(await prof.evaluate(() => window.__dossierImprime) === 1 && papierDevoir.includes('Version devoir')
+dit(await prof.evaluate(() => window.__dossierImprime) === 1 && papierDevoir.includes('Dossier élève')
   && !papierDevoir.includes('La route 132 traverse le parc') && papierDevoir.includes('Le passage vers'),
-  'version devoir imprimée : le portrait et le dossier, sans les points de vue');
+  'dossier élève imprimé : le portrait et le dossier, sans les points de vue');
 await prof.evaluate(() => window.dispatchEvent(new Event('afterprint')));
 await prof.click('[data-dossier-imprimer="complet"]');
 dit((await prof.textContent('#papier')).includes('La route 132 traverse le parc'), 'dossier complet imprimé, points de vue compris');
@@ -389,18 +411,48 @@ await prof.pdf({ path: join(CAPTURES, `${MODE}-dossier-complet.pdf`), format: 'L
 await prof.emulateMedia({ media: 'screen' });
 await prof.evaluate(() => { window.dispatchEvent(new Event('afterprint')); window.print = window.__printAvant; });
 const lienDossier = (await prof.textContent('#lien-dossier')).trim();
-dit(lienDossier.endsWith(`dossier.html?code=${code}`), 'le lien de la version devoir porte le code de la séance');
+dit(lienDossier.endsWith(`dossier.html?code=${code}`), 'le lien du dossier élève porte le code de la séance');
 const dd = await page(ctxEleve, `/dossier.html?code=${code}`, 'dossier devoir');
 await dd.waitForSelector('.dossier');
 const ddTexte = await dd.textContent('.dossier');
-dit(ddTexte.includes('Version devoir') && !ddTexte.includes('La route 132 traverse le parc') && ddTexte.includes('Relevé corrigé pour le test')
+dit(ddTexte.includes('Dossier élève') && !ddTexte.includes('La route 132 traverse le parc') && ddTexte.includes('Relevé corrigé pour le test')
   && !(await dd.locator('.dd-leg').count()), 'la page devoir : sans surprises, corrigée, sans pastilles par défaut');
 await dd.check('#pastilles');
 dit(await dd.locator('.dd-leg .pastille').count() > 4 && await dd.locator('.dd-item .pastille').count() > 4, 'pastilles : chaque document dit à quelle question il sert');
 await capture(dd, '09e-dossier-devoir');
-await auditer(dd, 'dossier.html · version devoir, pastilles');
+await auditer(dd, 'dossier.html · dossier élève, pastilles');
+dit(!(await dd.locator('.dd-corriger').count()), 'la page devoir n’a pas de lien « Corriger » (réservé à l’enseignant·e)');
 await dd.close();
+
+// ---------------------------------------------------------------- retours d'essai : trouver où corriger, et où retirer une question
+// depuis le Dossier : « Corriger ce texte » ouvre Réglages sur le bon champ
+const actif = () => prof.evaluate(() => document.activeElement?.getAttribute('data-corr') || document.activeElement?.getAttribute('data-etatq')
+  || document.activeElement?.getAttribute('name') || '');
+await prof.click('.dossier [data-aller-reglage="c:documents|d3"]');
+await prof.waitForSelector('.rg-barre');
+dit(await actif() === 'documents|d3|t' && await prof.locator('details.rg-item[data-k="rg|documents|d3"][open]').count() === 1,
+  'Dossier : « Corriger ce texte » ouvre Réglages sur le texte de ce document, le curseur dedans');
+// la recherche : « 983 » trouve les textes qui le contiennent, et seulement eux
+await prof.fill('#rg-cherche', '983');
+const visibles = await prof.evaluate(() => [...document.querySelectorAll('.rg-item:not([hidden])')].map((d) => d.dataset.cherche));
+dit(visibles.length > 0 && visibles.every((x) => x.includes('983')) && (await prof.textContent('#rg-trouves')).includes('983'),
+  `Réglages : chercher « 983 » montre les ${visibles.length} texte(s) qui le contiennent, et seulement eux`);
+await prof.fill('#rg-cherche', '');
+dit(await prof.locator('.rg-item[hidden]').count() === 0, 'la recherche vidée, tout revient');
+// depuis les Questions : le lien sous une question mène à son état, dans Réglages
+await prof.click('[data-onglet="questions"]');
+await prof.waitForSelector('.bq-l [data-aller-reglage="q:F2.4"]');
+dit((await prof.textContent('.bq-l [data-aller-reglage="q:F2.4"]')).includes('retirer')
+  && await prof.locator('.bq-h button.badge-b[data-aller-reglage="q:F2.4"]').count() === 1,
+  'Questions : sous chaque question, « Rendre … ou retirer » ; son étiquette d’état mène au même endroit');
+await prof.click('.bq-h button.badge-b[data-aller-reglage="q:F2.4"]');   // l'étiquette, là où l'on clique d'instinct
+await prof.waitForSelector('.rg-barre');
+dit(await actif() === 'F2.4' && await prof.evaluate(() => document.activeElement?.type === 'radio'),
+  'Questions : le lien mène à « Requise / Facultative / Retirée » de cette question, dans Réglages');
+await capture(prof, '09f-reglages-question');
 await prof.click('[data-onglet="direct"]');
+dit(await prof.locator('#onglets [data-retour]').count() === 1 && (await prof.textContent('#onglets')).includes('Vos séances'),
+  'la barre d’onglets commence par « ← Vos séances »');
 
 // ---------------------------------------------------------------- l'affichage : clair, sombre, contraste élevé
 const theme = (p) => p.evaluate(() => document.documentElement.dataset.theme);
@@ -479,6 +531,9 @@ dit(db.includes("Les Mi'gmaq, depuis des temps immémoriaux"), 'le débrief rass
 dit(db.includes('✦ bravo'), 'au débrief, la réponse saluée d’un « bravo » passe en premier, marquée ✦');
 await capture(prof, '12-enseignant-debrief');
 await auditer(prof, 'enseignant · débrief');
+dit(!(await prof.locator('[data-onglet="mesures"]').count()) && await prof.getAttribute('[data-bascule-groupe]', 'aria-expanded') === 'false',
+  'les onglets de la recherche attendent, repliés derrière leur titre');
+await prof.click('[data-bascule-groupe]');
 for (const o of ['questions', 'deroulement', 'mesures', 'questionnaire']) {
   await prof.click(`[data-onglet="${o}"]`); await prof.waitForTimeout(150);
   await auditer(prof, `enseignant · onglet ${o}`);
@@ -537,12 +592,15 @@ await prof.click('[data-effacer="demander"]');
 await prof.click('[data-effacer="oui"]');
 await prof.waitForSelector('#creer', { timeout: 8000 });
 dit(true, 'la séance est effacée ; l’espace propose d’en créer une nouvelle');
-await auditer(prof, 'enseignant · accueil « Tes séances »');
+await auditer(prof, 'enseignant · accueil « Vos séances »');
 
 // la trousse d'essai, imprimée depuis l'accueil : « Démarrer en 5 minutes », puis la grille d'observation
 {
   const sansInsecables = (s) => s.replace(/ /g, ' ');   // typo() pose des espaces insécables avant « ? » et « : »
   await prof.evaluate(() => { window.__trousse = 0; window.print = () => { window.__trousse += 1; }; });
+  dit(!(await prof.isVisible('[data-trousse="demarrer"]')) && await prof.isVisible('[data-dossier-avance="devoir"]'),
+    'accueil : le dossier élève en vue ; dossier complet, version du jeu, trousse et fiche sous « Plus d’outils »');
+  await prof.click('details.plus-outils > summary');
   await prof.click('[data-trousse="demarrer"]');
   const fiche = sansInsecables(await prof.textContent('#papier'));
   dit(await prof.evaluate(() => window.__trousse) === 1 && fiche.includes('démarrer en 5 minutes')
@@ -558,8 +616,10 @@ await auditer(prof, 'enseignant · accueil « Tes séances »');
   const contenuT = JSON.parse(await readFile(join(PUBLIC, 'contenu', 'forillon.json'), 'utf8'));
   const aObserver = Object.entries(contenuT.observer).filter(([id]) => id !== 'avis' || MESURE).flatMap(([, l]) => l);
   dit(aObserver.every((x) => grille.includes(x)) && contenuT.plan.every((p) => grille.includes(p.test))
-    && grille.includes('Aucun prénom') && grille.includes('Afficher le code ou le code QR au tableau'),
-    `la grille d’observation : les ${aObserver.length} « À observer », les fonctions à trouver seul·e, les ${contenuT.plan.length} critères du plan de mesure, sans prénom`);
+    && grille.includes('Aucun prénom') && ['Choisir la durée de la séance', 'Corriger un chiffre ou un texte du jeu',
+      'Explorer une séance de démonstration', 'Féliciter une équipe pour une bonne réponse', 'Retrouver une ancienne séance'].every((f) => grille.includes(f))
+    && (grille.match(/☐/g) || []).length >= 18 * 3,
+    `la grille d’observation : les ${aObserver.length} « À observer », les 18 fonctions à trouver seul·e, les ${contenuT.plan.length} critères du plan de mesure, sans prénom`);
   await prof.emulateMedia({ media: 'print' });
   await prof.pdf({ path: join(CAPTURES, `${MODE}-trousse-observation.pdf`), format: 'Letter', printBackground: true });
   await prof.emulateMedia({ media: 'screen' });
@@ -584,13 +644,13 @@ dit(await prof.inputValue('[data-min="marche"]') === '5' && (await prof.textCont
   && (await prof.textContent('#prof')).includes('1 corrigé'), 'nouvelle séance courte (35 min) : minutes du format, questions ajoutées et corrections reprises');
 await capture(prof, '14b-nouvelle-seance-courte');
 // rétablir l'original : la correction doit disparaître pour de bon (pas une fusion qui la garderait)
-await prof.evaluate(() => document.querySelectorAll('details.rg-groupe, details.rg-item').forEach((d) => { d.open = true; }));
+await prof.evaluate(() => document.querySelectorAll('details.rg-avance, details.rg-groupe, details.rg-item').forEach((d) => { d.open = true; }));
 await prof.click('[data-retablir="releves|0|t"]');
 await prof.click('[data-retablir="banque|F2.1|reponse"]');
 await prof.click('[data-ed="appliquer"]');
 await prof.waitForFunction(() => document.querySelector('#ed-etat')?.textContent.includes('Appliqué'));
 await prof.click('[data-ed="garder"]');
-await prof.waitForFunction(() => document.querySelector('#ed-etat')?.textContent.includes('ta version'));
+await prof.waitForFunction(() => document.querySelector('#ed-etat')?.textContent.includes('votre version'));
 if (MODE === 'firebase') dit(Object.keys(fauxFb.lire(`seances/${code2}`).config.corrections).length === 0
   && Object.keys(fauxFb.lire(`seances/${code2}/prive/reponses`).corrections).length === 0
   && Object.keys(fauxFb.lireCollection('enseignants')[0].reglages.corrections).length === 0,
@@ -603,14 +663,15 @@ dit(!(await prof.locator(`[data-ouvrir="${code2}"]`).count()), 'et elle s’effa
 dit((await prof.textContent('#prof')).includes('0 correction'), 'l’accueil voit la correction retirée de la version');
 await prof.click('[data-ma-version]');
 await prof.waitForSelector('[data-ed="enregistrer"]');
+await prof.evaluate(() => document.querySelectorAll('details.rg-avance').forEach((d) => { d.open = true; }));
 await prof.fill('[data-min="debrief"]', '20');
 await capture(prof, '14c-ma-version');
-await auditer(prof, 'enseignant · ta version du jeu');
+await auditer(prof, 'enseignant · votre version du jeu');
 await prof.click('[data-ed="enregistrer"]');
 await prof.waitForFunction(() => document.querySelector('#ed-etat')?.textContent.includes('Enregistré'));
 await prof.click('[data-retour]');
 await prof.waitForSelector('#creer');
-dit((await prof.textContent('#prof')).includes('49 min en tout'), '« Ma version » se modifie depuis l’accueil (35 min + 14 au débrief)');
+dit((await prof.textContent('#prof')).includes('49 min en tout'), '« Votre version » se modifie depuis l’accueil (35 min + 14 au débrief)');
 
 // ---------------------------------------------------------------- la séance de démonstration (mode local)
 if (MODE === 'local') {
@@ -657,7 +718,7 @@ if (MODE === 'local') {
   const code1 = (await pa.textContent('#code-seance')).trim();
   await pa.click('[data-retour]');
   await pa.waitForSelector('#mes-seances');
-  dit((await pa.textContent('#mes-seances')).includes(code1), 'la séance apparaît dans « Tes séances »');
+  dit((await pa.textContent('#mes-seances')).includes(code1), 'la séance apparaît dans « Vos séances »');
   await capture(pa, '15-tes-seances');
 
   const pb = await page(ctxB, '/enseignant.html', 'ordinateur 2');

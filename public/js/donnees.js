@@ -90,7 +90,7 @@ export async function connexionGoogle() {
     return decrire((await f.a.signInWithPopup(f.auth, fournisseur)).user);
   } catch (e) {
     if (/popup-blocked|popup-closed|cancelled-popup/.test(e.code || '')) {
-      throw new Error('La fenêtre de connexion Google a été bloquée ou fermée. Autorise les fenêtres surgissantes pour ce site, puis réessaie.');
+      throw new Error('La fenêtre de connexion Google a été bloquée ou fermée. Autorisez les fenêtres surgissantes pour ce site, puis réessayez.');
     }
     if (/unauthorized-domain/.test(e.code || '')) {
       throw new Error("Ce domaine n'est pas autorisé dans Firebase (Authentication → Paramètres → Domaines autorisés).");

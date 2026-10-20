@@ -62,14 +62,15 @@ function copie(item) {
 }
 
 function article(c, item, o) {
-  const { k, t, x, brut } = o;
+  const { k, t, x, brut, cle } = o;
   return `<article class="dd-item${item.surprise ? ' dd-item--surprise' : ''}">
     <header class="dd-h"><span class="dd-k">${esc(k)}</span>${o.pastilles ? pastilles(c, item, o.actives) : ''}</header>
     <h3>${esc(t)}</h3>
     <p class="dd-x">${brut ? x : esc(x)}</p>
     ${item.s ? `<p class="dd-s">${esc(item.s)}</p>` : ''}
     ${copie(item)}
-    ${item.surprise && o.enseignant ? '<p class="dd-surprise">Surprise : absent de la version devoir.</p>' : ''}
+    ${item.surprise && o.enseignant ? '<p class="dd-surprise">Surprise : absent du dossier élève.</p>' : ''}
+    ${o.corriger && cle ? `<p class="dd-corriger"><button class="lien" type="button" data-aller-reglage="c:${esc(cle)}">Corriger ce texte</button></p>` : ''}
   </article>`;
 }
 
@@ -79,12 +80,13 @@ function article(c, item, o) {
  * @param version    'devoir' ou 'complet'
  * @param pastilles  montrer à quelles questions sert chaque document
  * @param enseignant signaler les surprises (dossier complet)
+ * @param corriger   un lien « Corriger ce texte » sous chaque élément (l'onglet Dossier, à l'écran seulement)
  */
-export function dossierHTML(c, { version = 'devoir', pastilles: avec = true, enseignant = false } = {}) {
+export function dossierHTML(c, { version = 'devoir', pastilles: avec = true, enseignant = false, corriger = false } = {}) {
   const complet = version === 'complet';
   const garde = (x) => complet || !x.surprise;
   const actives = questionsActives(c, complet);
-  const o = { pastilles: avec, actives, enseignant };
+  const o = { pastilles: avec, actives, enseignant, corriger };
   const etape = (id) => c.etapes.find((e) => e.id === id)?.t || id;
   const fam = c.dossier?.questions || {};
   const familles = c.dossier?.familles || [];
@@ -103,25 +105,29 @@ export function dossierHTML(c, { version = 'devoir', pastilles: avec = true, ens
         <ul>${qs.map((id) => `<li><span class="pastille fam-${f.id}">${esc(id)}</span> ${esc(actives.get(id).eleve)}</li>`).join('')}</ul></div>` : '';
     }).join('')}</section>` : '';
 
-  const releves = c.releves.filter(garde).map((r) => article(c, r, { ...o, k: `Relevé ${c.releves.indexOf(r) + 1}`, t: r.t, x: r.x }));
-  const docs = c.documents.filter(garde).map((d) => article(c, d, { ...o, k: d.genre, t: d.t, x: d.x }));
+  // cle : l'élément dans « Corriger un texte ou un chiffre » (reglages.js, corrigeables)
+  const releves = c.releves.filter(garde).map((r) => article(c, r, { ...o, k: `Document de terrain · relevé ${c.releves.indexOf(r) + 1}`,
+    t: r.t, x: r.x, cle: `releves|${c.releves.indexOf(r)}` }));
+  const docs = c.documents.filter(garde).map((d) => article(c, d, { ...o, k: d.genre, t: d.t, x: d.x, cle: `documents|${d.id}` }));
   const vues = complet ? c.complications.map((v, i) => article(c, v, { ...o, k: `Point de vue ${i + 1} sur ${c.complications.length} · ${v.qui || ''}`,
-    t: v.t, x: v.x, brut: true })) : [];
-  const bilan = complet ? c.bilan.map((b) => article(c, { ...b, s: b.src }, { ...o, k: etape('bilan'), t: b.t, x: b.texte })) : [];
+    t: v.t, x: v.x, brut: true, cle: `complications|${v.id}` })) : [];
+  const bilan = complet ? c.bilan.map((b, i) => article(c, { ...b, s: b.src }, { ...o, k: etape('bilan'), t: b.t, x: b.texte, cle: `bilan|${i}` })) : [];
 
   return `<div class="dossier">
     <header class="dd-tete">
-      <p class="dd-sur">${complet ? 'Dossier complet · pour l\'enseignant·e' : 'Version devoir · à lire avant la séance'}</p>
+      <p class="dd-sur">${complet ? 'Dossier complet · pour l\'enseignant·e' : 'Dossier élève · à lire avant la séance'}</p>
       <h1>Où passe la ligne — dossier documentaire</h1>
       <p class="dd-question"><span>La question de départ</span> ${esc(c.question)}</p>
       <p class="dd-aide">${complet
-        ? 'Tout ce que le jeu montre, dans l\'ordre des étapes. Les documents marqués « surprise » ne sont pas dans la version devoir : ils servent à contredire ce que l\'équipe croyait.'
+        ? 'Tout ce que le jeu montre, dans l\'ordre des étapes. Les documents marqués « surprise » ne sont pas dans le dossier élève : ils servent à contredire ce que l\'équipe croyait.'
         : 'Le territoire tel qu\'on pouvait le connaître, et des documents à trier. Certains sont vrais mais ne servent pas à la question : à vous de voir lesquels. Sous chaque document, la phrase exacte de sa source et le lien pour la lire.'}
         ${esc(c.dossier?.releve || '')}</p>
+      <p class="dd-aide">Deux sortes de documents : les <b>documents de terrain</b> (les relevés), que l'équipe découvre en
+        marchant avec la garde-parc, et les <b>documents du dossier</b>, qu'elle trie ensuite au bureau.</p>
     </header>
     ${legende}
-    <section class="dd-sect"><h2>${esc(etape('marche'))}</h2><div class="dd-g">${releves.join('')}</div></section>
-    <section class="dd-sect"><h2>${esc(etape('dossier'))} · le dossier</h2><div class="dd-g">${docs.join('')}</div></section>
+    <section class="dd-sect"><h2>${esc(etape('marche'))} · les documents de terrain (relevés)</h2><div class="dd-g">${releves.join('')}</div></section>
+    <section class="dd-sect"><h2>${esc(etape('dossier'))} · les documents du dossier</h2><div class="dd-g">${docs.join('')}</div></section>
     ${complet ? `<section class="dd-sect"><h2>${esc(etape('comp'))}</h2><div class="dd-g">${vues.join('')}</div></section>
       <section class="dd-sect"><h2>${esc(etape('bilan'))}, et depuis</h2><div class="dd-g">${bilan.join('')}</div></section>` : ''}
     <p class="dd-pied">Jeanne Element, la garde-parc, est un personnage fictif ; tout le reste vient des sources citées.</p>

@@ -56,7 +56,7 @@ export const FORMATS = {
   },
   // la durée totale au choix ; les minutes de chaque étape suivent les proportions du standard
   mesure: {
-    nom: 'Sur mesure', resume: 'La durée totale de ton choix ; tu choisis ensuite les questions.',
+    nom: 'Sur mesure', resume: 'La durée totale de votre choix ; vous choisissez ensuite les questions.',
     miseEnRoute: 5, minutes: MINUTES_50, questions: QUESTIONS_50
   }
 };
@@ -154,12 +154,12 @@ export function corrigeables(base) {
     champs: CHAMPS[groupe].map(([k, label, long]) => ({ cle: `${groupe}|${id}|${k}`, k, label, long: !!long,
       origine: sansBalises(src[k]) })) });
   return [
-    { t: 'Relevés de terrain', items: base.releves.map((r, i) => item('releves', i, `Relevé ${i + 1} · ${r.t}`, r)) },
-    { t: 'Documents du dossier', items: base.documents.map((d) => item('documents', d.id, d.t, d)) },
-    { t: 'Points de vue', items: base.complications.map((x) => item('complications', x.id, x.t, x)) },
+    { t: 'Documents de terrain (les relevés, étape 2)', items: base.releves.map((r, i) => item('releves', i, `Relevé ${i + 1} · ${r.t}`, r)) },
+    { t: 'Documents du dossier (étape 3)', items: base.documents.map((d) => item('documents', d.id, d.t, d)) },
+    { t: 'Points de vue (étape 5)', items: base.complications.map((x) => item('complications', x.id, x.t, x)) },
     { t: 'Secteurs de la carte', items: base.secteurs.map((s) => item('secteurs', s.id, s.nom, s)) },
-    { t: 'Bilan', items: base.bilan.map((b, i) => item('bilan', i, b.t, b)) },
-    { t: 'Questions de la banque', items: base.banque.map((q) => item('banque', q.id, `${q.id} · ${q.eleve || q.q}`,
+    { t: 'La décision de 1970 (étape 6)', items: base.bilan.map((b, i) => item('bilan', i, b.t, b)) },
+    { t: 'Questions et réponses attendues', items: base.banque.map((q) => item('banque', q.id, `${q.id} · ${q.eleve || q.q}`,
       { ...q, eleve: q.eleve || q.q })) }
   ];
 }

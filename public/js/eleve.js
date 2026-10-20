@@ -19,7 +19,7 @@ import * as donnees from './donnees.js';
 import { $, esc, typo, messageErreur, validationEnFrancais } from './outils.js';
 import * as J from './jeu.js';
 import * as Rg from './reglages.js';
-import { NOMS_EQUIPES, EMOJIS_EQUIPES, rejoindre, cheminSeance, cheminEquipe, normaliserCode, codeValide, expiration } from './seance.js';
+import { NOMS_EQUIPES, EMOJIS_EQUIPES, rejoindre, cheminSeance, cheminEquipe, normaliserCode, codeValide, expiration, CLE_APERCU } from './seance.js';
 import { etat, ui, page, appliquerReglages, idx, avisActif, etapesVisibles } from './eleve/etat.js';
 import { ECRANS, gabarit, rendreFin } from './eleve/ecrans.js';
 import { MAX_REPONSE, rattrapage, questionsBravo, reponseManquante } from './eleve/questions.js';
@@ -36,6 +36,7 @@ const params = new URLSearchParams(location.search);
 const codeUrl = normaliserCode(params.get('code'));
 
 async function demarrer() {
+  if (params.get('apercu') === '1') return entrerApercu();
   if (donnees.mode === 'local') $('#mode-local').hidden = false;
   // L'équipe en cours est rangée sous l'identifiant de l'appareil : en mode
   // local, deux onglets (deux équipes) ne se marchent donc pas dessus.
@@ -114,6 +115,28 @@ function entrer(cd, id, fiche) {
     rendreSignal();
     bravosRecus();
   });
+  rendre();
+}
+
+/**
+ * L'aperçu de l'enseignant·e (eleve.html?apercu=1, ouvert depuis l'espace enseignant·e) : le jeu tel qu'une équipe le
+ * voit, avec les réglages laissés dans le stockage du navigateur (ouvrirApercu, seance.js). Ni séance ni équipe :
+ * rien n'est enregistré (envoi.js), et toutes les étapes s'ouvrent d'un clic dans la barre du haut.
+ */
+function entrerApercu() {
+  let lu = null;
+  try { lu = JSON.parse(localStorage.getItem(CLE_APERCU) || 'null'); } catch { /* vide : le jeu d'origine */ }
+  etat.apercu = true;
+  appliquerReglages(lu?.config || null);
+  const E = J.nouvelEtat(etat.c, 'Aperçu', 'apercu');
+  E.atteinte = etat.c.etapes.length - 1;
+  Object.assign(etat, { code: null, idEq: 'apercu', E, S: { etat: 'ouverte', config: lu?.config || null, chrono: null } });
+  $('#retour-accueil').hidden = true;
+  document.body.dataset.ecran = 'jeu';
+  $('#app').innerHTML = `<div class="apercu-bande" role="status"><p><b>Aperçu enseignant·e</b> : le jeu tel que les équipes le
+      voient, avec vos réglages. Rien n'est enregistré. Toutes les étapes sont ouvertes : touchez la barre du haut pour y aller.</p>
+      <button class="btn btn--f btn--s" type="button" data-fermer-apercu>Fermer l'aperçu</button></div>` + gabarit();
+  $('#equipe').textContent = 'Aperçu enseignant·e';
   rendre();
 }
 
@@ -224,6 +247,8 @@ document.addEventListener('click', async (ev) => {
   const { c, E, S, code } = etat;
   if (!E) return;
   if (ev.target.closest('[data-fermer-bravo]')) return fermerBravo();
+  // fermer l'onglet de l'aperçu ; si le navigateur refuse, revenir à l'espace enseignant·e
+  if (ev.target.closest('[data-fermer-apercu]')) { window.close(); setTimeout(() => { location.href = 'enseignant.html'; }, 300); return; }
   if (ev.target.closest('[data-imprimer-fin]')) return window.print();
   const al = ev.target.closest('[data-aller]');
   if (al) {

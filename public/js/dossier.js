@@ -1,4 +1,4 @@
-// dossier.js — la version devoir du dossier, à lire avant la séance.
+// dossier.js — le dossier élève (la version « devoir »), à lire avant la séance.
 //
 // Une page sans jeu : le portrait du territoire et les documents à trier, avec
 // la copie de chaque source et son lien. Les documents « surprise » n'y sont

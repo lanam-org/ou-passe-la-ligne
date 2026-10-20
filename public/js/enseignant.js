@@ -7,9 +7,9 @@
 // Ce fichier ouvre la séance, l'écoute en direct, choisit l'onglet à dessiner et
 // répond aux gestes faits en séance. Chaque écran a son fichier dans enseignant/ :
 //   etat.js      l'état partagé (la séance, ses équipes, le contenu réglé) et de petits outils
-//   accueil.js   « Tes séances » : créer, rouvrir, effacer, imprimer le dossier d'avance
+//   accueil.js   « Vos séances » : créer, rouvrir, effacer, imprimer le dossier d'avance
 //   direct.js    En direct          debrief.js   Débrief
-//   editeur.js   Réglages et « Ta version du jeu »
+//   editeur.js   Réglages et « Votre version du jeu »
 //   preparer.js  Questions, Dossier, Déroulement
 //   apres.js     Mesures, Questionnaire
 //   rapport.js   le rapport de séance, et l'impression
@@ -20,12 +20,12 @@ import { mesure } from './config.js';
 import { $, typo, validationEnFrancais } from './outils.js';
 import * as Rg from './reglages.js';
 import { dossierHTML } from './dossierdoc.js';
-import { cheminSeance, cheminReponses, effacerSeance, reglerMinutes, reglerChrono, chronoNeuf, donnerBravo, MAX_MESSAGE } from './seance.js';
+import { cheminSeance, cheminReponses, effacerSeance, reglerMinutes, reglerChrono, chronoNeuf, donnerBravo, MAX_MESSAGE, ouvrirApercu } from './seance.js';
 import { base, etat, ui, page, appliquerReglages, configSeance, seanceGardee, stable, chronoDe, chronoTexte } from './enseignant/etat.js';
 import { afficherAccueil } from './enseignant/accueil.js';
 import { vueDirect } from './enseignant/direct.js';
 import { vueDebrief } from './enseignant/debrief.js';
-import { vueReglages } from './enseignant/editeur.js';
+import { vueReglages, idQuestion } from './enseignant/editeur.js';
 import { vueQuestions, vueDossier, vueDeroulement } from './enseignant/preparer.js';
 import { vueMesures, vueQuestionnaire, exporterCSV, questionnairePapier } from './enseignant/apres.js';
 import { rapportHTML, imprimer } from './enseignant/rapport.js';
@@ -33,13 +33,20 @@ import './enseignant/trousse.js';   // ses boutons [data-trousse] : il écoute l
 
 validationEnFrancais();
 
-// Huit onglets, rangés en trois moments : ce qu'on fait en classe d'abord, puis préparer, puis après.
+// Huit onglets, dans l'ordre d'une séance : avant la classe (préparer), pendant, après.
+// (Une séance s'ouvre sur « En direct » : c'est le moment où l'on en a besoin.)
+// Le titre de chaque groupe est écrit au-dessus de ses onglets (retours d'essai : en petit, à côté, il ne guidait pas).
+// Le groupe « Après » sert surtout la recherche (mesures, questionnaire) : il le dit.
 const ONGLETS = [
-  { g: 'En classe', l: [{ id: 'direct', t: 'En direct' }, { id: 'debrief', t: 'Débrief' }] },
-  { g: 'Préparer', l: [{ id: 'reglages', t: 'Réglages' }, { id: 'questions', t: 'Questions' },
+  { g: 'Avant la classe', titre: 'Avant la classe : préparer', l: [{ id: 'reglages', t: 'Réglages' }, { id: 'questions', t: 'Questions' },
     { id: 'dossier', t: 'Dossier' }, { id: 'deroulement', t: 'Déroulement' }] },
-  { g: 'Après', l: [{ id: 'mesures', t: 'Mesures' }, { id: 'questionnaire', t: 'Questionnaire' }] }
+  { g: 'Pendant la classe', titre: 'Pendant la classe', l: [{ id: 'direct', t: 'En direct' }, { id: 'debrief', t: 'Débrief' }] },
+  { g: 'Après · pour la recherche', titre: 'Après la classe, pour la recherche', replie: true,
+    l: [{ id: 'mesures', t: 'Mesures' }, { id: 'questionnaire', t: 'Questionnaire' }] }
 ];
+// « less is more » : un groupe replié (la recherche) ne montre que son titre, un bouton qui l'ouvre ; il s'ouvre seul
+// quand on y est déjà. Le menu des fenêtres étroites, lui, garde tous les onglets.
+const groupeOuvert = (g) => !g.replie || ui.rechercheOuverte || g.l.some((x) => x.id === etat.onglet);
 const VUES = { direct: vueDirect, debrief: vueDebrief, reglages: vueReglages, questions: vueQuestions, dossier: vueDossier,
   deroulement: vueDeroulement, mesures: vueMesures, questionnaire: vueQuestionnaire };
 
@@ -61,7 +68,7 @@ async function demarrer() {
   retourAccueil();
 }
 
-/** Quitte la séance à l'écran (sans l'effacer) et revient à « Tes séances ». */
+/** Quitte la séance à l'écran (sans l'effacer) et revient à « Vos séances ». */
 function retourAccueil(erreur = '') {
   arrets.forEach((f) => f()); arrets = [];
   Object.assign(etat, { code: null, S: null, reponses: null, EQ: [], AV: [], choisie: null, onglet: 'direct' });
@@ -123,12 +130,15 @@ function rendre(force = false) {
     if (ui.ed.modifie || stable(ailleurs) === stable(ui.ed.r)) return;
     ui.ed.r = ailleurs;
   }
-  // Une rangée d'onglets sur un écran large ; un menu déroulant quand la fenêtre est étroite (site.css choisit)
-  $('#onglets').innerHTML = ONGLETS.map((g) => `<div class="onglets-g" role="group" aria-label="${g.g}">
-    <span class="onglets-t" aria-hidden="true">${g.g}</span>${g.l.map((x) =>
-      `<button data-onglet="${x.id}" aria-current="${onglet === x.id ? 'page' : 'false'}">${x.t}</button>`).join('')}</div>`).join('')
+  // « Vos séances » d'abord ; puis une rangée d'onglets sur un écran large, un menu déroulant quand la fenêtre
+  // est étroite (site.css choisit)
+  $('#onglets').innerHTML = '<button class="onglets-retour" data-retour="1">← Vos séances</button>'
+    + ONGLETS.map((g) => `<div class="onglets-g" role="group" aria-label="${g.titre}">
+    ${g.replie ? `<button class="onglets-t onglets-bascule" data-bascule-groupe aria-expanded="${groupeOuvert(g)}">${g.g} ${groupeOuvert(g) ? '▴' : '▾'}</button>`
+      : `<span class="onglets-t" aria-hidden="true">${g.g}</span>`}${groupeOuvert(g) ? g.l.map((x) =>
+      `<button data-onglet="${x.id}" aria-current="${onglet === x.id ? 'page' : 'false'}">${x.t}</button>`).join('') : ''}</div>`).join('')
     + `<label class="onglets-menu"><span class="cache-visuel">Section de l'espace enseignant·e</span>
-      <select data-onglet-menu>${ONGLETS.map((g) => `<optgroup label="${g.g}">${g.l.map((x) =>
+      <select data-onglet-menu>${ONGLETS.map((g) => `<optgroup label="${g.titre}">${g.l.map((x) =>
         `<option value="${x.id}" ${onglet === x.id ? 'selected' : ''}>${x.t}</option>`).join('')}</optgroup>`).join('')}</select></label>`;
   // un message en cours d'écriture survit au rafraîchissement (toutes les 5 s, et à chaque geste d'équipe)
   const brouillon = $('#f-signal [name=texte]');
@@ -146,6 +156,29 @@ Object.assign(page, { rendre, ouvrir, accueil: retourAccueil });
 /* ------------------------------------------------------------ les gestes en séance */
 // (Ceux de l'accueil sont dans accueil.js, ceux des réglages dans editeur.js.)
 
+/**
+ * Depuis les onglets Questions et Dossier : l'onglet Réglages, ouvert au bon endroit, le focus sur ce qu'on
+ * vient changer. `cible` : « q:F2.1 » (l'état d'une question), « c:releves|0 » (un texte à corriger),
+ * « ajout:A… » (une question ajoutée).
+ */
+function allerAuReglage(cible) {
+  const i = cible.indexOf(':'), type = cible.slice(0, i), cle = cible.slice(i + 1);
+  ui.ouverts.add('rg-avance');   // tout ce qu'on vient changer est dans « Réglages avancés »
+  if (type === 'c') {   // ouvrir la partie et l'élément ; une recherche en cours le cacherait peut-être
+    const [groupe, id] = cle.split('|');
+    const g = Rg.corrigeables(base).find((x) => x.items.some((it) => it.groupe === groupe && String(it.id) === id));
+    if (g) { ui.ouverts.add(`rg|${g.t}`); ui.ouverts.add(`rg|${groupe}|${id}`); }
+    if (ui.ed) ui.ed.cherche = '';
+  }
+  etat.onglet = 'reglages';
+  rendre(true);
+  if (type === 'ajout' && ui.ed) { ui.ed.ajout = cle; rendre(true); }
+  const champ = type === 'q' ? document.querySelector(`#rg-q-${idQuestion(cle)} input:checked`)
+    : type === 'c' ? document.querySelector(`[data-corr^="${cle}|"]`) : document.querySelector('#f-ajout [name=q]');
+  champ?.closest('.rg-q, .rg-champ, .rg-form')?.scrollIntoView({ block: 'center' });
+  champ?.focus({ preventScroll: true });
+}
+
 /** Changer d'onglet ; quitter les réglages avec des changements en attente demande un deuxième geste. */
 function allerA(vers, confirme) {
   if (etat.onglet === 'reglages' && vers !== 'reglages' && ui.ed?.modifie && !confirme) return false;
@@ -160,7 +193,7 @@ document.addEventListener('change', (ev) => {
     const vers = ev.target.value;
     if (!allerA(vers, ui.confirmeOnglet === vers)) {
       ui.confirmeOnglet = vers; ev.target.value = 'reglages';
-      $('#ed-etat').textContent = 'Changements pas encore appliqués : applique-les, ou choisis encore cette section pour les laisser en attente.';
+      $('#ed-etat').textContent = 'Changements pas encore appliqués : appliquez-les, ou choisissez encore cette section pour les laisser en attente.';
       return;
     }
     ui.confirmeOnglet = null;
@@ -190,11 +223,16 @@ document.addEventListener('click', async (ev) => {
     return retourAccueil();
   }
   const { code, S, EQ, c } = etat;
+  const ar = ev.target.closest('[data-aller-reglage]');
+  if (ar) return allerAuReglage(ar.dataset.allerReglage);
+  if (ev.target.closest('[data-bascule-groupe]')) { ui.rechercheOuverte = !ui.rechercheOuverte; rendre(true); $('[data-bascule-groupe]')?.focus(); return; }
+  // l'aperçu élève, avec les réglages de la séance (réponses attendues comprises : elles restent sur cet appareil)
+  if (ev.target.closest('[data-apercu="seance"]')) return ouvrirApercu(configSeance());
   const ong = ev.target.closest('[data-onglet]');
   if (ong) {
     if (!allerA(ong.dataset.onglet, !!ong.dataset.confirme)) {
       ong.dataset.confirme = '1';
-      $('#ed-etat').textContent = 'Changements pas encore appliqués : applique-les, ou clique encore sur l\'onglet pour les laisser en attente.';
+      $('#ed-etat').textContent = 'Changements pas encore appliqués : appliquez-les, ou cliquez encore sur l\'onglet pour les laisser en attente.';
     }
     return;
   }
@@ -251,7 +289,7 @@ document.addEventListener('click', async (ev) => {
   const cp = ev.target.closest('[data-copier]');
   if (cp) {
     try { await navigator.clipboard.writeText(cp.dataset.copier); cp.textContent = 'Copié ✓'; }
-    catch { cp.textContent = 'Sélectionne le lien pour le copier'; }
+    catch { cp.textContent = 'Sélectionnez le lien pour le copier'; }
     return;
   }
   const sg = ev.target.closest('[data-signal]');

@@ -14,36 +14,56 @@ import { etat, ui, qid } from './etat.js';
 function etatQuestion(q) {
   const m = Rg.modeQuestion(q), v = etat.c.reglages.questions[q.id];
   if (m === 'geste') return ['geste dans le jeu', 'posee'];
-  if (m === 'enseignant') return ['par toi, à la mise en route', 'ecran'];
-  if (m === 'orale') return v === 'on' ? ['orale, en classe', 'posee'] : ['pas posée', ''];
-  return v === 'requise' ? ['écrite, requise', 'posee'] : v === 'facultative' ? ['écrite, facultative', 'reprise'] : ['pas posée', ''];
+  if (m === 'enseignant') return ['par l\'enseignant·e, à la mise en route', 'ecran'];
+  if (m === 'orale') return v === 'on' ? ['orale, en classe', 'posee'] : ['retirée', ''];
+  return v === 'requise' ? ['écrite, requise', 'posee'] : v === 'facultative' ? ['écrite, facultative', 'reprise'] : ['retirée', ''];
+}
+const retiree = (q) => etatQuestion(q)[0] === 'retirée';
+
+/**
+ * Sous chaque question, les deux gestes qu'on vient chercher ici : changer son état (requise, facultative,
+ * retirée) et corriger son texte. Chacun mène à l'onglet Réglages, ouvert au bon endroit (enseignant.js).
+ */
+function liensQuestion(q) {
+  if (q.ajout) return `<p class="bq-l"><button class="lien" data-aller-reglage="ajout:${esc(q.id)}">Modifier ou retirer cette question</button></p>`;
+  const m = Rg.modeQuestion(q), v = etat.c.reglages.questions[q.id];
+  const changer = m === 'ecrite' ? (v === 'requise' ? 'Rendre facultative ou retirer' : v === 'facultative' ? 'Rendre requise ou retirer' : 'Poser cette question')
+    : m === 'orale' ? (v === 'on' ? 'Retirer de la séance' : 'Poser à l\'oral') : '';
+  return `<p class="bq-l">${changer ? `<button class="lien" data-aller-reglage="q:${esc(q.id)}">${changer}</button>` : ''}
+    <button class="lien" data-aller-reglage="c:banque|${esc(q.id)}">Corriger ce texte</button></p>`;
 }
 
 export function vueQuestions() {
   const { c } = etat;
+  // l'état d'une question (« écrite, facultative ») mène aussi à son réglage : c'est là qu'on clique d'instinct
+  const cible = (q) => (q.ajout ? `ajout:${q.id}` : ['ecrite', 'orale'].includes(Rg.modeQuestion(q)) ? `q:${q.id}` : '');
+  const badge = (q, txt, cls) => (cible(q)
+    ? `<button class="badge badge-b${cls ? ` badge--${cls}` : ''}" data-aller-reglage="${esc(cible(q))}"
+        aria-label="${esc(txt)} : changer dans Réglages">${esc(txt)} <span aria-hidden="true">▾</span></button>`
+    : `<span class="badge${cls ? ` badge--${cls}` : ''}">${esc(txt)}</span>`);
   const item = (q, [txt, cls]) => `<article class="bq">
     <div class="bq-h"><span class="qid">${esc(qid(q))}</span><span class="bq-q">${esc(q.eleve || q.q)}</span>
-      <span class="badge${cls ? ` badge--${cls}` : ''}">${esc(txt)}</span></div>
+      ${badge(q, txt, cls)}</div>
     ${q.reponse ? `<p class="bq-r"><span class="sur">Réponse attendue</span><br>${esc(q.reponse)}</p>` : ''}
-    <p class="bq-s">${q.note ? esc(q.note) + ' · ' : ''}${esc((q.sources || []).join(' · '))}</p></article>`;
+    <p class="bq-s">${q.note ? esc(q.note) + ' · ' : ''}${esc((q.sources || []).join(' · '))}</p>${liensQuestion(q)}</article>`;
   const ajouts = [...c.q.ecrites, ...c.q.orales].filter((q) => q.ajout);
   const etatAjout = (q) => c.q.orales.includes(q) ? ['ajoutée · orale', 'posee'] : [`ajoutée · ${q.requise ? 'requise' : 'facultative'}`, q.requise ? 'posee' : 'reprise'];
-  const pasPosees = c.banque.filter((q) => etatQuestion(q)[0] === 'pas posée');
+  const retirees = c.banque.filter(retiree);
   const nReq = c.q.ecrites.filter((q) => q.requise).length;
   return `<div class="p-tete"><h2>Les questions</h2>
       <p>Dans cette séance (${esc(Rg.FORMATS[c.reglages.format]?.nom || '')}) : ${c.q.ecrites.length} questions écrites en équipe,
         dont ${nReq} requises, et ${c.q.orales.length} à l'oral au débrief. Les autres restent dans la banque, pour une reprise.
-        Pour en changer, même pendant la séance : l'onglet « Réglages ».</p></div>
+        Sous chaque question : la rendre facultative, la retirer ou la poser, et corriger son texte, même pendant la séance.</p></div>
     ${c.etapes.filter((x) => x.id !== 'avis').map((x) => {
-      const l = c.banque.filter((q) => Rg.etapeQuestion(c, q) === x.id && etatQuestion(q)[0] !== 'pas posée');
+      const l = c.banque.filter((q) => Rg.etapeQuestion(c, q) === x.id && !retiree(q));
       const a = ajouts.filter((q) => (q.etape || 'debrief') === x.id);
       return l.length || a.length ? `<section class="p-sect"><div class="p-sect-h"><h3>Étape ${x.n} · ${esc(x.t)}</h3>
         <span class="hint">${x.min} min</span></div><div class="banque">${l.map((q) => item(q, etatQuestion(q))).join('')}${
           a.map((q) => item(q, etatAjout(q))).join('')}</div></section>` : '';
     }).join('')}
-    <section class="p-sect"><div class="p-sect-h"><h3>Pas posées dans cette séance</h3>
-      <span class="hint">${pasPosees.length} questions, pour une reprise ou une autre séance</span></div>
-      <div class="banque">${pasPosees.map((q) => item(q, etatQuestion(q))).join('')}</div></section>`;
+    <section class="p-sect"><div class="p-sect-h"><h3>Retirées de cette séance</h3>
+      <span class="hint">${retirees.length} questions, gardées dans la banque pour une reprise ou une autre séance</span></div>
+      <div class="banque">${retirees.map((q) => item(q, etatQuestion(q))).join('')}</div></section>`;
 }
 
 /* ------------------------------------------------------------ dossier documentaire */
@@ -52,18 +72,18 @@ export function vueDossier() {
   const lien = new URL(`dossier.html?code=${etat.code}`, location.href).href;
   return `<div class="p-tete"><h2>Le dossier documentaire</h2>
       <p>Tout ce que le jeu montre, avec la phrase exacte de chaque source, la date de sa vérification et son lien : si un lien
-        meurt, l'information reste dans le site. Les corrections de l'onglet Réglages s'y appliquent.</p>
+        meurt, l'information reste dans le site. Un chiffre ou un texte à corriger : « Corriger ce texte », sous chaque élément.</p>
       <div class="p-actions">
         <button class="btn" data-dossier-imprimer="complet">Imprimer le dossier complet</button>
         <button class="btn btn--f" data-dossier-imprimer="devoir">Imprimer le dossier élève (sans les surprises)</button>
         <label class="case-l dd-opt"><input type="checkbox" id="dd-pastilles" ${ui.pastilles ? 'checked' : ''}><span>Pastilles des questions</span></label>
       </div>
-      <p class="hint" style="margin-top:10px">Version devoir : le portrait du territoire et les documents à trier, à lire avant la séance.
+      <p class="hint" style="margin-top:10px">Dossier élève : le portrait du territoire et les documents à trier, à lire avant la séance.
         Les points de vue et la décision de 1970 n'y sont pas : ils servent à contredire ce que l'équipe croyait. Avec les pastilles,
         les élèves voient quels documents servent ; le tri en classe devient alors un rappel.</p>
-      <p class="code-u" style="margin-top:10px">Version devoir en ligne, pour les élèves : <b id="lien-dossier">${esc(lien)}</b></p>
+      <p class="code-u" style="margin-top:10px">Dossier élève en ligne : <b id="lien-dossier">${esc(lien)}</b></p>
     </div>
-    <section class="p-sect">${dossierHTML(etat.c, { version: 'complet', pastilles: ui.pastilles, enseignant: true })}</section>`;
+    <section class="p-sect">${dossierHTML(etat.c, { version: 'complet', pastilles: ui.pastilles, enseignant: true, corriger: true })}</section>`;
 }
 
 /* ------------------------------------------------------------ déroulement */

@@ -668,6 +668,56 @@ body.avec-signal .bravo-zone{top:150px}
 .rg-q--ajout{grid-template-columns:auto 1fr auto}
 .rg-q--ajout .qid{color:var(--eco)}
 @media (max-width:620px){.rg-q,.rg-q--ajout{grid-template-columns:auto 1fr}.rg-q > :last-child{grid-column:1 / -1}}
+/* retours d'essai : les états d'une question, tous visibles (un menu déroulant passait inaperçu) */
+.rg-q{grid-template-columns:auto 1fr auto}
+.rg-choix{display:flex;flex-wrap:wrap;gap:4px}
+.rg-choix label{display:inline-flex;align-items:center;gap:6px;min-height:32px;padding:3px 11px 3px 8px;border:1px solid var(--bord);
+  border-radius:999px;background:var(--surface);font-size:14px;cursor:pointer;white-space:nowrap}
+.rg-choix label:has(input:checked){border-color:var(--primaire);background:var(--primaire-doux);font-weight:700}
+.rg-choix input{width:16px;height:16px;margin:0;accent-color:var(--primaire)}
+/* « Réglages avancés » : une carte repliée qui s'ouvre ; dedans, les sections habituelles */
+.rg-avance{margin-top:16px}
+.rg-avance > summary{display:flex;flex-direction:column;gap:3px;cursor:pointer;list-style:none;position:relative;
+  padding:16px 18px 16px 46px;background:var(--surface);border:1px solid var(--bord);border-radius:var(--r)}
+.rg-avance > summary::-webkit-details-marker{display:none}
+.rg-avance > summary::before{content:"▸";position:absolute;left:19px;top:14px;font-size:19px;color:var(--primaire)}
+.rg-avance[open] > summary::before{content:"▾"}
+.rg-avance > summary:hover{border-color:var(--primaire)}
+.rg-avance-t{font-size:18px;font-weight:700}
+/* le sommaire des réglages, et la recherche d'un texte à corriger */
+.rg-nav{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.rg-nav a{padding:6px 12px;border-radius:999px;border:1px solid var(--bord);background:var(--surface);color:var(--encre);
+  font-size:14px;font-weight:600;text-decoration:none}
+.rg-nav a:hover{border-color:var(--primaire);color:var(--primaire)}
+.rg .p-sect,.rg .rg-q,.rg .rg-form,.rg .rg-champ{scroll-margin-top:110px}
+.rg .rg-cherche input{max-width:420px}
+/* l'état d'une question (onglet Questions) : une étiquette qui se clique, comme on s'y attend */
+.badge-b{cursor:pointer;font-family:inherit;font-size:13px;min-height:28px;display:inline-flex;align-items:center;gap:4px}
+.badge-b:hover{border-color:var(--primaire);text-decoration:underline;text-underline-offset:2px}
+/* sous chaque question (onglet Questions) et chaque document (onglet Dossier) : y aller dans Réglages */
+.bq-l{display:flex;flex-wrap:wrap;gap:2px 16px;margin-top:6px;padding-left:62px;font-size:14px}
+.bq-l .lien,.dd-corriger .lien{display:inline-flex;align-items:center;min-height:28px}
+@media (max-width:640px){.bq-l{padding-left:0}}
+.dd-corriger{margin-top:8px;font-size:14px}
+@media print{.dd-corriger{display:none}}
+/* l'aperçu élève de l'enseignant·e : une bande en haut du jeu, qui dit que rien n'est enregistré */
+.apercu-bande{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;justify-content:space-between;max-width:1200px;
+  margin:12px auto 0;padding:10px 14px;border:2px dashed var(--primaire);border-radius:var(--r-s);background:var(--primaire-doux)}
+.apercu-bande p{margin:0;font-size:14.5px;line-height:1.5;flex:1 1 320px}
+@media (max-width:560px){.apercu-bande{margin:12px 16px 0}}
+/* le message écrit par l'enseignant·e, replié sous les messages prêts */
+.msg-perso{margin-top:12px}
+.msg-perso > summary{cursor:pointer;font-weight:700;font-size:15px;color:var(--primaire);min-height:28px;display:list-item}
+/* l'accueil : « Plus d'outils », replié */
+.plus-outils > summary{cursor:pointer;display:flex;flex-direction:column;gap:2px;list-style:none}
+.plus-outils > summary::-webkit-details-marker{display:none}
+.plus-outils > summary .plus-t{font-weight:700;font-size:17px}
+.plus-outils > summary .plus-t::before{content:"▸ ";color:var(--primaire)}
+.plus-outils[open] > summary .plus-t::before{content:"▾ "}
+.plus-outils h3{font-size:15.5px;margin:18px 0 4px}
+/* la démonstration, sous « Créer la séance » ; le « bravo » annoncé au-dessus des équipes */
+.creer .demo{margin-top:16px;padding-top:14px;border-top:1px solid var(--trait)}
+.eq-aide{margin:0 0 10px}
 .rg-form{margin-top:22px;padding:14px 16px 16px;border-radius:var(--r-s);background:var(--primaire-doux)}
 .rg-form h4{font-size:16px;margin:0}
 .rg-form-g{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:0 18px}
@@ -1001,10 +1051,19 @@ body[data-espace="prof"] .aide-b:focus-visible{outline-color:var(--prof-txt)}
 .comp .trouve-s .src-l{margin:0 0 0 6px}
 
 /* ===================================================== onglets de l'espace enseignant·e : trois groupes */
-.onglets-g{display:flex;align-items:center;gap:2px;padding-right:12px;margin-right:8px;
+.onglets-g{display:flex;flex-wrap:wrap;align-items:flex-end;align-content:flex-end;column-gap:2px;padding-right:12px;margin-right:8px;
   border-right:1px solid rgba(255,255,255,.18)}
 .onglets-g:last-child{border-right:0;margin-right:0;padding-right:0}
-.onglets-t{font-size:12.5px;font-weight:700;color:#A9B9C3;margin:0 4px 0 2px;white-space:nowrap}
+/* le titre du groupe, au-dessus de ses onglets : le moment de la séance se lit d'abord */
+.onglets-t{flex-basis:100%;font-size:13px;font-weight:700;letter-spacing:.02em;color:#D9BE88;margin:8px 0 0 14px;white-space:nowrap}
+.onglets .onglets-retour{align-self:flex-end}
+/* un groupe replié (la recherche) : son titre est un bouton ; replié, il se tient en bas, comme un onglet */
+.onglets .onglets-bascule{display:inline-flex;align-items:center;min-height:24px;background:none;border:0;cursor:pointer;
+  color:#D9BE88;font-size:13px;font-weight:700;padding:0;margin:8px 0 0 14px;text-align:left}
+.onglets .onglets-bascule[aria-expanded="false"]{flex-basis:auto;margin:0;padding:11px 14px 12px;align-self:flex-end}
+.onglets .onglets-bascule:hover{color:#fff}
+/* « ← Vos séances », toujours au début de la barre : retrouver une autre séance sans chercher */
+.onglets .onglets-retour{flex:0 0 auto;margin-right:8px;padding-right:14px;border-right:1px solid rgba(255,255,255,.18);white-space:nowrap}
 /* points de vue : celui qui arrive s'affiche dans le carnet, à droite, et se signale une fois */
 .carnet .comp{margin:0;padding:14px 16px}
 .carnet .comp h3{font-size:17px;margin:4px 0 7px}
@@ -1114,6 +1173,8 @@ body[data-espace="prof"] .aide-b:focus-visible{outline-color:var(--prof-txt)}
 /* onglets de l'espace enseignant·e : un menu déroulant quand la fenêtre est étroite */
 .onglets-menu{display:none}
 @media (max-width:980px){
+  .onglets{flex-wrap:wrap}
+  .onglets .onglets-retour{border-right:0;padding-left:0}
   .onglets-g{display:none}
   .onglets-menu{display:block;width:100%;padding:6px 0 10px}
   .onglets-menu select{width:100%;max-width:360px;font:inherit;font-size:15px;font-weight:700;padding:9px 12px;border-radius:var(--r-s);
@@ -1176,6 +1237,8 @@ body[data-espace="prof"] .retour-site:hover{background:rgba(255,255,255,.12)}
 .signal-perso .champ{flex:1 1 320px;margin:0}
 .duree-mesure{width:5.5em;margin:0 4px;font:inherit;font-size:15px;padding:4px 8px;border-radius:8px;border:1px solid var(--bord);
   background:var(--surface);color:var(--encre)}
+/* la case de durée est dans le libellé du format : la règle des boutons radio (20 × 20) ne doit pas l'écraser */
+.creer label.case-l input.duree-mesure{width:5.5em;height:auto;margin-top:-3px;flex:none}
 .chrono-detail{margin-top:8px;font-size:14px;color:var(--doux)}
 .chrono-detail summary{cursor:pointer;font-weight:600;color:var(--primaire)}
 .chrono-detail ol{margin:6px 0 0;padding-left:20px;line-height:1.6}

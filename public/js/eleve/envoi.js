@@ -34,7 +34,7 @@ function etatEnvoi(e) {
 let reessai = null;
 async function envoyer() {
   const { E, code, idEq } = etat;
-  if (!E) return;
+  if (!E || etat.apercu) return;   // l'aperçu de l'enseignant·e n'enregistre rien
   E.maj = Date.now();
   const champs = Object.fromEntries(CHAMPS.map((k) => [k, E[k] ?? null]));
   try {

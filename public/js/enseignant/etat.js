@@ -12,7 +12,7 @@ import { chargerContenu } from '../outils.js';
 export const base = await chargerContenu({ guide: true });
 
 export const etat = {
-  code: null,        // la séance ouverte ; null : l'accueil « Tes séances »
+  code: null,        // la séance ouverte ; null : l'accueil « Vos séances »
   S: null,           // son document : réglages, chrono, message, bravos
   reponses: null,    // ses réponses attendues, à part (seance.js) ; null tant qu'elles ne sont pas lues
   EQ: [], AV: [],    // ses équipes et ses avis, en direct
@@ -25,7 +25,7 @@ export const etat = {
 
 /** Ce qui ne vit qu'à l'écran : sections ouvertes, confirmations en attente, l'éditeur de réglages. */
 export const ui = { cacheAttendu: false, effacer: false, projection: false, ouverts: new Set(), effacerListe: null,
-  effacerVersion: false, maVersion: null, ed: null, chronoLance: '', pastilles: true, confirmeOnglet: null, qrGrand: false };
+  effacerVersion: false, maVersion: null, ed: null, chronoLance: '', pastilles: true, confirmeOnglet: null, qrGrand: false, rechercheOuverte: false };
 
 /**
  * Redessiner l'écran, ouvrir une séance, revenir à l'accueil : enseignant.js

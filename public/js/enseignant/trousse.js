@@ -24,8 +24,10 @@ function ficheDemarrer() {
   const formats = Object.values(Rg.FORMATS).map((f) => f.nom).join(', ');
   const pas = [
     ['Créer la séance', `Ouvrir l'espace enseignant·e (${esc(adresse('enseignant.html'))}), choisir la durée (${esc(formats)}),
-      puis « Créer la séance ». Les questions, les minutes et les corrections se changent dans l'onglet « Réglages »,
-      même pendant la séance.`],
+      puis « Créer la séance ». Un format prêt suffit pour une première séance. Pour l'adapter ensuite (rendre une question
+      facultative ou la retirer, corriger un chiffre ou un texte) : « Réglages avancés », dans l'onglet « Réglages », même
+      pendant la séance, ou les liens sous chaque question (onglet « Questions ») et chaque document (onglet « Dossier »).
+      « ← Vos séances », au début de la barre d'onglets, ramène à toutes vos séances.`],
     ['Faire entrer les équipes', `Dans « En direct » : le code de cinq caractères, à écrire au tableau, ou son code QR
       (« Agrandir le code QR »). Chaque équipe ouvre « Je suis élève » (${esc(adresse('eleve.html'))}), entre le code et
       choisit un nom d'animal. Un Chromebook par équipe, aucun prénom, ni dans le nom ni dans les réponses.`],
@@ -39,9 +41,10 @@ function ficheDemarrer() {
       ${JOURS_CONSERVATION} jours après sa création.`]
   ];
   const ou = [
-    ['Réglages', 'la durée, les questions posées ou ajoutées, les corrections de contenu'],
-    ['Questions', 'chaque question et sa réponse attendue'],
-    ['Dossier', 'le dossier documentaire ; la version élève s\'imprime d\'avance, sans les surprises'],
+    ['Vos séances', 'au début de la barre d\'onglets : retrouver une ancienne séance, en créer une autre'],
+    ['Réglages', 'la durée ; puis, dans « Réglages avancés » : chaque question, vos questions, corriger un chiffre ou un texte'],
+    ['Questions', 'chaque question et sa réponse attendue ; la rendre facultative, la retirer, corriger son texte'],
+    ['Dossier', 'le dossier documentaire, chaque document avec « Corriger ce texte » ; la version élève s\'imprime d\'avance'],
     ['Déroulement', 'l\'intention de chaque étape, ce qu\'elle fait travailler, quoi observer'],
     ['Mesures', 'ce que le site a mesuré, équipe par équipe'],
     ['Revoir le guide', 'en haut à droite : les bulles d\'aide reviennent']
@@ -58,12 +61,15 @@ function ficheDemarrer() {
 
 /* ------------------------------------------------------------ la grille d'observation */
 
-// Ce que l'enseignant·e doit pouvoir trouver seul·e : la liste du courriel d'essai, dans l'ordre d'une séance.
+// Ce que l'enseignant·e doit pouvoir trouver seul·e : les 18 fonctions du courriel d'essai, dans son ordre
+// (avant la séance, puis pendant et après).
 const FONCTIONS = [
-  'Créer une séance (et choisir sa durée)', 'Afficher le code ou le code QR au tableau', 'Envoyer un message à toute la classe',
-  'Ajouter 5 minutes, ou terminer une étape', 'Lire les réponses d\'une équipe', 'Saluer une réponse d\'un « bravo »',
-  'Changer les questions posées (Réglages)', 'Projeter le débrief, réponses attendues cachées', 'Imprimer le dossier élève d\'avance',
-  'Imprimer le rapport de séance', 'Effacer la séance'
+  'Choisir la durée de la séance', 'Rendre une question facultative, ou la retirer', 'Ajouter votre propre question',
+  'Corriger un chiffre ou un texte du jeu', 'Garder vos réglages pour les prochaines séances', 'Imprimer le dossier élève avant la séance',
+  'Explorer une séance de démonstration', 'Trouver les réponses attendues aux questions', 'Créer une séance et afficher son code',
+  'Rejoindre la séance comme équipe', 'Suivre une équipe et lire ses réponses', 'Envoyer un message à toute la classe',
+  'Mettre le chrono en pause, ajouter 5 minutes', 'Féliciter une équipe pour une bonne réponse', 'Animer le débrief en plein écran',
+  'Imprimer le rapport de séance', 'Effacer la séance', 'Retrouver une ancienne séance'
 ];
 const QUESTIONS_APRES = ['Qu\'avez-vous cherché sans le trouver ?', 'Qu\'est-ce qui vous a ralenti·e, ou surpris·e ?',
   'Qu\'est-ce qui a surpris les élèves ?', 'Referiez-vous ce jeu en classe ? Avec quels changements ?'];

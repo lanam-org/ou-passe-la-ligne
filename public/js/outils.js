@@ -54,10 +54,10 @@ export function messageErreur(e, defaut) {
   const code = String(e?.code || '');
   // une erreur de programmation (TypeError…) a un message technique en anglais : jamais à l'écran
   if (!code) return e?.name === 'Error' && e.message ? e.message : defaut;
-  if (/permission-denied|insufficient/.test(code)) return 'La base a refusé cette action : la séance est peut-être fermée, ou elle n’est pas à toi.';
-  if (/unavailable|network|deadline|offline/.test(code)) return 'Pas de connexion pour le moment. Vérifie le Wi-Fi, puis réessaie.';
+  if (/permission-denied|insufficient/.test(code)) return 'La base a refusé cette action : la séance est peut-être fermée, ou elle ne vous appartient pas.';
+  if (/unavailable|network|deadline|offline/.test(code)) return 'Pas de connexion pour le moment. Vérifiez le Wi-Fi, puis réessayez.';
   if (/not-found/.test(code)) return 'Cette séance n’existe plus : elle a peut-être été effacée.';
-  if (/quota|resource-exhausted|too-many/.test(code)) return 'Trop de demandes en même temps. Attends une minute, puis réessaie.';
+  if (/quota|resource-exhausted|too-many/.test(code)) return 'Trop de demandes en même temps. Attendez une minute, puis réessayez.';
   return defaut;
 }
 

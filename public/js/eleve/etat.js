@@ -16,7 +16,8 @@ export const etat = {
   code: null, idEq: null,   // la séance et l'équipe
   E: null,                  // la fiche de l'équipe, enregistrée à chaque geste
   S: null,                  // la séance : réglages, chrono, message, bravos, état
-  c: null, B: {}            // le contenu réglé pour la séance, et ses questions par identifiant
+  c: null, B: {},           // le contenu réglé pour la séance, et ses questions par identifiant
+  apercu: false             // l'aperçu de l'enseignant·e : ni séance ni équipe, rien n'est enregistré
 };
 
 /** Ce qui ne vit qu'à l'écran. lus : les documents ouverts avec « Lire ». */

@@ -69,7 +69,6 @@ export function vueDirect() {
   const nReq = ecrites.filter((q) => q.requise).length;
   return `<div class="p-tete">
       <h2 class="cache-visuel">En direct</h2>
-      <p class="retour"><button class="lien" data-retour="1">← Tes séances</button></p>
       <div class="tete-g">
         <section class="p-sect tete-code${ui.qrGrand ? ' tete-code--qr' : ''}">
           <div class="code-g">
@@ -86,15 +85,16 @@ export function vueDirect() {
             <button class="lien lien-copier" type="button" data-copier="${esc(lien)}">Copier</button>${donnees.mode === 'local'
             ? '<br><span class="hint">Démonstration : ce lien et ce code QR ne marchent que dans ce navigateur.</span>'
             : '<br><span class="hint">Le code QR mène au même lien : la caméra du Chromebook l\'ouvre, le code déjà rempli.</span>'}</p>
+          <p class="code-u"><button class="lien" type="button" data-apercu="seance">Voir comme une équipe (aperçu, rien n'est enregistré)</button></p>
         </section>
         <section class="p-sect tete-chrono">
           <p class="sur">Chrono de la classe${ch.pause ? ' <span class="badge badge--pause">en pause</span>' : ''}</p>
           <p class="chrono${ch.debut ? '' : ' chrono--attente'}" id="chrono"><span id="chrono-v">${chronoTexte(ch)}</span> <span>sur ${total} min prévues</span></p>
-          <p class="hint">${ch.debut ? 'Temps écoulé depuis le début, pauses retirées. ' : 'Démarre avec la première équipe. '}Prévu :
-            ${c.miseEnRoute.min} min de mise en route, puis ${etapesJeu.length} étapes ; ${ecrites.length} questions écrites
-            (${nReq} requises) et ${c.q.orales.length} à l'oral.</p>
+          <p class="hint">${ch.debut ? 'Temps écoulé depuis le début, pauses retirées.' : 'Démarre avec la première équipe.'}</p>
           <details class="chrono-detail" data-k="chrono-detail" ${ui.ouverts.has('chrono-detail') ? 'open' : ''}>
             <summary>Le détail, étape par étape</summary>
+            <p class="hint">${c.miseEnRoute.min} min de mise en route, puis ${etapesJeu.length} étapes ; ${ecrites.length} questions écrites
+              (${nReq} requises) et ${c.q.orales.length} à l'oral.</p>
             <ol>${etapesJeu.map((x) => `<li>${esc(x.t)} · ${x.min} min${nq(x.id) ? ` · ${nq(x.id)} question${nq(x.id) > 1 ? 's' : ''}` : ''}</li>`).join('')}</ol>
           </details>
           <div class="signaux">${!ch.debut ? '<button class="btn btn--f btn--s" data-chrono="demarrer">Démarrer maintenant</button>'
@@ -111,15 +111,17 @@ export function vueDirect() {
         ${Object.entries(SIGNAUX).map(([k, v]) => `<button class="btn btn--f" data-signal="${k}" aria-pressed="${sg?.type === k}">${esc(v.court)}</button>`).join('')}
         ${texteSignal(sg) ? '<button class="lien" data-signal="">Retirer le message</button>' : ''}
       </div>
+      <details class="msg-perso" data-k="msg-perso" ${ui.ouverts.has('msg-perso') ? 'open' : ''}><summary>Écrire votre propre message</summary>
       <form class="signal-perso" id="f-signal" autocomplete="off">
-        <label class="champ"><span>Ou votre propre message, sans prénom (${MAX_MESSAGE} caractères au plus)</span>
+        <label class="champ"><span>Votre message, sans prénom (${MAX_MESSAGE} caractères au plus)</span>
           <input name="texte" maxlength="${MAX_MESSAGE}" placeholder="Ex. : Relisez la consigne avant de continuer."></label>
         <button class="btn btn--f" type="submit">Envoyer</button>
-      </form>
+      </form></details>
     </section>
     <section class="p-sect">
       <div class="p-sect-h"><h3>Les équipes (${eq.length})</h3>
         <span class="hint">Temps dans l'étape / temps prévu · vert, puis ocre au-delà du prévu, rouge au-delà de 1,5 fois</span></div>
+      ${eq.length ? '<p class="hint eq-aide">Touchez une équipe pour lire ses réponses, et saluer une bonne réponse d\'un <b>✦ Bravo</b> : l\'équipe le voit tout de suite.</p>' : ''}
       ${classe ? `<div class="signaux duree-v"><span class="hint">La plupart des équipes : ${esc(classe.t)}, ${classe.min} min prévues.
           Les équipes voient le temps qui reste.</span>
         <button class="btn btn--f" data-minutes="${classe.id}" data-delta="5">+5 min</button>
@@ -133,14 +135,14 @@ export function vueDirect() {
           <span class="eq-e">${e.fini ? 'Partie terminée' : `Étape ${x.n} · ${esc(x.t)}`}</span>
           ${segments(e)}${puces(e)}</button>`;
       }).join('')}</div>`
-      : `<p class="vide">Aucune équipe pour l'instant. Affiche le code <b>${esc(code)}</b> au tableau.</p>`}
+      : `<p class="vide">Aucune équipe pour l'instant. Affichez le code <b>${esc(code)}</b> au tableau.</p>`}
     </section>
     ${sel ? vueDetail(sel) : ''}
     <section class="p-sect">
       <div class="p-sect-h"><h3>Fin de la séance</h3></div>
       <p class="hint">Imprimer : un rapport de la séance (la classe, le temps, chaque équipe et ses réponses), à garder
         sur papier ou en PDF. Fermer : plus aucune équipe ne peut entrer. Effacer : les équipes, leurs réponses et la
-        séance sont supprimées pour de bon — imprime d'abord.</p>
+        séance sont supprimées pour de bon — imprimez d'abord.</p>
       <div class="p-actions">
         <button class="btn" data-rapport="1" ${EQ.length ? '' : 'disabled'}>Imprimer le rapport de séance</button>
         ${S?.etat === 'ouverte' ? '<button class="btn btn--f" data-fermer="1">Fermer la séance</button>' : '<span class="hint">Séance fermée.</span>'}
