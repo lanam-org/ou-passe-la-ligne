@@ -13,8 +13,11 @@
 // échoue. Un double plus permissif laisserait passer en local un bogue qui ne
 // se verrait qu'en ligne, le jour de la séance.
 
-const CLE = 'forillon:base';
-const canal = 'BroadcastChannel' in window ? new BroadcastChannel('forillon') : null;
+// Chaque version du site (/playtest-1/, /dev/) garde ses propres séances de démonstration : deux versions ouvertes dans
+// le même navigateur ne se mélangent pas. L'adresse principale garde le nom d'origine : rien ne se perd.
+const dossierVersion = (location.pathname.match(/\/(dev|playtest-\d+)\/[^/]*$/) || [])[1];
+const CLE = dossierVersion ? `forillon:base:${dossierVersion}` : 'forillon:base';
+const canal = 'BroadcastChannel' in window ? new BroadcastChannel(dossierVersion ? `forillon:${dossierVersion}` : 'forillon') : null;
 const abonnes = new Map(); // chemin -> Set de fonctions
 
 function base() {

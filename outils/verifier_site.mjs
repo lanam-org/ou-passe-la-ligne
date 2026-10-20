@@ -144,6 +144,10 @@ dit(await prof.locator('.tete-code--qr').count() === 1 && await prof.getAttribut
 await capture(prof, '01b-code-qr-grand');
 await prof.click('[data-qr]');
 
+// la version du site, en bas de page (js/version.js) : « locale » sur l'ordinateur de travail, sans bande « en développement »
+dit((await prof.textContent('.pied-site [data-version]')) === 'Version locale' && !(await prof.locator('.bande-dev').count()),
+  'le pied de page dit la version du site (ici : locale)');
+
 // ---------------------------------------------------------------- une équipe rejoint
 const eleve = await page(ctxEleve, `/eleve.html?code=${code}`, 'équipe');
 await eleve.waitForSelector('#f-rejoindre');
@@ -876,7 +880,11 @@ if (MODE === 'local') {
   await hl.goto(B2 + '/eleve.html');
   await hl.evaluate(() => navigator.serviceWorker.ready.then(() => true));
   await hl.waitForFunction(() => !!navigator.serviceWorker.controller, null, { timeout: 8000 });
-  const gardes = await hl.evaluate(async () => (await (await caches.open('olp-dev')).keys()).length);
+  // la copie de cette version du site : « olp-<dossier>-<version> » (sw.js)
+  const gardes = await hl.evaluate(async () => {
+    const nom = (await caches.keys()).find((k) => k.startsWith('olp-/') && k.endsWith('-dev'));
+    return nom ? (await (await caches.open(nom)).keys()).length : 0;
+  });
   dit(gardes >= 24, `la première visite garde une copie du site (${gardes} fichiers)`);
   s2.closeAllConnections(); s2.close();
   await ctxHL.setOffline(true);

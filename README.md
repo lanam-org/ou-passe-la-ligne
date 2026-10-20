@@ -212,9 +212,46 @@ site : <https://lanam-org.github.io/ou-passe-la-ligne/>. Travailler dans un clon
 ZIP téléchargé : un dossier sans `.git` perd le lien avec GitHub (et le dossier caché `.github/`).
 
 Chaque envoi sur `main` lance `.github/workflows/publier.yml` : les quatre parcours de test et les
-contrastes tournent dans un vrai navigateur, et `public/` n'est mis en ligne que si tout passe.
-Sinon, la version d'avant reste en ligne et les captures d'écran sont jointes à l'exécution
-(onglet « Actions »). Réglage du dépôt, une seule fois : Settings → Pages → Source : « GitHub Actions ».
+contrastes tournent dans un vrai navigateur, et rien n'est mis en ligne si une vérification échoue
+(la version d'avant reste, les captures d'écran sont jointes à l'exécution, onglet « Actions »).
+Réglage du dépôt, une seule fois : Settings → Pages → Source : « GitHub Actions ».
+
+### Versions : ce que voient les testeurs ne bouge pas
+
+Le site en ligne porte toutes ses versions (`outils/assembler_versions.sh`) :
+
+| Adresse | Ce qu'elle montre |
+|---|---|
+| `…/ou-passe-la-ligne/` | la dernière version publiée (la plus haute étiquette `playtest-N`) : ce que voient les testeurs |
+| `…/ou-passe-la-ligne/playtest-0/` | chaque version publiée, figée pour toujours : le lien à donner pour un essai précis |
+| `…/ou-passe-la-ligne/dev/` | le travail en cours (`main`, après les tests), avec une bande « en cours de développement » |
+
+Un envoi sur `main` met à jour `…/dev/` seulement. La version s'affiche en bas de chaque page (`js/version.js`) :
+les testeurs la citent dans leurs retours. Chaque version garde ses propres séances de démonstration et sa propre
+copie hors ligne : deux versions ouvertes dans le même navigateur ne se mélangent pas.
+
+Publier une nouvelle version pour les testeurs :
+
+La version en préparation a son titre dans `VERSIONS.md` (« ## Playtest 1 — avec les professeurs · en préparation ») :
+`…/dev/` l'affiche dans sa bande et son pied de page. Quand elle est prête pour les testeurs :
+
+1. Dans `VERSIONS.md`, remplacer « en préparation » par la date, et l'envoyer sur `main`.
+2. Poser l'étiquette annotée sur ce commit (son message est le titre de la version), puis l'envoyer avec `main` :
+
+   ```
+   git tag -a playtest-1 -m "Playtest 1 — avec les professeurs"
+   git push origin main --follow-tags
+   ```
+
+   La mise en ligne place Playtest 1 à l'adresse principale et à `…/playtest-1/` ; Playtest 0 reste à `…/playtest-0/`.
+3. Ajouter dans `VERSIONS.md` le titre de la suivante (« ## Playtest 2 — … · en préparation »).
+
+Revenir en arrière : supprimer l'étiquette fautive (`git push --delete origin playtest-1`, puis `git tag -d playtest-1`)
+et relancer « Vérifier et publier » (onglet Actions → Run workflow) : l'adresse principale revient à la version d'avant.
+
+Une limite, le jour où Firebase sera branché : toutes les versions partagent la même base. Une version publiée doit
+rester compatible avec les règles Firestore en vigueur ; pour un changement de structure, prévoir un projet Firebase
+à part pour `…/dev/` (son propre `config.js`).
 
 Tant que `public/js/config.js` est vide, le site en ligne est en mode démonstration : chaque
 navigateur est sa propre classe. Parfait pour faire essayer le jeu ; pas pour une vraie classe,
@@ -266,6 +303,7 @@ On peut aussi tout héberger chez Firebase (`firebase deploy`).
 | `public/js/dossier.js` | La page du dossier élève |
 | `public/js/donnees.js` | La seule porte vers le stockage (Firestore ou local) |
 | `public/js/theme.js` | Le menu « Affichage » : clair, sombre, contraste élevé, comme l'ordinateur |
+| `public/js/version.js` | La version du site en bas de chaque page, et la bande de la version en développement (`…/dev/`) |
 | `public/js/local.js` | Le stockage local, pour la démonstration |
 | `public/js/config.js` | Le seul fichier à modifier pour passer en ligne |
 | `public/js/demo.js` | La séance de démonstration (mode local) |
@@ -279,6 +317,7 @@ On peut aussi tout héberger chez Firebase (`firebase deploy`).
 | `firestore.rules` | Les règles de sécurité de la base |
 | `outils/verifier_site.mjs` | Le test de bout en bout |
 | `outils/verifier_contrastes.py` | Les contrastes des trois affichages |
+| `outils/assembler_versions.sh`, `VERSIONS.md` | Le site publié avec toutes ses versions ; le journal des versions |
 | `outils/relecture_gespeg.mjs` | Le dossier de relecture pour la Nation Micmac de Gespeg (`outils/relecture/`, HTML et PDF) |
 
 ## Changer le contenu

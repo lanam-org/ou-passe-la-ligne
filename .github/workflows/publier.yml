@@ -2,10 +2,16 @@
 #
 # À chaque envoi sur « main » : le site est joué de bout en bout dans un vrai
 # navigateur (mode local, images, double de Firestore, collecte allumée), puis
-# les contrastes des trois affichages sont recalculés. Si tout passe, le dossier
-# public/ part sur GitHub Pages. Si une vérification échoue, rien n'est mis en
-# ligne : la version d'avant reste, et les captures d'écran sont jointes à
-# l'exécution (onglet « Actions »).
+# les contrastes des trois affichages sont recalculés. Si une vérification échoue,
+# rien n'est mis en ligne : la version d'avant reste, et les captures d'écran sont
+# jointes à l'exécution (onglet « Actions »).
+#
+# Si tout passe, le site part sur GitHub Pages avec toutes ses versions
+# (outils/assembler_versions.sh) : l'adresse principale montre la dernière version
+# publiée (la plus haute étiquette playtest-N), ce que voient les testeurs ; chaque
+# version reste figée à …/playtest-N/ ; main, le travail en cours, va à …/dev/.
+# Un envoi sur main ne change donc pas ce que voient les testeurs. Publier une
+# version : README, « Versions ».
 name: Vérifier et publier
 
 on:
@@ -62,29 +68,34 @@ jobs:
           path: outils/captures/
           retention-days: 7
 
-      - name: Numéroter la copie hors ligne (sw.js)
-        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
-        run: sed -i "s/const VERSION = 'dev';/const VERSION = '${GITHUB_SHA::7}';/" public/sw.js
-
-      - uses: actions/configure-pages@v5
-        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
-
-      - uses: actions/upload-pages-artifact@v4
-        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
-        with:
-          path: public
-
   publier:
-    name: Mettre en ligne
+    name: Mettre en ligne (toutes les versions)
     needs: verifier
     if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    concurrency:
+      group: pages-publication     # une mise en ligne à la fois
+      cancel-in-progress: false
     permissions:
+      contents: read
       pages: write
       id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deploiement.outputs.page_url }}
     steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0           # toutes les étiquettes playtest-N, pas seulement le dernier commit
+
+      - name: Assembler les versions (adresse principale, …/playtest-N/, …/dev/)
+        run: bash outils/assembler_versions.sh site
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: site
+
       - id: deploiement
         uses: actions/deploy-pages@v4

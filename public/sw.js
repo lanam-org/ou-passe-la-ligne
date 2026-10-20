@@ -10,11 +10,14 @@
 //     d'attente hors ligne (donnees.js) : les réponses partent au retour du réseau.
 //
 // Rien de personnel n'est gardé ici : seulement les fichiers publics du site.
-// VERSION est remplacée par le numéro du commit à chaque mise en ligne
-// (.github/workflows/publier.yml) : les anciennes copies sont alors effacées.
+// VERSION est remplacée à chaque mise en ligne (outils/assembler_versions.sh) : les anciennes copies sont alors effacées.
+//
+// Chaque version du site (l'adresse principale, /playtest-1/, /dev/) a son propre service worker et sa propre copie :
+// le nom de la copie porte le dossier de la version, et le ménage ne touche qu'aux copies de ce dossier.
 
 const VERSION = 'dev';
-const CACHE = `olp-${VERSION}`;
+const PORTEE = new URL(self.registration.scope).pathname;
+const CACHE = `olp-${PORTEE}-${VERSION}`;
 const EXTERNE = 'olp-externe';
 const DELAI = 3000;
 
@@ -29,7 +32,7 @@ const COQUILLE = [
   'polices/atkinson-hyperlegible-mono.woff2', 'polices/OFL.txt',
   'js/aide.js', 'js/carte.js', 'js/config.js', 'js/demo.js', 'js/donnees.js', 'js/dossier.js', 'js/dossierdoc.js',
   'js/eleve.js', 'js/enseignant.js', 'js/horsligne.js', 'js/imprimer.js', 'js/jeu.js', 'js/local.js', 'js/outils.js',
-  'js/reglages.js', 'js/seance.js', 'js/secours.js', 'js/theme.js',
+  'js/reglages.js', 'js/seance.js', 'js/secours.js', 'js/theme.js', 'js/version.js',
   'js/enseignant/accueil.js', 'js/enseignant/apres.js', 'js/enseignant/debrief.js', 'js/enseignant/direct.js',
   'js/enseignant/editeur.js', 'js/enseignant/etat.js', 'js/enseignant/preparer.js', 'js/enseignant/rapport.js',
   'js/enseignant/trousse.js',
@@ -50,7 +53,11 @@ self.addEventListener('install', (ev) => {
 
 self.addEventListener('activate', (ev) => {
   ev.waitUntil((async () => {
-    for (const k of await caches.keys()) if (k.startsWith('olp-') && k !== CACHE && k !== EXTERNE) await caches.delete(k);
+    // les anciennes copies de cette version du site, et celles d'avant les versions (un nom sans dossier)
+    for (const k of await caches.keys()) {
+      const deCeDossier = k.startsWith(`olp-${PORTEE}-`), ancienNom = k.startsWith('olp-') && !k.includes('/') && k !== EXTERNE;
+      if (k !== CACHE && (deCeDossier || ancienNom)) await caches.delete(k);
+    }
     await self.clients.claim();
   })());
 });

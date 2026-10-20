@@ -1005,6 +1005,10 @@ body[data-espace="prof"] .aide-b:focus-visible{outline-color:var(--prof-txt)}
   display:flex;flex-wrap:wrap;gap:6px 18px;font-size:14px;color:var(--doux);border-top:1px solid var(--trait)}
 .pied-site a{display:inline-block;padding:4px 0;color:var(--primaire);font-weight:600;text-underline-offset:3px}
 @media print{.pied-site,.evitement{display:none}}
+/* la version du site (js/version.js), à droite du pied ; la bande de la version en développement, en haut */
+.pied-site .version{margin-left:auto;padding:4px 0;font-variant-numeric:tabular-nums}
+.bande-dev{margin:0;padding:7px 16px;text-align:center;font-size:13.5px;line-height:1.45;background:#4A2470;color:#fff}
+@media print{.bande-dev{display:none}}
 
 /* js/secours.js : la page n'a pas pu démarrer, ou une action n'a pas abouti */
 .secours-demarrage{max-width:640px;margin:24px auto;padding:18px 20px;background:var(--surface);color:var(--encre);
