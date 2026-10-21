@@ -19,8 +19,11 @@ permissions:
 jobs:
   relancer:
     name: Relancer « Vérifier et publier » sur main
-    # « delete » arrive aussi pour une branche supprimée (après la fusion d'une PR) : rien à faire alors
-    if: github.event_name == 'push' || (github.event.ref_type == 'tag' && startsWith(github.event.ref, 'playtest-'))
+    # « delete » arrive aussi pour une branche supprimée (après la fusion d'une PR) : rien à faire alors.
+    # Une étiquette supprimée peut aussi arriver en « push » (deleted) : « delete » s'en charge, une seule relance.
+    if: >-
+      (github.event_name == 'push' && !github.event.deleted) ||
+      (github.event_name == 'delete' && github.event.ref_type == 'tag' && startsWith(github.event.ref, 'playtest-'))
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:

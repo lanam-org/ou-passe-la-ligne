@@ -10,7 +10,7 @@ Après la fusion, à `…/dev/` seulement : les testeurs ne voient rien avant la
 ## Avant de fusionner
 
 - [ ] « Vérifier le site » passe (lancé tout seul sur cette PR ; en local : `npm run verifier:tout`).
-- [ ] Un fichier ajouté à `public/` figure dans la liste `COQUILLE` de `public/sw.js`.
+- [ ] Un fichier ajouté à `public/` figure dans la liste `COQUILLE` de `public/sw.js` (sauf `contenu/guide.json` ; le test le vérifie).
 - [ ] `VERSIONS.md` : le changement est noté sous la version « en préparation ».
 - [ ] Aucune donnée personnelle : ni nom d'élève, ni courriel, ni chemin de l'ordinateur de travail.
 - [ ] L'espace enseignant·e dit « vous ».

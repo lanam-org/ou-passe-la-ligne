@@ -235,27 +235,41 @@ Publier une nouvelle version pour les testeurs :
 La version en préparation a son titre dans `VERSIONS.md` (« ## Playtest 1 — avec les professeurs · en préparation ») :
 `…/dev/` l'affiche dans sa bande et son pied de page. Quand elle est prête pour les testeurs :
 
-1. Dans `VERSIONS.md`, remplacer « en préparation » par la date, et le fusionner dans `main` (une PR, comme le reste).
-2. Poser l'étiquette annotée sur ce commit de `main` (son message est le titre de la version), puis l'envoyer :
+1. Dans `VERSIONS.md`, remplacer « en préparation » par la date, et ajouter le titre de la suivante
+   (« ## Playtest 2 — … · en préparation ») ; fusionner ce changement dans `main` par une PR, comme le reste.
+2. Poser l'étiquette annotée sur la tête de `main` (son message est le titre de la version), puis l'envoyer seule :
 
    ```
    git switch main
    git pull
+   git log -1 --oneline
    git tag -a playtest-1 -m "Playtest 1 — avec les professeurs"
    git push origin playtest-1
    ```
 
-   L'étiquette relance la mise en ligne (`.github/workflows/versions.yml`) : Playtest 1 à l'adresse principale et à
-   `…/playtest-1/` ; Playtest 0 reste à `…/playtest-0/`.
-3. Ajouter dans `VERSIONS.md` le titre de la suivante (« ## Playtest 2 — … · en préparation »).
+   `git log` montre le commit qui sera publié : le dernier fusionné dans `main`. L'étiquette relance la mise en ligne
+   (`.github/workflows/versions.yml`) : Playtest 1 à l'adresse principale et à `…/playtest-1/` ; Playtest 0 reste à
+   `…/playtest-0/`.
+3. Vérifier quelques minutes plus tard. Dans l'onglet Actions, « Vérifier et publier » (lancé par github-actions)
+   doit finir en vert, et le pied de page de l'adresse principale doit afficher « Version Playtest 1 — … » (recharger
+   la page ; l'ancienne copie peut rester visible une dizaine de minutes). Une relance qui échoue n'avertit personne :
+   si l'exécution est rouge, ou absente, la relancer à la main (Actions → « Vérifier et publier » → Run workflow).
 
-Revenir en arrière : supprimer l'étiquette fautive (`git push --delete origin playtest-1`, puis `git tag -d playtest-1`) :
-la mise en ligne repart d'elle-même, et l'adresse principale revient à la version d'avant. Si l'adresse principale n'a
-pas changé après une dizaine de minutes, relancer à la main : onglet Actions → « Vérifier et publier » → Run workflow.
+L'étiquette ne relance rien dans deux cas, où il faut relancer à la main : une étiquette posée sur un commit plus
+ancien que `versions.yml` (avant le 20 octobre 2026), et plus de trois étiquettes envoyées d'un coup (d'où une à la
+fois). Et tant que `main` est en échec, rien ne part, ni nouvelle version ni retour en arrière : la relance vérifie la
+tête de `main` avant de publier.
 
-### Travailler par PR : rien n'arrive sur `main` sans revue
+Revenir en arrière : supprimer l'étiquette fautive (`git push --delete origin playtest-1`, puis `git tag -d playtest-1`).
+La mise en ligne repart d'elle-même (vérifier comme à l'étape 3) : l'adresse principale revient à la version d'avant,
+et `…/playtest-1/` disparaît avec l'étiquette. Supprimer aussi l'étiquette sur chaque autre ordinateur qui a le dépôt
+(`git fetch --prune --prune-tags`) : sinon, un `git push --follow-tags` depuis là-bas la renverrait.
 
-Chaque changement passe par une branche et une demande de fusion (PR) vers `main` :
+### Travailler par PR : chaque changement est revu avant `main`
+
+C'est une règle de travail : GitHub ne l'impose pas tant que `main` n'est pas protégée (Settings → Rules → Rulesets :
+exiger une PR et la réussite de « Vérifier le site »). Chaque changement passe par une branche et une demande de
+fusion (PR) vers `main` :
 
 1. une branche par sujet (`git switch -c nom-du-sujet`), des commits, puis `git push -u origin nom-du-sujet` ;
 2. la PR s'ouvre avec sa liste de contrôle (`.github/pull_request_template.md`) ; « Vérifier le site » la joue de bout
