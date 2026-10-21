@@ -235,19 +235,34 @@ Publier une nouvelle version pour les testeurs :
 La version en préparation a son titre dans `VERSIONS.md` (« ## Playtest 1 — avec les professeurs · en préparation ») :
 `…/dev/` l'affiche dans sa bande et son pied de page. Quand elle est prête pour les testeurs :
 
-1. Dans `VERSIONS.md`, remplacer « en préparation » par la date, et l'envoyer sur `main`.
-2. Poser l'étiquette annotée sur ce commit (son message est le titre de la version), puis l'envoyer avec `main` :
+1. Dans `VERSIONS.md`, remplacer « en préparation » par la date, et le fusionner dans `main` (une PR, comme le reste).
+2. Poser l'étiquette annotée sur ce commit de `main` (son message est le titre de la version), puis l'envoyer :
 
    ```
+   git switch main
+   git pull
    git tag -a playtest-1 -m "Playtest 1 — avec les professeurs"
-   git push origin main --follow-tags
+   git push origin playtest-1
    ```
 
-   La mise en ligne place Playtest 1 à l'adresse principale et à `…/playtest-1/` ; Playtest 0 reste à `…/playtest-0/`.
+   L'étiquette relance la mise en ligne (`.github/workflows/versions.yml`) : Playtest 1 à l'adresse principale et à
+   `…/playtest-1/` ; Playtest 0 reste à `…/playtest-0/`.
 3. Ajouter dans `VERSIONS.md` le titre de la suivante (« ## Playtest 2 — … · en préparation »).
 
-Revenir en arrière : supprimer l'étiquette fautive (`git push --delete origin playtest-1`, puis `git tag -d playtest-1`)
-et relancer « Vérifier et publier » (onglet Actions → Run workflow) : l'adresse principale revient à la version d'avant.
+Revenir en arrière : supprimer l'étiquette fautive (`git push --delete origin playtest-1`, puis `git tag -d playtest-1`) :
+la mise en ligne repart d'elle-même, et l'adresse principale revient à la version d'avant. Si l'adresse principale n'a
+pas changé après une dizaine de minutes, relancer à la main : onglet Actions → « Vérifier et publier » → Run workflow.
+
+### Travailler par PR : rien n'arrive sur `main` sans revue
+
+Chaque changement passe par une branche et une demande de fusion (PR) vers `main` :
+
+1. une branche par sujet (`git switch -c nom-du-sujet`), des commits, puis `git push -u origin nom-du-sujet` ;
+2. la PR s'ouvre avec sa liste de contrôle (`.github/pull_request_template.md`) ; « Vérifier le site » la joue de bout
+   en bout, sans rien mettre en ligne ;
+3. un agent relecteur, lancé depuis Claude Code, publie sa revue en commentaire ; les points retenus sont corrigés
+   dans la même branche ;
+4. la fusion envoie `main` à `…/dev/`. Les testeurs ne voient rien avant la prochaine étiquette.
 
 Une limite, le jour où Firebase sera branché : toutes les versions partagent la même base. Une version publiée doit
 rester compatible avec les règles Firestore en vigueur ; pour un changement de structure, prévoir un projet Firebase

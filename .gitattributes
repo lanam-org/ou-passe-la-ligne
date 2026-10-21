@@ -1,0 +1,6 @@
+# Fins de ligne : LF partout (le site, et les scripts que GitHub Actions lance sur Linux), quel que soit
+# le réglage de l'ordinateur. Le lanceur Windows en CRLF : cmd.exe lit mal un .bat en LF (goto :fin).
+* text=auto eol=lf
+*.bat text eol=crlf
+*.png binary
+*.woff2 binary

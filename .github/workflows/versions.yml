@@ -1,0 +1,29 @@
+# Une étiquette de version posée (ou retirée) : remettre le site en ligne.
+#
+# L'adresse principale montre la plus haute étiquette playtest-N (outils/assembler_versions.sh). Poser
+# « playtest-1 », ou la supprimer pour revenir en arrière, doit donc relancer la mise en ligne, même sans
+# nouveau commit sur main. Elle ne peut pas partir d'ici : l'environnement github-pages n'accepte, par
+# défaut, que les mises en ligne lancées depuis main. Ce petit travail demande donc à « Vérifier et
+# publier » de repartir sur main (un lancement « workflow_dispatch », que le jeton d'Actions a le droit
+# de déclencher).
+name: Relancer la mise en ligne (étiquette de version)
+
+on:
+  push:
+    tags: ['playtest-*']
+  delete:
+
+permissions:
+  actions: write   # lancer « Vérifier et publier », rien d'autre
+
+jobs:
+  relancer:
+    name: Relancer « Vérifier et publier » sur main
+    # « delete » arrive aussi pour une branche supprimée (après la fusion d'une PR) : rien à faire alors
+    if: github.event_name == 'push' || (github.event.ref_type == 'tag' && startsWith(github.event.ref, 'playtest-'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - run: gh workflow run publier.yml --ref main --repo "$GITHUB_REPOSITORY"
+        env:
+          GH_TOKEN: ${{ github.token }}

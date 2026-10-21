@@ -11,7 +11,8 @@
 # publiée (la plus haute étiquette playtest-N), ce que voient les testeurs ; chaque
 # version reste figée à …/playtest-N/ ; main, le travail en cours, va à …/dev/.
 # Un envoi sur main ne change donc pas ce que voient les testeurs. Publier une
-# version : README, « Versions ».
+# version : README, « Versions ». Une étiquette posée ou retirée relance cette
+# mise en ligne sur main (versions.yml).
 name: Vérifier et publier
 
 on:
