@@ -35,7 +35,7 @@ export const googleEnseignant = true;
  *
  * Éteinte :
  *   · l'étape 8 « Ton avis » n'est pas proposée aux élèves ;
- *   · l'export CSV des mesures est désactivé dans l'espace enseignant·e.
+ *   · l'export CSV des mesures est désactivé dans l'espace enseignant.
  * Le suivi en direct, lui, reste : c'est un outil de classe, pas une collecte.
  *
  * Mettre `true` est une décision, pas un réglage : à prendre avec les papiers en main.

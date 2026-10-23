@@ -12,27 +12,38 @@
 <script src="js/theme.js"></script>
 <script src="js/version.js" defer></script>
 <script src="js/horsligne.js" defer></script>
-<title>Où passe la ligne — Forillon</title>
+<title>Où passe la ligne ? · Forillon</title>
 </head>
 <body>
 <a class="evitement" href="#contenu">Aller au contenu</a>
 <main class="accueil" id="contenu">
   <div class="accueil-h" data-theme-ici></div>
-  <h1>Où passe la ligne</h1>
-  <p class="lead">Qui a réellement le droit d'habiter sur un territoire protégé — et qui doit partir&nbsp;?
-    Une équipe trace la limite d'une aire protégée à Forillon, en 1970. Puis l'information arrive.</p>
+  <div class="accueil-une">
+    <div>
+      <h1>Où passe la ligne&nbsp;?</h1>
+      <p class="lead">Qui a réellement le droit d'habiter sur un territoire protégé, et qui doit partir&nbsp;?
+        Une équipe trace la limite d'une aire protégée à Forillon, en 1970. Puis l'information arrive.</p>
+    </div>
+    <!-- une grande image, pour des élèves de 12 à 14 ans ; l'image temporaire en attendant la vraie -->
+    <img class="accueil-img" src="images/temporaire.png" alt="" width="306" height="175">
+  </div>
   <div class="portes">
-    <a class="porte" href="eleve.html">
+    <!-- couleur et icône pour chaque porte (experte UI/UX) : le vert des équipes, plus vif ; l'enseignant·e, plus neutre -->
+    <a class="porte porte--eleve" href="eleve.html">
+      <svg class="porte-motif" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 19C5 11 11 5 20 5c0 9-6 15-14 15"/><path d="M5 19l8-8"/></svg>
+      <span class="porte-i"><svg class="" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M15 14.5c.6-.3 1.3-.5 2-.5 2.8 0 5 2.2 5 5"/></svg></span>
       <b>Je suis élève</b>
       <span>Entrer le code au tableau, choisir le nom de l'équipe, jouer.</span>
       <span class="aller">Rejoindre une séance →</span></a>
     <a class="porte porte--prof" href="enseignant.html">
+      <svg class="porte-motif" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M8 20l4-4 4 4M7 8h6M7 11h9"/></svg>
+      <span class="porte-i"><svg class="" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M8 20l4-4 4 4M7 8h6M7 11h9"/></svg></span>
       <b>Je suis enseignant·e</b>
-      <span>Créer une séance, suivre les équipes en direct, animer le débrief.</span>
-      <span class="aller">Ouvrir l'espace enseignant·e →</span></a>
+      <span>Créer une séance, suivre les équipes en direct, animer la rétroaction.</span>
+      <span class="aller">Ouvrir l'espace enseignant →</span></a>
   </div>
-  <p class="accueil-note">Aucun prénom demandé · données effacées au plus tard 30 jours après la séance</p>
 </main>
-<footer class="pied-site"><a href="confidentialite.html">Confidentialité et à propos</a><span>Prototype de recherche · ÉTS</span><span class="version" data-version></span></footer>
+<!-- ce qui rassure sur les données, à côté de « Confidentialité et à propos » : la même information, au même endroit -->
+<footer class="pied-site"><a href="confidentialite.html">Confidentialité et à propos</a><span>Aucun prénom demandé · données effacées au plus tard 30 jours après la séance</span><span>Prototype de recherche · ÉTS</span><span class="version" data-version></span></footer>
 </body>
 </html>

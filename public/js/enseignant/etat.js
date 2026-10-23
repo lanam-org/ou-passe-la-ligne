@@ -1,4 +1,4 @@
-// enseignant/etat.js — ce que partagent les écrans de l'espace enseignant·e.
+// enseignant/etat.js — ce que partagent les écrans de l'espace enseignant.
 //
 // Une seule source de vérité, l'objet `etat` : enseignant.js le modifie (une
 // séance s'ouvre, une équipe avance, les réglages changent) ; les écrans
@@ -61,7 +61,8 @@ export const seanceGardee = {
 
 /* ------------------------------------------------------------ petits outils communs */
 
-export const qid = (q) => (q.ajout ? 'ajout' : q.id);
+// « Q2.1 » à l'écran (Q pour question) ; l'identifiant enregistré reste « F2.1 » (réponses, guide, mesures)
+export const qid = (q) => (q.ajout ? 'ajout' : String(q.id).replace(/^F/, 'Q'));
 
 /** Comparer deux réglages sans dépendre de l'ordre des clés (Firestore les renvoie triées). */
 export const stable = (o) => JSON.stringify(o, (k, v) => (v && typeof v === 'object' && !Array.isArray(v)

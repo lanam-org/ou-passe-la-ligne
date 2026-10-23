@@ -1,4 +1,4 @@
-// enseignant.js — l'espace enseignant·e, séparé du jeu.
+// enseignant.js — l'espace enseignant, séparé du jeu.
 //
 // Créer une séance (un code à afficher), suivre les équipes en direct, envoyer
 // un message à toute la classe, animer le débrief, retrouver les questions et
@@ -33,15 +33,16 @@ import './enseignant/trousse.js';   // ses boutons [data-trousse] : il écoute l
 
 validationEnFrancais();
 
-// Huit onglets, dans l'ordre d'une séance : avant la classe (préparer), pendant, après.
+// Huit onglets, dans l'ordre d'une séance : préparer, animer, puis ce qui sert la recherche.
 // (Une séance s'ouvre sur « En direct » : c'est le moment où l'on en a besoin.)
-// Le titre de chaque groupe est écrit au-dessus de ses onglets (retours d'essai : en petit, à côté, il ne guidait pas).
-// Le groupe « Après » sert surtout la recherche (mesures, questionnaire) : il le dit.
+// Le titre de chaque groupe est écrit au-dessus de ses onglets (retours d'essai : en petit, à côté, il ne guidait pas),
+// en verbes plutôt qu'en « avant / pendant / après » (experte UI/UX), sans gras et suivi d'un deux-points : un titre,
+// pas un bouton. « Rétroaction » plutôt que « Débrief », qui sonnait comme « après » (retours d'essai).
 const ONGLETS = [
-  { g: 'Avant la classe', titre: 'Avant la classe : préparer', l: [{ id: 'reglages', t: 'Réglages' }, { id: 'questions', t: 'Questions' },
+  { g: 'Préparer', titre: 'Préparer la séance', l: [{ id: 'reglages', t: 'Réglages' }, { id: 'questions', t: 'Questions' },
     { id: 'dossier', t: 'Dossier' }, { id: 'deroulement', t: 'Déroulement' }] },
-  { g: 'Pendant la classe', titre: 'Pendant la classe', l: [{ id: 'direct', t: 'En direct' }, { id: 'debrief', t: 'Débrief' }] },
-  { g: 'Après · pour la recherche', titre: 'Après la classe, pour la recherche', replie: true,
+  { g: 'Animer', titre: 'Animer la séance', l: [{ id: 'direct', t: 'En direct' }, { id: 'debrief', t: 'Rétroaction' }] },
+  { g: 'Pour la recherche', titre: 'Pour la recherche', replie: true,
     l: [{ id: 'mesures', t: 'Mesures' }, { id: 'questionnaire', t: 'Questionnaire' }] }
 ];
 // « less is more » : un groupe replié (la recherche) ne montre que son titre, un bouton qui l'ouvre ; il s'ouvre seul
@@ -135,9 +136,9 @@ function rendre(force = false) {
   $('#onglets').innerHTML = '<button class="onglets-retour" data-retour="1">← Vos séances</button>'
     + ONGLETS.map((g) => `<div class="onglets-g" role="group" aria-label="${g.titre}">
     ${g.replie ? `<button class="onglets-t onglets-bascule" data-bascule-groupe aria-expanded="${groupeOuvert(g)}">${g.g} ${groupeOuvert(g) ? '▴' : '▾'}</button>`
-      : `<span class="onglets-t" aria-hidden="true">${g.g}</span>`}${groupeOuvert(g) ? g.l.map((x) =>
+      : `<span class="onglets-t" aria-hidden="true">${g.g}&nbsp;:</span>`}${groupeOuvert(g) ? g.l.map((x) =>
       `<button data-onglet="${x.id}" aria-current="${onglet === x.id ? 'page' : 'false'}">${x.t}</button>`).join('') : ''}</div>`).join('')
-    + `<label class="onglets-menu"><span class="cache-visuel">Section de l'espace enseignant·e</span>
+    + `<label class="onglets-menu"><span class="cache-visuel">Section de l'espace enseignant</span>
       <select data-onglet-menu>${ONGLETS.map((g) => `<optgroup label="${g.titre}">${g.l.map((x) =>
         `<option value="${x.id}" ${onglet === x.id ? 'selected' : ''}>${x.t}</option>`).join('')}</optgroup>`).join('')}</select></label>`;
   // un message en cours d'écriture survit au rafraîchissement (toutes les 5 s, et à chaque geste d'équipe)
@@ -288,8 +289,10 @@ document.addEventListener('click', async (ev) => {
   if (ev.target.closest('[data-qr]')) { ui.qrGrand = !ui.qrGrand; rendre(); $('[data-qr]')?.focus(); return; }
   const cp = ev.target.closest('[data-copier]');
   if (cp) {
-    try { await navigator.clipboard.writeText(cp.dataset.copier); cp.textContent = 'Copié ✓'; }
-    catch { cp.textContent = 'Sélectionnez le lien pour le copier'; }
+    // le bouton n'est qu'une icône : le mot remplace l'icône, et son nom lu change avec lui
+    const dire = (m) => { cp.textContent = m; cp.setAttribute('aria-label', m); };
+    try { await navigator.clipboard.writeText(cp.dataset.copier); dire('Copié ✓'); }
+    catch { dire('Clic droit sur « Lien direct », puis copier l’adresse'); }
     return;
   }
   const sg = ev.target.closest('[data-signal]');

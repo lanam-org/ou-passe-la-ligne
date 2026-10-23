@@ -56,7 +56,7 @@ function copie(item) {
     return `<blockquote>
       <p class="dd-q"${q.trad ? ' lang="en"' : ''}>« ${esc(q.q)} »</p>
       ${q.trad ? `<p class="dd-trad">Traduction libre : « ${esc(q.trad)} »</p>` : ''}
-      <p class="dd-cite">— ${esc(q.src)}${u ? ` · ${A(u)}${esc(domaine(u))}</a>` : ''}</p>
+      <p class="dd-cite">Source : ${esc(q.src)}${u ? ` · ${A(u)}${esc(domaine(u))}</a>` : ''}</p>
     </blockquote>`;
   }).join('')}</div>`;
 }
@@ -70,7 +70,7 @@ function article(c, item, o) {
     ${item.s ? `<p class="dd-s">${esc(item.s)}</p>` : ''}
     ${copie(item)}
     ${item.surprise && o.enseignant ? '<p class="dd-surprise">Surprise : absent du dossier élève.</p>' : ''}
-    ${o.corriger && cle ? `<p class="dd-corriger"><button class="lien" type="button" data-aller-reglage="c:${esc(cle)}">Corriger ce texte</button></p>` : ''}
+    ${o.corriger && cle ? `<p class="dd-corriger"><button class="lien" type="button" data-aller-reglage="c:${esc(cle)}">Mettre à jour ce texte</button></p>` : ''}
   </article>`;
 }
 
@@ -116,7 +116,7 @@ export function dossierHTML(c, { version = 'devoir', pastilles: avec = true, ens
   return `<div class="dossier">
     <header class="dd-tete">
       <p class="dd-sur">${complet ? 'Dossier complet · pour l\'enseignant·e' : 'Dossier élève · à lire avant la séance'}</p>
-      <h1>Où passe la ligne — dossier documentaire</h1>
+      <h1>Où passe la ligne&nbsp;? · dossier documentaire</h1>
       <p class="dd-question"><span>La question de départ</span> ${esc(c.question)}</p>
       <p class="dd-aide">${complet
         ? 'Tout ce que le jeu montre, dans l\'ordre des étapes. Les documents marqués « surprise » ne sont pas dans le dossier élève : ils servent à contredire ce que l\'équipe croyait.'

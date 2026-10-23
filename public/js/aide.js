@@ -2,7 +2,7 @@
 //
 // Une petite bulle à la fois, collée à ce qu'elle explique, quand cet élément
 // apparaît à l'écran pour la première fois. Pas de voile, rien de bloqué : on
-// peut jouer sans la lire. Un clic n'importe où, « OK » ou Échap la ferme pour
+// peut jouer sans la lire. Un clic n'importe où, la flèche « → » ou Échap la ferme pour
 // de bon ; « Arrêter l'aide » les coupe toutes. Le bouton « ? » en haut de la
 // page les ramène.
 //
@@ -29,7 +29,7 @@
       ['en-code', '#code-seance', 'Au tableau : les équipes l’entrent.'],
       ['en-equipe', '.eq[data-equipe]', 'Cliquez une équipe : ses réponses, et ✦ Bravo.'],
       ['en-signal', '[data-signal="temps"]', 'Un message sur l’écran de chaque équipe.'],
-      ['en-reglages', '[data-onglet="reglages"]', 'Durée, questions, textes à corriger : même en cours.'],
+      ['en-reglages', '[data-onglet="reglages"]', 'Durée, questions, informations à mettre à jour : même en cours.'],
       ['en-dossier', '[data-onglet="dossier"]', 'Le dossier documentaire, à imprimer.'],
       ['en-rapport', '[data-rapport]', 'Imprimez-le avant d’effacer la séance.']
     ],
@@ -80,15 +80,17 @@
       bulle.setAttribute('aria-modal', 'false');
       bulle.setAttribute('aria-live', 'polite');
       bulle.setAttribute('aria-label', 'Aide');
-      bulle.innerHTML = '<p class="aide-t"></p><div class="aide-a">'
-        + '<button type="button" class="aide-ok">OK</button>'
-        + '<button type="button" class="aide-stop">Arrêter l’aide</button></div>';
+      // pas de « OK » (conseil de l'experte UI/UX : un bouton dit ce qu'il fait) : une flèche, et où l'on en est
+      bulle.innerHTML = '<p class="aide-t"></p><div class="aide-a"><span class="aide-n"></span>'
+        + '<button type="button" class="aide-stop">Arrêter l’aide</button>'
+        + '<button type="button" class="aide-ok" aria-label="Bulle suivante" title="Suivante"><span aria-hidden="true">→</span></button></div>';
       bulle.querySelector('.aide-ok').addEventListener('click', function () { fermer(true); });
       bulle.querySelector('.aide-stop').addEventListener('click', function () { etat.off = true; garder(); fermer(true); });
       document.body.appendChild(bulle);
     }
     bulle.setAttribute('data-bulle', b[0]);
     bulle.querySelector('.aide-t').textContent = b[2];
+    bulle.querySelector('.aide-n').textContent = (liste.indexOf(b) + 1) + ' sur ' + liste.length;
     bulle.hidden = false;
     placer();
   }
@@ -119,11 +121,14 @@
     for (var i = 0; i < z.length; i++) {
       if (z[i].querySelector('[data-aide]')) continue;
       var bt = document.createElement('button');
-      // un vrai libellé : une bulle fermée par erreur (ou « Arrêter l'aide ») se retrouve ici
+      // le « ? » seul (une icône suffit, conseil de l'experte UI/UX) ; son nom en infobulle : une bulle fermée par
+      // erreur (ou « Arrêter l'aide ») se retrouve ici
       bt.type = 'button'; bt.className = 'aide-b';
-      bt.innerHTML = '<span aria-hidden="true">?</span><span class="aide-b-t">Revoir le guide</span>';
+      // « Guide de cette page », pas « Revoir » : on peut ne l'avoir jamais vu (experte UI/UX)
+      bt.innerHTML = '<span aria-hidden="true">?</span><span class="aide-b-t">Guide de cette page</span>';
       bt.setAttribute('data-aide', '');
-      bt.setAttribute('aria-label', 'Revoir le guide de cette page');
+      bt.setAttribute('aria-label', 'Guide de cette page');
+      bt.title = 'Guide de cette page';
       z[i].appendChild(bt);
     }
   }

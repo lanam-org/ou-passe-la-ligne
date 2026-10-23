@@ -35,7 +35,7 @@ export function rapportHTML() {
       const n = AV.map((a) => Number(a[q.id])).filter(Boolean);
       return `<tr><td>${esc(q.t)}</td><td>${n.length ? `${dec(moyenne(n))} / 4 (${n.length})` : ''}</td></tr>`;
     }).join('')}</tbody></table>` : '';
-  return `<header class="r-tete"><h1>Où passe la ligne — rapport de séance</h1>
+  return `<header class="r-tete"><h1>Où passe la ligne&nbsp;? · rapport de séance</h1>
       <p>Séance ${esc(code)} · ${esc(date)} · ${eq.length} équipe${eq.length > 1 ? 's' : ''} · ${esc(Rg.FORMATS[c.reglages.format]?.nom || '')}</p>
       <p class="r-note">Aucun prénom : chaque équipe porte un nom d'animal. Rapport imprimé le
         ${esc(new Date().toLocaleString('fr-CA', { dateStyle: 'long', timeStyle: 'short' }))}.</p></header>
@@ -64,7 +64,7 @@ export function rapportHTML() {
         <div class="r-eq-g"><div class="r-carte">${carte(c, e, { cliquable: false })
           // motifs renommés : les identifiants SVG doivent être uniques dans la page
           .replace(/id="m-/g, `id="r${k}-m-`).replace(/url\(#m-/g, `url(#r${k}-m-`)}</div>
-        <div><p><span class="r-k">Étape atteinte :</span> ${e.atteinte + 1} / ${etapesJeu.length}${e.fini ? ' — partie terminée' : ''}</p>
+        <div><p><span class="r-k">Étape atteinte :</span> ${e.atteinte + 1} / ${etapesJeu.length}${e.fini ? ' · partie terminée' : ''}</p>
           <p><span class="r-k">Villages à vider :</span> ${r.vides.length} / ${J.nbVillages(c)}${r.vides.length ? ` (${r.vides.map(esc).join(', ')})` : ''}</p>
           <p><span class="r-k">Villages gardés :</span> ${r.gardes.length}${r.gardes.length ? ` (${r.gardes.map(esc).join(', ')})` : ''}</p>
           <p><span class="r-k">Corridor :</span> ${r.corridor} · <span class="r-k">Zones :</span> ${new Set(Object.values(e.zones).filter(Boolean)).size}</p>

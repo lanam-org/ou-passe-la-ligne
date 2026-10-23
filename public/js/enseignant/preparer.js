@@ -3,7 +3,7 @@
 // (L'onglet « Réglages » a son propre fichier : editeur.js.)
 
 import { mesure } from '../config.js';
-import { esc } from '../outils.js';
+import { esc, icone } from '../outils.js';
 import * as Rg from '../reglages.js';
 import { dossierHTML } from '../dossierdoc.js';
 import { etat, ui, qid } from './etat.js';
@@ -30,7 +30,7 @@ function liensQuestion(q) {
   const changer = m === 'ecrite' ? (v === 'requise' ? 'Rendre facultative ou retirer' : v === 'facultative' ? 'Rendre requise ou retirer' : 'Poser cette question')
     : m === 'orale' ? (v === 'on' ? 'Retirer de la séance' : 'Poser à l\'oral') : '';
   return `<p class="bq-l">${changer ? `<button class="lien" data-aller-reglage="q:${esc(q.id)}">${changer}</button>` : ''}
-    <button class="lien" data-aller-reglage="c:banque|${esc(q.id)}">Corriger ce texte</button></p>`;
+    <button class="lien" data-aller-reglage="c:banque|${esc(q.id)}">Mettre à jour ce texte</button></p>`;
 }
 
 export function vueQuestions() {
@@ -52,7 +52,7 @@ export function vueQuestions() {
   const nReq = c.q.ecrites.filter((q) => q.requise).length;
   return `<div class="p-tete"><h2>Les questions</h2>
       <p>Dans cette séance (${esc(Rg.FORMATS[c.reglages.format]?.nom || '')}) : ${c.q.ecrites.length} questions écrites en équipe,
-        dont ${nReq} requises, et ${c.q.orales.length} à l'oral au débrief. Les autres restent dans la banque, pour une reprise.
+        dont ${nReq} requises, et ${c.q.orales.length} à l'oral, à la rétroaction. Les autres restent dans la banque, pour une reprise.
         Sous chaque question : la rendre facultative, la retirer ou la poser, et corriger son texte, même pendant la séance.</p></div>
     ${c.etapes.filter((x) => x.id !== 'avis').map((x) => {
       const l = c.banque.filter((q) => Rg.etapeQuestion(c, q) === x.id && !retiree(q));
@@ -72,10 +72,10 @@ export function vueDossier() {
   const lien = new URL(`dossier.html?code=${etat.code}`, location.href).href;
   return `<div class="p-tete"><h2>Le dossier documentaire</h2>
       <p>Tout ce que le jeu montre, avec la phrase exacte de chaque source, la date de sa vérification et son lien : si un lien
-        meurt, l'information reste dans le site. Un chiffre ou un texte à corriger : « Corriger ce texte », sous chaque élément.</p>
+        meurt, l'information reste dans le site. Un chiffre ou un texte à mettre à jour : « Mettre à jour ce texte », sous chaque élément.</p>
       <div class="p-actions">
-        <button class="btn" data-dossier-imprimer="complet">Imprimer le dossier complet</button>
-        <button class="btn btn--f" data-dossier-imprimer="devoir">Imprimer le dossier élève (sans les surprises)</button>
+        <button class="btn" data-dossier-imprimer="complet">${icone('imprimer')} Imprimer le dossier complet</button>
+        <button class="btn btn--f" data-dossier-imprimer="devoir">${icone('imprimer')} Imprimer le dossier élève (sans les surprises)</button>
         <label class="case-l dd-opt"><input type="checkbox" id="dd-pastilles" ${ui.pastilles ? 'checked' : ''}><span>Pastilles des questions</span></label>
       </div>
       <p class="hint" style="margin-top:10px">Dossier élève : le portrait du territoire et les documents à trier, à lire avant la séance.
@@ -97,7 +97,7 @@ export function vueDeroulement() {
         Ce que vit l'équipe, ce que ça fait travailler, et quoi observer. Rien de ceci n'apparaît chez les élèves.</p>
       ${c.coupure ? `<p class="hint">Deux périodes : coupure conseillée après « ${esc(c.etapes.find((x) => x.id === c.coupure).t)} ».
         À la période suivante, chaque équipe reprend sur le même Chromebook, avec le même code.</p>` : ''}
-      <div class="p-actions"><button class="btn btn--f" data-trousse="observation">Imprimer la grille d'observation</button></div></div>
+      <div class="p-actions"><button class="btn btn--f" data-trousse="observation">${icone('imprimer')} Imprimer la grille d'observation</button></div></div>
     <div class="etapes-p">
       <article class="etape-p"><header><span class="etape-n">0</span><div><h3>Mise en route</h3>
         <span class="hint">${c.miseEnRoute.min} min · par l'enseignant·e</span></div></header>

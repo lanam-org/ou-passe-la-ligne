@@ -1,6 +1,6 @@
 // demo.js — une séance de démonstration, déjà en cours.
 //
-// Pour montrer l'espace enseignant·e sans faire jouer quatre onglets : une
+// Pour montrer l'espace enseignant sans faire jouer quatre onglets : une
 // séance au format standard (50 minutes), ouverte depuis 40 minutes, avec quatre équipes
 // à des endroits différents du jeu.
 //   · Fou de Bassan : rapide, déjà au retour sur la démarche ;

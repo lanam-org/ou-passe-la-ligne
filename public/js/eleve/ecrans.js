@@ -4,12 +4,12 @@
 // Plus le gabarit de la page de jeu, et l'écran de fin.
 
 import * as donnees from '../donnees.js';
-import { $, esc, typo, GARDE, IMAGES } from '../outils.js';
+import { $, esc, typo, GARDE, IMAGES, IMAGE_TEMPORAIRE } from '../outils.js';
 import * as J from '../jeu.js';
 import * as Rg from '../reglages.js';
 import { carte, blocReleve, effetRecent } from '../carte.js';
 import { lienSource } from '../dossierdoc.js';
-import { aUnBravo } from '../seance.js';
+import { aUnBravo, EMOJIS_EQUIPES } from '../seance.js';
 import { etat, ui, avisActif, etapesVisibles } from './etat.js';
 import { blocQuestions, ok, R, PAS_FINI, questionsBravo } from './questions.js';
 
@@ -20,11 +20,13 @@ const blocEffet = () => ({ brut: `<div class="bloc bloc--effet">${effetRecent(et
 
 export const ECRANS = {
   arrivee: () => ({
-    guide: `Bienvenue sur la presqu'île. Ce que vous voyez est réel — le territoire, les chiffres,
+    guide: `Bienvenue sur la presqu'île. Ce que vous voyez est réel : le territoire, les chiffres,
       les documents. <b>La décision, elle, est la vôtre.</b> On vous demande de tracer la limite
       d'une aire protégée. Ça a l'air simple. Ça ne le restera pas.`,
     // la question tout de suite sous la garde-parc : c'est ce qu'il y a à faire ; le reste se lit après
-    h: `<p class="serif lead">En 1970, le gouvernement a tracé une ligne sur cette carte. À l'intérieur :
+    // une bannière de la presqu'île (experte UI/UX : plus de visuel dès l'arrivée) ; l'image temporaire en attendant
+    h: `${IMAGES ? '' : `<img class="banniere" src="${IMAGE_TEMPORAIRE}" alt="" width="306" height="175">`}
+        <p class="serif lead">En 1970, le gouvernement a tracé une ligne sur cette carte. À l'intérieur :
         un parc national. À l'extérieur : la vie qui continue.</p>
       ${blocQuestions('arrivee')}
       <p class="serif lead" style="margin-top:22px">Vous n'êtes pas des camps qui s'affrontent.
@@ -104,7 +106,7 @@ export const ECRANS = {
     const r = J.releve(c, E);
     return {
       guide: `À vous. <b>Choisissez une zone, puis touchez les secteurs.</b> Un vrai parc n'est pas
-        « protégé » d'un bloc : il est zoné. Il n'y a pas de bonne réponse — il y a ce que vous
+        « protégé » d'un bloc : il est zoné. Il n'y a pas de bonne réponse : il y a ce que vous
         protégez, qui peut venir, et qui peut rester.`,
       h: carte(c, E, { outil: ui.outil }) + blocQuestions('trace'),
       carnet: [blocEffet(), { t: 'Votre relevé', h: blocReleve(c, E) }],
@@ -128,7 +130,7 @@ export const ECRANS = {
         : (E.comps < n ? '' : 'Voilà les quatre. ') + neuf.quoi,
       h: (lus.length ? `<details class="fige"><summary><span class="sur">Déjà lus</span>
             <b>${lus.length > 1 ? `${MOTS[lus.length] || lus.length} points de vue` : esc(lus[0].t)}</b></summary><div class="corps-f">${lus.map((x) =>
-              `<p><b>${esc(x.t)}</b> — ${x.x}</p><p>${x.quoi}</p>`).join('')}</div></details>` : '')
+              `<p><b>${esc(x.t)}</b> : ${x.x}</p><p>${x.quoi}</p>`).join('')}</div></details>` : '')
         + (neuf ? '' : '<p class="hint" style="margin-bottom:12px">Touchez le bouton pour entendre le premier.</p>')
         + carte(c, E, { outil: ui.outil }) + blocQuestions('comp'),
       carnet: [...(neuf ? [{ brut: `<div class="comp${ui.compNeuf ? ' comp--neuf' : ''}"><p class="sur">${esc(neuf.sur)}</p>
@@ -150,7 +152,7 @@ export const ECRANS = {
     const bloc = (b) => `<h3 class="sous">${esc(b.t)}</h3>${paires(b.paires)}
       <p class="serif texte">${esc(b.texte)}</p><p class="avert">${esc(b.src)}</p>`;
     return {
-      guide: `Je ne vais pas vous dire si c'est bien. Je vais vous dire ce que ça fait — <b>et ce que la vraie ligne a fait.</b>`,
+      guide: `Je ne vais pas vous dire si c'est bien. Je vais vous dire ce que ça fait, <b>et ce que la vraie ligne a fait.</b>`,
       h: `<h3 class="sous" style="margin-top:0;padding-top:0;border:0">Votre ligne</h3>
         ${paires([[`${r.dans} / ${r.total}`, 'secteurs dans la ligne'], [`${r.vides.length} / ${nv}`, 'villages à vider'],
           [String(r.gardes.length), r.gardes.length > 1 ? 'villages gardés dans le parc' : 'village gardé dans le parc'], [r.corridor, 'le corridor écologique']])}
@@ -177,12 +179,12 @@ export const ECRANS = {
       h: `${orales.length ? `<h3 class="sous" style="margin-top:0;padding-top:0;border:0">Les questions, en classe entière</h3>
         <ol class="qlist">${orales.map((q) => `<li>${esc(q.eleve)}</li>`).join('')}</ol>` : ''}
         ${blocQuestions('debrief')}
-        <details class="d-sources"><summary>Ce que votre équipe a écrit <span class="hint">— pour en parler</span></summary>
+        <details class="d-sources"><summary>Ce que votre équipe a écrit <span class="hint">(pour en parler)</span></summary>
           <dl class="vos-rep">${ecrites.map((q) => `<dt>${esc(q.eleve)}</dt><dd>${esc(E.reponses[q.id])}${
             aUnBravo(S, idEq, q.id) ? ' <span class="vos-bravo">✦ bravo de votre enseignant·e</span>' : ''}</dd>`).join('')}</dl>
         </details>
-        <details class="d-sources" id="d-sources"><summary>D'où viennent les chiffres <span class="hint">— chaque source</span></summary>
-          ${c.sources.map((s) => `<p class="src"><b>${esc(s.t)}</b> — ${esc(s.x)}</p>`).join('')}
+        <details class="d-sources" id="d-sources"><summary>D'où viennent les chiffres <span class="hint">(chaque source)</span></summary>
+          ${c.sources.map((s) => `<p class="src"><b>${esc(s.t)}</b> : ${esc(s.x)}</p>`).join('')}
         </details>`,
       btn: avis ? 'Donner mon avis' : 'Terminer la partie', peut: pret,
       hint: pret ? '' : restent ? 'Une question d\'une étape précédente attend votre réponse.' : PAS_FINI
@@ -207,7 +209,7 @@ export const ECRANS = {
             data-val="${esc(x)}" aria-pressed="${ui.avis[q.id] === x}">${esc(x)}</button>`).join('')}</div>`
         : `<textarea data-avis-t="${q.id}" rows="2" maxlength="300" placeholder="Une phrase suffit.">${esc(ui.avis[q.id] || '')}</textarea>`}
         </fieldset>`).join('')}</div>`,
-      btn: 'Envoyer mon avis', fleche: false, peut: true, hint: `${faites} sur ${c.avis.length} — tu peux en laisser vides.`
+      btn: 'Envoyer mon avis', fleche: false, peut: true, hint: `${faites} sur ${c.avis.length}. Tu peux en laisser vides.`
     };
   }
 };
@@ -240,6 +242,7 @@ export function rendreFin() {
   const ecrites = J.questionsEcrites(c).filter((q) => R(q.id));
   const bravos = questionsBravo();
   $('#app').innerHTML = typo(`<section class="scene fin"><div class="scene-c merci">
+    <p class="merci-e" aria-hidden="true">${EMOJIS_EQUIPES[E.nom] || ''}</p>
     <p class="merci-t">Partie terminée</p>
     <p>Merci, équipe ${esc(E.nom)}. ${donnees.mode === 'local'
       ? 'Votre ligne et vos réponses sont gardées dans ce navigateur.'
@@ -247,7 +250,7 @@ export function rendreFin() {
     <div class="p-actions fin-actions"><button class="btn btn--f" type="button" data-imprimer-fin>Imprimer ou enregistrer en PDF</button></div>
     </div></section>
     <section class="scene recap"><div class="scene-c">
-      <h2>Votre partie</h2>
+      <h2><span class="nom-e" aria-hidden="true">${EMOJIS_EQUIPES[E.nom] || ''}</span> Votre partie, équipe ${esc(E.nom)}</h2>
       <div class="recap-g"><div>${carte(c, E, { cliquable: false })}</div><div>${blocReleve(c, E, true)}</div></div>
       ${bravos.length || E.mentions.length ? `<h3 class="sous">Ce que vous avez fait de bien</h3><div class="mentions">${
         bravos.map((q) => `<div class="mention mention--ens"><span class="mention-i" aria-hidden="true">✦</span>

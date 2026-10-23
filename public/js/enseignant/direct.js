@@ -1,8 +1,7 @@
 // enseignant/direct.js — l'onglet « En direct » : le code, le chrono, le message
 // à la classe, chaque équipe et le détail de ses réponses.
 
-import * as donnees from '../donnees.js';
-import { esc } from '../outils.js';
+import { esc, icone } from '../outils.js';
 import * as J from '../jeu.js';
 import * as Rg from '../reglages.js';
 import { carte, blocReleve } from '../carte.js';
@@ -55,6 +54,26 @@ function puces(e) {
   return `<div class="puces">${p.map((x) => `<span class="puce">${esc(x)}</span>`).join('')}</div>`;
 }
 
+/**
+ * Le chrono en lecteur, comme une application de musique (conseil de l'experte UI/UX) : un gros bouton
+ * démarrer / pause au centre ; autour, −5 et +5 minutes à l'étape de la plupart des équipes, la remise à zéro et
+ * « terminer l'étape ». Des icônes : chaque bouton garde son nom (aria-label) et une infobulle.
+ */
+function lecteur(ch, classe) {
+  const b = (attrs, nom, contenu, cls = '') => `<button class="lecteur-b${cls}" type="button" ${attrs} aria-label="${esc(nom)}" title="${esc(nom)}">${contenu}</button>`;
+  const grand = !ch.debut ? b('data-chrono="demarrer"', 'Démarrer le chrono maintenant', icone('jouer'), ' lecteur-b--g')
+    : ch.pause ? b('data-chrono="reprendre"', 'Reprendre le chrono', icone('jouer'), ' lecteur-b--g')
+      : b('data-chrono="pause"', 'Mettre le chrono en pause', icone('pause'), ' lecteur-b--g');
+  const etape = classe ? `l'étape « ${classe.t} »` : '';
+  return `<div class="lecteur">
+    ${ch.debut ? b('data-chrono="zero"', 'Remettre le chrono à zéro', icone('zero')) : ''}
+    ${classe ? b(`data-minutes="${classe.id}" data-delta="-5" ${classe.min <= 1 ? 'disabled' : ''}`, `Enlever 5 minutes à ${etape}`, '<span aria-hidden="true">−5</span>') : ''}
+    ${grand}
+    ${classe ? b(`data-minutes="${classe.id}" data-delta="5"`, `Ajouter 5 minutes à ${etape}`, '<span aria-hidden="true">+5</span>') : ''}
+    ${classe ? b(`data-terminer="${classe.id}"`, `Terminer ${etape} maintenant : les équipes voient « Temps prévu dépassé »`, icone('fin')) : ''}
+  </div>`;
+}
+
 export function vueDirect() {
   const { c, S, EQ, code, choisie, ecrites, etapesJeu } = etat;
   const ch = chronoDe();
@@ -66,7 +85,6 @@ export function vueDirect() {
   const lien = lienEleve();
   // ce que prévoit la séance, en clair : les minutes ET les questions de chaque étape
   const nq = (id) => ecrites.filter((q) => q.etape === id).length + (id === 'debrief' ? c.q.orales.length : 0);
-  const nReq = ecrites.filter((q) => q.requise).length;
   return `<div class="p-tete">
       <h2 class="cache-visuel">En direct</h2>
       <div class="tete-g">
@@ -81,53 +99,43 @@ export function vueDirect() {
               <button class="lien" type="button" data-qr aria-pressed="${!!ui.qrGrand}">${ui.qrGrand ? 'Réduire le code QR' : 'Agrandir le code QR'}</button>
             </div>
           </div>
-          <p class="code-u">Lien direct : <a href="${esc(lien)}" target="_blank" rel="noopener">${esc(lien)}</a>
-            <button class="lien lien-copier" type="button" data-copier="${esc(lien)}">Copier</button>${donnees.mode === 'local'
-            ? '<br><span class="hint">Démonstration : ce lien et ce code QR ne marchent que dans ce navigateur.</span>'
-            : '<br><span class="hint">Le code QR mène au même lien : la caméra du Chromebook l\'ouvre, le code déjà rempli.</span>'}</p>
-          <p class="code-u"><button class="lien" type="button" data-apercu="seance">Voir comme une équipe (aperçu, rien n'est enregistré)</button></p>
+          <p class="code-u code-liens"><a class="lien-direct" href="${esc(lien)}" target="_blank" rel="noopener"
+              title="${esc(lien)}">${icone('lien')} Lien direct</a>
+            <button class="lien lien-copier" type="button" data-copier="${esc(lien)}" aria-label="Copier le lien direct"
+              title="Copier le lien">${icone('copier')}</button>
+            <button class="lien" type="button" data-apercu="seance">${icone('oeil')} Voir comme une équipe</button></p>
         </section>
         <section class="p-sect tete-chrono">
-          <p class="sur">Chrono de la classe${ch.pause ? ' <span class="badge badge--pause">en pause</span>' : ''}</p>
-          <p class="chrono${ch.debut ? '' : ' chrono--attente'}" id="chrono"><span id="chrono-v">${chronoTexte(ch)}</span> <span>sur ${total} min prévues</span></p>
-          <p class="hint">${ch.debut ? 'Temps écoulé depuis le début, pauses retirées.' : 'Démarre avec la première équipe.'}</p>
+          <p class="sur">${icone('horloge')} Chrono de la classe${ch.pause ? ' <span class="badge badge--pause">en pause</span>' : ''}</p>
+          <p class="chrono${ch.debut ? '' : ' chrono--attente'}" id="chrono"><span id="chrono-v">${chronoTexte(ch)}</span> <span>sur ${total} min</span></p>
+          ${lecteur(ch, classe)}
+          <p class="lecteur-l">${classe ? `Étape de la plupart des équipes : <b>${esc(classe.t)}</b>, <span class="temps">${classe.min} min</span>`
+            : ch.debut ? '' : 'Le chrono part avec la première équipe.'}</p>
           <details class="chrono-detail" data-k="chrono-detail" ${ui.ouverts.has('chrono-detail') ? 'open' : ''}>
             <summary>Le détail, étape par étape</summary>
-            <p class="hint">${c.miseEnRoute.min} min de mise en route, puis ${etapesJeu.length} étapes ; ${ecrites.length} questions écrites
-              (${nReq} requises) et ${c.q.orales.length} à l'oral.</p>
-            <ol>${etapesJeu.map((x) => `<li>${esc(x.t)} · ${x.min} min${nq(x.id) ? ` · ${nq(x.id)} question${nq(x.id) > 1 ? 's' : ''}` : ''}</li>`).join('')}</ol>
+            <ol>${etapesJeu.map((x) => `<li>${esc(x.t)} · <span class="temps">${x.min} min</span>${nq(x.id) ? ` · ${nq(x.id)} question${nq(x.id) > 1 ? 's' : ''}` : ''}</li>`).join('')}</ol>
           </details>
-          <div class="signaux">${!ch.debut ? '<button class="btn btn--f btn--s" data-chrono="demarrer">Démarrer maintenant</button>'
-            : ch.pause ? '<button class="btn btn--s" data-chrono="reprendre">Reprendre</button>'
-              : '<button class="btn btn--f btn--s" data-chrono="pause">Pause</button>'}
-            ${ch.debut ? '<button class="btn btn--f btn--s" data-chrono="zero">Remettre à zéro</button>' : ''}</div>
         </section>
       </div>
     </div>
     <section class="p-sect">
-      <div class="p-sect-h"><h3>Message à toute la classe</h3>
+      <div class="p-sect-h"><h3>${icone('bulle')} Message à toute la classe</h3>
         <span class="hint">${texteSignal(sg) ? `Affiché : « ${esc(texteSignal(sg))} »` : 'Aucun message affiché.'}</span></div>
       <div class="signaux">
-        ${Object.entries(SIGNAUX).map(([k, v]) => `<button class="btn btn--f" data-signal="${k}" aria-pressed="${sg?.type === k}">${esc(v.court)}</button>`).join('')}
+        ${Object.entries(SIGNAUX).map(([k, v]) => `<button class="btn btn--f bulle-b" data-signal="${k}" aria-pressed="${sg?.type === k}">${esc(v.court)}</button>`).join('')}
         ${texteSignal(sg) ? '<button class="lien" data-signal="">Retirer le message</button>' : ''}
       </div>
       <details class="msg-perso" data-k="msg-perso" ${ui.ouverts.has('msg-perso') ? 'open' : ''}><summary>Écrire votre propre message</summary>
       <form class="signal-perso" id="f-signal" autocomplete="off">
         <label class="champ"><span>Votre message, sans prénom (${MAX_MESSAGE} caractères au plus)</span>
           <input name="texte" maxlength="${MAX_MESSAGE}" placeholder="Ex. : Relisez la consigne avant de continuer."></label>
-        <button class="btn btn--f" type="submit">Envoyer</button>
+        <button class="btn btn--f btn-ic" type="submit" title="Envoyer">${icone('envoyer')}<span class="cache-visuel">Envoyer</span></button>
       </form></details>
     </section>
     <section class="p-sect">
       <div class="p-sect-h"><h3>Les équipes (${eq.length})</h3>
         <span class="hint">Temps dans l'étape / temps prévu · vert, puis ocre au-delà du prévu, rouge au-delà de 1,5 fois</span></div>
       ${eq.length ? '<p class="hint eq-aide">Touchez une équipe pour lire ses réponses, et saluer une bonne réponse d\'un <b>✦ Bravo</b> : l\'équipe le voit tout de suite.</p>' : ''}
-      ${classe ? `<div class="signaux duree-v"><span class="hint">La plupart des équipes : ${esc(classe.t)}, ${classe.min} min prévues.
-          Les équipes voient le temps qui reste.</span>
-        <button class="btn btn--f" data-minutes="${classe.id}" data-delta="5">+5 min</button>
-        <button class="btn btn--f" data-minutes="${classe.id}" data-delta="-5" ${classe.min <= 1 ? 'disabled' : ''}>−5 min</button>
-        <button class="btn btn--f" data-terminer="${classe.id}"
-          title="Le temps prévu de l'étape s'arrête maintenant : les équipes voient « Temps prévu dépassé ».">Terminer l'étape maintenant</button></div>` : ''}
       ${eq.length ? `<div class="equipes">${eq.map((e) => {
         const t = etatTemps(e), x = etapeDe(e);
         return `<button class="eq" data-equipe="${esc(e.id)}" aria-pressed="${e.id === choisie}">
@@ -140,11 +148,9 @@ export function vueDirect() {
     ${sel ? vueDetail(sel) : ''}
     <section class="p-sect">
       <div class="p-sect-h"><h3>Fin de la séance</h3></div>
-      <p class="hint">Imprimer : un rapport de la séance (la classe, le temps, chaque équipe et ses réponses), à garder
-        sur papier ou en PDF. Fermer : plus aucune équipe ne peut entrer. Effacer : les équipes, leurs réponses et la
-        séance sont supprimées pour de bon — imprimez d'abord.</p>
+      <p class="hint">Fermer : plus aucune équipe n'entre. Effacer : tout est supprimé pour de bon ; imprimez le rapport avant.</p>
       <div class="p-actions">
-        <button class="btn" data-rapport="1" ${EQ.length ? '' : 'disabled'}>Imprimer le rapport de séance</button>
+        <button class="btn" data-rapport="1" ${EQ.length ? '' : 'disabled'}>${icone('imprimer')} Imprimer le rapport de séance</button>
         ${S?.etat === 'ouverte' ? '<button class="btn btn--f" data-fermer="1">Fermer la séance</button>' : '<span class="hint">Séance fermée.</span>'}
         ${ui.effacer
           ? '<button class="btn btn--danger" data-effacer="oui">Oui, tout effacer</button><button class="btn btn--f" data-effacer="non">Annuler</button>'

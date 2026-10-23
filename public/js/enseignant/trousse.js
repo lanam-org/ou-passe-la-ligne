@@ -23,7 +23,7 @@ const contenuActuel = () => (etat.code ? etat.c : Rg.appliquer(base, ui.maVersio
 function ficheDemarrer() {
   const formats = Object.values(Rg.FORMATS).map((f) => f.nom).join(', ');
   const pas = [
-    ['Créer la séance', `Ouvrir l'espace enseignant·e (${esc(adresse('enseignant.html'))}), choisir la durée (${esc(formats)}),
+    ['Créer la séance', `Ouvrir l'espace enseignant (${esc(adresse('enseignant.html'))}), choisir la durée (${esc(formats)}),
       puis « Créer la séance ». Un format prêt suffit pour une première séance. Pour l'adapter ensuite (rendre une question
       facultative ou la retirer, corriger un chiffre ou un texte) : « Réglages avancés », dans l'onglet « Réglages », même
       pendant la séance, ou les liens sous chaque question (onglet « Questions ») et chaque document (onglet « Dossier »).
@@ -34,7 +34,7 @@ function ficheDemarrer() {
     ['Suivre la classe', `« En direct » : le chrono démarre avec la première équipe. « Message à toute la classe » pour
       un rappel ; « +5 min » ou « Terminer l'étape maintenant » pour le temps. Toucher une équipe pour lire ses réponses,
       et « ✦ Bravo » pour en saluer une : l'équipe le voit tout de suite.`],
-    ['Animer le débrief', `L'onglet « Débrief », à projeter : les lignes tracées par les équipes, les questions orales et ce
+    ['Animer la rétroaction', `L'onglet « Rétroaction », à projeter : les lignes tracées par les équipes, les questions orales et ce
       que les équipes ont écrit. « Cacher les réponses attendues » avant de projeter ; « Plein écran ».`],
     ['Garder une trace, puis effacer', `« Imprimer le rapport de séance » (ou « Enregistrer au format PDF » dans la fenêtre
       d'impression), puis « Effacer la séance et ses données ». Sans action, la séance s'efface seule
@@ -44,12 +44,12 @@ function ficheDemarrer() {
     ['Vos séances', 'au début de la barre d\'onglets : retrouver une ancienne séance, en créer une autre'],
     ['Réglages', 'la durée ; puis, dans « Réglages avancés » : chaque question, vos questions, corriger un chiffre ou un texte'],
     ['Questions', 'chaque question et sa réponse attendue ; la rendre facultative, la retirer, corriger son texte'],
-    ['Dossier', 'le dossier documentaire, chaque document avec « Corriger ce texte » ; la version élève s\'imprime d\'avance'],
+    ['Dossier', 'le dossier documentaire, chaque document avec « Mettre à jour ce texte » ; la version élève s\'imprime d\'avance'],
     ['Déroulement', 'l\'intention de chaque étape, ce qu\'elle fait travailler, quoi observer'],
     ['Mesures', 'ce que le site a mesuré, équipe par équipe'],
     ['Revoir le guide', 'en haut à droite : les bulles d\'aide reviennent']
   ];
-  return `<h1>Où passe la ligne — démarrer en 5 minutes</h1>
+  return `<h1>Où passe la ligne&nbsp;? · démarrer en 5 minutes</h1>
     <p class="r-note">Un jeu de géographie en équipe : tracer la limite d'une aire protégée à Forillon, en 1970, puis voir
       l'information arriver. Une équipe de deux ou trois élèves par Chromebook.</p>
     ${donnees.mode === 'local' ? `<p class="r-note"><b>Version de démonstration</b> : la séance n'existe que dans ce navigateur.
@@ -83,7 +83,7 @@ function grilleObservation() {
       <br><span class="r-note">${min} min prévues</span></th>` : ''}<td>${esc(y)}</td>${trois}</tr>`).join('')
     + '<tr class="t-notes"><td colspan="4"><span class="r-note">Notes</span></td></tr>';
   const parSource = (src) => src.split(/\s*\+\s*/).map((s) => MESURE_PAR[s] || s).join(' et ');
-  return `<h1>Où passe la ligne — grille d'observation</h1>
+  return `<h1>Où passe la ligne&nbsp;? · grille d'observation</h1>
     <div class="t-champs"><span>Séance :</span><span>Date :</span><span>Observateur·rice :</span><span>Format : ${esc(Rg.FORMATS[c.reglages.format]?.nom || '')}</span>
       <span class="t-large">Équipes observées (noms d'animaux) :</span></div>
     <p class="r-note">Aucun prénom d'élève sur cette grille : les équipes portent un nom d'animal. Cochez « Pas vu » quand

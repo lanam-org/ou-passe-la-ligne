@@ -7,13 +7,15 @@
 
 import * as donnees from '../donnees.js';
 import { mesure } from '../config.js';
-import { $, esc, typo, telecharger } from '../outils.js';
+import { $, esc, typo, telecharger, icone } from '../outils.js';
 import * as Rg from '../reglages.js';
 import { enregistrerMaVersion, reglerSeance, ouvrirApercu } from '../seance.js';
-import { base, etat, ui, page, configSeance } from './etat.js';
+import { base, etat, ui, page, configSeance, qid } from './etat.js';
 
 const MAX_AJOUTS = 12;
 const ETATS_ECRITE = [['requise', 'Requise'], ['facultative', 'Facultative'], ['off', 'Retirée']];
+// le symbole de chaque état, repris dans la légende (experte UI/UX : une légende courte, en couleur ET en icône)
+const SYMBOLE = { requise: '●', facultative: '○', off: '⊘', on: '●' };
 const ETATS_ORALE = [['on', 'À l\'oral, en classe'], ['off', 'Retirée']];
 
 /** L'identifiant HTML de la ligne d'une question (« F2.1 » → « F2_1 ») : pour y mener depuis l'onglet Questions. */
@@ -68,7 +70,7 @@ function modifie() {
   const nc = $('#n-corr');
   if (nc) { const n = Object.keys(ui.ed.r.corrections).length; nc.textContent = `${n} correction${n > 1 ? 's' : ''}`; }
   const t = $('#total-min');
-  if (t) { const cc = Rg.appliquer(base, ui.ed.r); t.textContent = `Total : ${cc.miseEnRoute.min + Rg.totalPrevu(cc)} min`; }
+  if (t) { const cc = Rg.appliquer(base, ui.ed.r); t.textContent = `${cc.miseEnRoute.min + Rg.totalPrevu(cc)} min`; }
 }
 
 export function vueReglages() {
@@ -95,11 +97,11 @@ function editeur() {
   const ouvert = (k) => (ui.ouverts.has(k) ? 'open' : '');
   // les choix d'une question, tous visibles (pas un menu déroulant) et nommés par le texte de la question
   const choix = (q, liste, v) => `<div class="rg-choix" role="radiogroup" aria-labelledby="rg-t-${idQuestion(q.id)}">${liste.map(([k, t]) =>
-    `<label><input type="radio" name="etatq-${esc(q.id)}" value="${k}" data-etatq="${esc(q.id)}" ${v === k ? 'checked' : ''}><span>${esc(t)}</span></label>`).join('')}</div>`;
+    `<label><input type="radio" name="etatq-${esc(q.id)}" value="${k}" data-etatq="${esc(q.id)}" ${v === k ? 'checked' : ''}><span><i class="etat-s etat-s--${k}" aria-hidden="true">${SYMBOLE[k]}</i> ${esc(t)}</span></label>`).join('')}</div>`;
 
   const ligneQuestion = (q) => {
     const m = Rg.modeQuestion(q);
-    return `<div class="rg-q" id="rg-q-${idQuestion(q.id)}"><span class="qid">${esc(q.id)}</span><span class="rg-t" id="rg-t-${idQuestion(q.id)}">${esc(ccB[q.id].eleve)}</span>
+    return `<div class="rg-q" id="rg-q-${idQuestion(q.id)}"><span class="qid">${esc(qid(q))}</span><span class="rg-t" id="rg-t-${idQuestion(q.id)}">${esc(ccB[q.id].eleve)}</span>
       ${m === 'ecrite' ? choix(q, ETATS_ECRITE, r.questions[q.id])
         : m === 'orale' ? choix(q, ETATS_ORALE, r.questions[q.id])
           : `<span class="hint">${m === 'geste' ? 'toujours posée : c\'est le tri des documents' : 'toujours : par l\'enseignant·e, à la mise en route'}</span>`}</div>`;
@@ -109,7 +111,7 @@ function editeur() {
   const cherche = (it) => pourChercher([it.titre, ...it.champs.flatMap((ch) => [ch.origine, r.corrections[ch.cle]?.valeur])].join(' '));
   let nTrouves = 0;
   const ligneAjout = (a) => `<div class="rg-q rg-q--ajout"><span class="qid">ajout</span>
-    <span class="rg-t">${esc(a.q)}<br><span class="hint">${a.mode === 'orale' ? 'orale, au débrief' : a.requise ? 'écrite, requise' : 'écrite, facultative'}${
+    <span class="rg-t">${esc(a.q)}<br><span class="hint">${a.mode === 'orale' ? 'orale, à la rétroaction' : a.requise ? 'écrite, requise' : 'écrite, facultative'}${
       a.reponse ? ` · attendu : ${esc(a.reponse)}` : ''}${a.source ? ` · ${esc(a.source)}` : ''}</span></span>
     <span class="signaux"><button class="btn btn--f" data-ajout-modifier="${esc(a.id)}">Modifier</button>
       <button class="btn btn--f danger" data-ajout-retirer="${esc(a.id)}">Retirer</button></span></div>`;
@@ -125,7 +127,7 @@ function editeur() {
         : `<input data-corr="${esc(ch.cle)}" value="${esc(val)}" maxlength="300">`}</label>
       <div class="rg-corr" ${corr ? '' : 'hidden'}>
         <p class="hint">Original : ${esc(ch.origine)}</p>
-        <label class="champ"><span>Raison de la correction (gardée avec elle)</span>
+        <label class="champ"><span>Raison de la mise à jour (gardée avec elle)</span>
           <input data-raison="${esc(ch.cle)}" value="${esc(corr?.raison || '')}" maxlength="200"
             placeholder="Ex. : chiffre mis à jour selon Parcs Canada, 2026"></label>
         <button class="btn btn--f" data-retablir="${esc(ch.cle)}">Rétablir l'original</button>
@@ -141,38 +143,36 @@ function editeur() {
           même en pleine partie ; une réponse déjà écrite n'est jamais effacée.`
         : 'Reprise à chaque nouvelle séance. Les séances déjà créées ne changent pas.'}</p></div>
 
-    <section class="p-sect" id="rg-duree"><div class="p-sect-h"><h3>La durée</h3>
-        <span class="hint" id="total-min">Total : ${cc.miseEnRoute.min + Rg.totalPrevu(cc)} min</span></div>
-      <div class="signaux formats-b">${Object.entries(Rg.FORMATS).map(([k, f]) =>
+    <section class="p-sect" id="rg-duree"><div class="p-sect-h"><h3>${icone('horloge')} La durée</h3></div>
+      <div class="signaux formats-b">${Object.entries(Rg.FORMATS).filter(([k]) => k === 'standard' || k === 'mesure' || k === r.format).map(([k, f]) =>
         `<button class="btn btn--f" data-format="${k}" aria-pressed="${r.format === k}">${esc(f.nom)}</button>`).join('')}</div>
-      <p class="hint">Un format prêt suffit pour une première séance : ses minutes et ses questions sont choisies pour la période.
-        Dans cette séance : ${cc.q.ecrites.length} question${cc.q.ecrites.length > 1 ? 's' : ''} écrite${cc.q.ecrites.length > 1 ? 's' : ''}
-        en équipe et ${cc.q.orales.length} à l'oral${seance ? ' ; « +5 min » est dans l\'onglet En direct' : ''}.</p>
+      <p class="hint">Dans cette séance : ${cc.q.ecrites.length} question${cc.q.ecrites.length > 1 ? 's' : ''} écrite${cc.q.ecrites.length > 1 ? 's' : ''}
+        en équipe et ${cc.q.orales.length} à l'oral.</p>
       ${cc.coupure ? `<p class="hint">Deux périodes : coupure conseillée après « ${esc(cc.etapes.find((x) => x.id === cc.coupure).t)} ».
         Chaque équipe reprend ensuite sur le même Chromebook, avec le même code.</p>` : ''}
     </section>
 
     <details class="rg-avance" data-k="rg-avance" ${ouvert('rg-avance')}>
       <summary><span class="rg-avance-t">Réglages avancés</span>
-        <span class="hint">Pour adapter le jeu, souvent après une première séance : les minutes de chaque étape, chaque question
-          (requise, facultative ou retirée), vos propres questions, les textes ou les chiffres à corriger.</span></summary>
+        <span class="hint">Les minutes, les questions, vos propres questions, les informations à mettre à jour</span></summary>
       <nav class="rg-nav" aria-label="Les réglages avancés"><a href="#rg-minutes">Les minutes</a>
         <a href="#rg-questions">Questions requises, facultatives ou retirées</a><a href="#f-ajout">Ajouter une question</a>
-        <a href="#rg-corriger">Corriger un texte ou un chiffre</a><a href="#rg-partager">Partager</a></nav>
+        <a href="#rg-corriger">Mettre à jour les informations</a><a href="#rg-partager">Partager</a></nav>
 
     <section class="p-sect" id="rg-minutes"><div class="p-sect-h"><h3>Les minutes, étape par étape</h3></div>
-      <p class="hint">Un format reprend ses minutes et ses questions ; vos questions ajoutées et vos corrections restent.</p>
       <div class="minutes-g">
         <label class="champ"><span>Mise en route</span><input type="number" min="0" max="60" data-min="miseEnRoute" value="${r.miseEnRoute}"></label>
         ${etapes.map((x) => `<label class="champ"><span>${x.n}. ${esc(x.t)}</span>
           <input type="number" min="1" max="90" data-min="${x.id}" value="${r.minutes[x.id]}"></label>`).join('')}
+        <p class="minutes-total">Total <span class="temps" id="total-min">${cc.miseEnRoute.min + Rg.totalPrevu(cc)} min</span></p>
       </div>
     </section>
 
     <section class="p-sect" id="rg-questions"><div class="p-sect-h"><h3>Les questions : requises, facultatives ou retirées</h3>
         <span class="hint">${cc.q.ecrites.length} écrites, dont ${cc.q.ecrites.filter((x) => x.requise).length} requises · ${cc.q.orales.length} à l'oral</span></div>
-      <p class="hint">Requise : l'équipe y répond avant de continuer. Facultative : elle peut la laisser. Retirée : elle ne la voit pas
-        (la question reste dans la banque). Une question requise ajoutée à une étape qu'une équipe a déjà passée lui arrive dans « À rattraper ».</p>
+      <ul class="legende">${ETATS_ECRITE.map(([k, n]) => `<li><i class="etat-s etat-s--${k}" aria-hidden="true">${SYMBOLE[k]}</i> <b>${n}</b> :
+        ${{ requise: 'à répondre pour continuer', facultative: 'peut rester vide', off: 'pas posée, gardée dans la banque' }[k]}</li>`).join('')}</ul>
+      <p class="hint">Une question requise ajoutée à une étape déjà passée arrive dans « À rattraper ».</p>
       ${cc.etapes.filter((x) => x.id !== 'avis').map((x) => {
         const qs = base.banque.filter((q) => Rg.etapeQuestion(base, q) === x.id);
         const aj = r.ajouts.filter((a) => (a.mode === 'orale' ? 'debrief' : a.etape) === x.id);
@@ -183,12 +183,12 @@ function editeur() {
         <h4>${enCours ? 'Modifier la question ajoutée' : 'Ajouter une question'}</h4>
         ${!enCours && r.ajouts.length >= MAX_AJOUTS ? `<p class="hint">Douze questions ajoutées au plus : retirez-en une pour en ajouter une autre.</p>` : `
         <div class="rg-form-g">
-          <label class="champ"><span>Étape (une question orale va au débrief)</span><select name="etape">${cc.etapes.filter((x) => x.id !== 'avis').map((x) =>
+          <label class="champ"><span>Étape (question écrite)</span><select name="etape">${cc.etapes.filter((x) => x.id !== 'avis').map((x) =>
             `<option value="${x.id}" ${(enCours?.etape || 'trace') === x.id ? 'selected' : ''}>${x.n}. ${esc(x.t)}</option>`).join('')}</select></label>
           <fieldset class="champ"><legend>Forme</legend>
-            <label class="case-l"><input type="radio" name="mode" value="ecrite" ${enCours?.mode !== 'orale' ? 'checked' : ''}><span>Écrite, en équipe</span></label>
-            <label class="case-l"><input type="radio" name="mode" value="orale" ${enCours?.mode === 'orale' ? 'checked' : ''}><span>Orale, en classe</span></label>
-            <label class="case-l"><input type="checkbox" name="requise" ${enCours ? (enCours.requise ? 'checked' : '') : 'checked'}><span>Requise (écrite seulement)</span></label>
+            <label class="case-l"><input type="radio" name="forme" value="requise" ${!enCours || (enCours.mode !== 'orale' && enCours.requise) ? 'checked' : ''}><span>Écrite, requise</span></label>
+            <label class="case-l"><input type="radio" name="forme" value="facultative" ${enCours && enCours.mode !== 'orale' && !enCours.requise ? 'checked' : ''}><span>Écrite, facultative</span></label>
+            <label class="case-l"><input type="radio" name="forme" value="orale" ${enCours?.mode === 'orale' ? 'checked' : ''}><span>Orale, à la rétroaction</span></label>
           </fieldset>
         </div>
         <label class="champ"><span>La question, telle que les élèves la liront</span>
@@ -196,16 +196,15 @@ function editeur() {
         <label class="champ"><span>Réponse attendue (vue par l'enseignant·e seulement)</span>
           <textarea name="reponse" rows="2" maxlength="600">${esc(enCours?.reponse || '')}</textarea></label>
         <label class="champ"><span>Source (facultatif)</span><input name="source" maxlength="200" value="${esc(enCours?.source || '')}"></label>
-        <div class="p-actions"><button class="btn btn--f" type="submit">${enCours ? 'Garder la modification' : 'Ajouter la question'}</button>
-          ${enCours ? '<button class="btn btn--f" type="button" data-ajout-modifier="">Annuler</button>' : ''}</div>`}
+        <div class="p-actions p-actions--d">${enCours ? '<button class="btn btn--f" type="button" data-ajout-modifier="">Annuler</button>' : ''}
+          <button class="btn btn--f" type="submit">${enCours ? 'Garder la modification' : `${icone('plus')} Ajouter la question`}</button></div>`}
       </form>
     </section>
 
-    <section class="p-sect" id="rg-corriger"><div class="p-sect-h"><h3>Corriger un texte ou un chiffre du jeu</h3>
+    <section class="p-sect" id="rg-corriger"><div class="p-sect-h"><h3>Mettre à jour les informations</h3>
         <span class="hint" id="n-corr">${nCorr} correction${nCorr > 1 ? 's' : ''}</span></div>
-      <p class="hint">Un chiffre a changé, une source a bougé, un nom s'écrit autrement : cherchez le mot ou le chiffre, ou ouvrez la partie
-        du jeu, puis corrigez. L'original reste gardé avec la raison de la correction ; « Rétablir l'original » le remet. Dans les onglets
-        Questions et Dossier, « Corriger ce texte » mène directement ici.</p>
+      <p class="hint">Un chiffre, une source ou un nom a changé ? Cherchez-le, puis mettez-le à jour.
+        Vous pourrez toujours revenir à l'original avec « Rétablir l'original ».</p>
       <label class="champ rg-cherche"><span>Chercher un mot ou un chiffre</span>
         <input type="search" id="rg-cherche" value="${esc(ed.cherche || '')}" placeholder="Ex. : 983, Grande-Grave, 1970" autocomplete="off"></label>
       ${Rg.corrigeables(base).map((g) => {
@@ -249,7 +248,7 @@ function exporterReglages() {
   const champs = new Map(Rg.corrigeables(base).flatMap((g) => g.items.flatMap((it) => it.champs.map((ch) => [ch.cle, { it, ch }]))));
   const nomEtape = (id) => base.etapes.find((x) => x.id === id)?.t || id;
   const sortie = {
-    jeu: 'Où passe la ligne — Forillon', versionContenu: base.version || '', exporteLe: new Date().toISOString(),
+    jeu: 'Où passe la ligne ? · Forillon', versionContenu: base.version || '', exporteLe: new Date().toISOString(),
     format: r.format, miseEnRoute: r.miseEnRoute, minutes: r.minutes, questions: r.questions,
     ajouts: r.ajouts.map((a) => ({ ...a, etapeNom: nomEtape(a.etape) })),
     corrections: Object.entries(r.corrections).map(([cle, x]) => ({ cle, element: champs.get(cle)?.it.titre || '',
@@ -375,7 +374,7 @@ document.addEventListener('submit', (ev) => {
   const f = new FormData(ev.target);
   if (!String(f.get('q') || '').trim()) return;
   const a = nouvelAjout({ etape: f.get('etape'), q: f.get('q'), reponse: f.get('reponse'), source: f.get('source'),
-    mode: f.get('mode'), requise: f.get('requise') === 'on' }, ui.ed.ajout || undefined);
+    mode: f.get('forme') === 'orale' ? 'orale' : 'ecrite', requise: f.get('forme') === 'requise' }, ui.ed.ajout || undefined);
   const r = ui.ed.r;
   const i = r.ajouts.findIndex((x) => x.id === a.id);
   if (i > -1) r.ajouts[i] = a; else if (r.ajouts.length < MAX_AJOUTS) r.ajouts.push(a);

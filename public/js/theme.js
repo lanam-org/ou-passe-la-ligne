@@ -45,10 +45,20 @@
     var l = document.querySelectorAll('select[data-theme-select]');
     for (var i = 0; i < l.length; i++) l[i].value = lire();
   }
+  // une icône, pas de texte (conseil de l'experte UI/UX) : elle montre l'affichage choisi ; la liste garde ses libellés
+  var ICONES = {
+    auto: '<rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/>',
+    light: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+    dark: '<path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/>',
+    contrast: '<circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor"/>'
+  };
   function monter() {
     var z = document.querySelectorAll('[data-theme-ici]');
     for (var i = 0; i < z.length; i++) {
-      z[i].innerHTML = '<label class="theme-c"><span>Affichage</span>'
+      z[i].innerHTML = '<label class="theme-c" title="Affichage">'
+        + CHOIX.map(function (c) {
+          return '<svg class="theme-i theme-i--' + c[0] + '" viewBox="0 0 24 24" aria-hidden="true" focusable="false">' + ICONES[c[0]] + '</svg>';
+        }).join('')
         + '<select data-theme-select aria-label="Affichage : thème de couleurs">'
         + CHOIX.map(function (c) { return '<option value="' + c[0] + '">' + c[1] + '</option>'; }).join('')
         + '</select></label>';

@@ -34,7 +34,7 @@ let cache = null;
 /**
  * Le contenu du jeu : tout ce qui est texte, chiffre ou source vit dans contenu/forillon.json.
  * Avec `guide`, chaque question de la banque reçoit aussi sa réponse attendue et ses notes
- * (contenu/guide.json) : l'espace enseignant·e seulement. La page des équipes ne télécharge
+ * (contenu/guide.json) : l'espace enseignant seulement. La page des équipes ne télécharge
  * jamais ce fichier, et le service worker ne le garde pas d'avance sur les Chromebooks.
  */
 export async function chargerContenu({ guide = false } = {}) {
@@ -104,6 +104,26 @@ export function retarder(f, ms) {
   g.maintenant = () => { if (minuterie) { clearTimeout(minuterie); minuterie = null; return f(...args); } };
   return g;
 }
+
+/**
+ * Les petites icônes des boutons (conseil de l'experte UI/UX : une icône aide à scanner, et suffit parfois).
+ * Décoratives : le bouton garde un nom lisible (son texte, ou aria-label quand l'icône est seule).
+ */
+const ICONES = {
+  jouer: '<path d="M8 5v14l11-7z" fill="currentColor"/>',
+  pause: '<path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z" fill="currentColor"/>',
+  zero: '<path d="M4 12a8 8 0 1 0 2.3-5.7"/><path d="M4 4v4h4"/>',
+  fin: '<path d="M6 5v14l9-7z" fill="currentColor"/><path d="M18 5v14"/>',
+  horloge: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  copier: '<rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h8"/>',
+  lien: '<path d="M14 4h6v6M20 4l-9 9"/><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/>',
+  envoyer: '<path d="M4 12 20 4l-6 16-2.5-6.5z"/>',
+  bulle: '<path d="M4 5h16v11H9l-5 4z"/>',
+  imprimer: '<path d="M7 9V4h10v5"/><rect x="4" y="9" width="16" height="8" rx="1.5"/><path d="M7 14h10v6H7z"/>',
+  plus: '<path d="M12 5v14M5 12h14"/>',
+  oeil: '<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>'
+};
+export const icone = (nom) => `<svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false">${ICONES[nom]}</svg>`;
 
 /**
  * Vrai si les dessins sont affichés ; faux : la carte devient des boutons dans un cadre « Carte à venir »,

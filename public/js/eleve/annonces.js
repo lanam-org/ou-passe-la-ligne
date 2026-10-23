@@ -58,7 +58,7 @@ export function annoncer(ids) {
   const z = $('#bravo');
   if (!z || !ids.length) return;
   z.innerHTML = `<div class="bravo">${FERMER_BRAVO}<p class="bravo-sur">Bravo</p>${ids.map((id) => `<p class="bravo-l">
-    <span class="bravo-i" aria-hidden="true">✦</span><span><b>${esc(etat.c.mentions[id].nom)}</b> — ${esc(etat.c.mentions[id].court)}</span></p>`).join('')}</div>`;
+    <span class="bravo-i" aria-hidden="true">✦</span><span><b>${esc(etat.c.mentions[id].nom)}</b> : ${esc(etat.c.mentions[id].court)}</span></p>`).join('')}</div>`;
   clearTimeout(minuterieBravo);
   minuterieBravo = setTimeout(() => { z.innerHTML = ''; }, 4600);
 }

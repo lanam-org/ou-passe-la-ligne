@@ -294,7 +294,7 @@ await eleve.click('[data-fermer-signal]');
 await prof.click('[data-onglet="reglages"]');
 await prof.waitForSelector('.rg-barre');
 dit(await prof.inputValue('[data-min="dossier"]') === '8', 'réglages : la séance part du format standard, 50 min (8 min au dossier)');
-dit(!(await prof.isVisible('[data-etatq="F1.2"]')) && await prof.isVisible('[data-format="courte"]'),
+dit(!(await prof.isVisible('[data-etatq="F1.2"]')) && await prof.isVisible('[data-format="standard"]'),
   'réglages : d’abord la durée ; le reste attend, replié, sous « Réglages avancés »');
 await prof.click('details.rg-avance > summary');
 await prof.check('[data-etatq="F1.2"][value="facultative"]');
@@ -608,7 +608,7 @@ await auditer(prof, 'enseignant · accueil « Vos séances »');
   await prof.click('[data-trousse="demarrer"]');
   const fiche = sansInsecables(await prof.textContent('#papier'));
   dit(await prof.evaluate(() => window.__trousse) === 1 && fiche.includes('démarrer en 5 minutes')
-    && ['Créer la séance', 'Agrandir le code QR', 'Je suis élève', 'Message à toute la classe', 'Débrief',
+    && ['Créer la séance', 'Agrandir le code QR', 'Je suis élève', 'Message à toute la classe', 'Rétroaction',
       'Imprimer le rapport de séance', 'Effacer la séance et ses données'].every((m) => fiche.includes(m)),
     '« Démarrer en 5 minutes » : une page, de la création de la séance à l’effacement');
   await prof.emulateMedia({ media: 'print' });
@@ -638,14 +638,18 @@ await prof.waitForSelector('#creer');
 
 // ---------------------------------------------------------------- la version de l'enseignant·e sert à la séance suivante
 dit((await prof.textContent('#prof')).includes('1 question ajoutée'), 'l’accueil résume la version du jeu de l’enseignant·e');
-await prof.check('input[name=format][value="courte"]');
+// deux durées au choix (experte UI/UX) : « Standard » ou « Sur mesure », ici 35 min
+await prof.check('input[name=format][value="mesure"]');
+await prof.fill('#duree-mesure', '35');
 await prof.click('#creer');
+await prof.waitForSelector('.rg-barre');   // sur mesure : la séance s'ouvre sur ses réglages
+await prof.click('[data-onglet="direct"]');
 await prof.waitForSelector('#code-seance');
 const code2 = (await prof.textContent('#code-seance')).trim();
 await prof.click('[data-onglet="reglages"]');
 await prof.waitForSelector('.rg-barre');
 dit(await prof.inputValue('[data-min="marche"]') === '5' && (await prof.textContent('#prof')).includes('Quel animal')
-  && (await prof.textContent('#prof')).includes('1 corrigé'), 'nouvelle séance courte (35 min) : minutes du format, questions ajoutées et corrections reprises');
+  && (await prof.textContent('#prof')).includes('1 corrigé'), 'nouvelle séance sur mesure (35 min) : minutes réparties, questions ajoutées et corrections reprises');
 await capture(prof, '14b-nouvelle-seance-courte');
 // rétablir l'original : la correction doit disparaître pour de bon (pas une fusion qui la garderait)
 await prof.evaluate(() => document.querySelectorAll('details.rg-avance, details.rg-groupe, details.rg-item').forEach((d) => { d.open = true; }));
@@ -675,7 +679,7 @@ await prof.click('[data-ed="enregistrer"]');
 await prof.waitForFunction(() => document.querySelector('#ed-etat')?.textContent.includes('Enregistré'));
 await prof.click('[data-retour]');
 await prof.waitForSelector('#creer');
-dit((await prof.textContent('#prof')).includes('49 min en tout'), '« Votre version » se modifie depuis l’accueil (35 min + 14 au débrief)');
+dit((await prof.textContent('#prof')).includes('50 min en tout'), '« Votre version » se modifie depuis l’accueil (35 min sur mesure, puis 20 à la rétroaction au lieu de 5)');
 
 // ---------------------------------------------------------------- la séance de démonstration (mode local)
 if (MODE === 'local') {

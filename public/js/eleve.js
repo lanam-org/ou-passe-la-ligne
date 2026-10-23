@@ -119,7 +119,7 @@ function entrer(cd, id, fiche) {
 }
 
 /**
- * L'aperçu de l'enseignant·e (eleve.html?apercu=1, ouvert depuis l'espace enseignant·e) : le jeu tel qu'une équipe le
+ * L'aperçu de l'enseignant·e (eleve.html?apercu=1, ouvert depuis l'espace enseignant) : le jeu tel qu'une équipe le
  * voit, avec les réglages laissés dans le stockage du navigateur (ouvrirApercu, seance.js). Ni séance ni équipe :
  * rien n'est enregistré (envoi.js), et toutes les étapes s'ouvrent d'un clic dans la barre du haut.
  */
@@ -247,7 +247,7 @@ document.addEventListener('click', async (ev) => {
   const { c, E, S, code } = etat;
   if (!E) return;
   if (ev.target.closest('[data-fermer-bravo]')) return fermerBravo();
-  // fermer l'onglet de l'aperçu ; si le navigateur refuse, revenir à l'espace enseignant·e
+  // fermer l'onglet de l'aperçu ; si le navigateur refuse, revenir à l'espace enseignant
   if (ev.target.closest('[data-fermer-apercu]')) { window.close(); setTimeout(() => { location.href = 'enseignant.html'; }, 300); return; }
   if (ev.target.closest('[data-imprimer-fin]')) return window.print();
   const al = ev.target.closest('[data-aller]');

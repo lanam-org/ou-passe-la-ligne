@@ -3,7 +3,7 @@
 
 import * as donnees from '../donnees.js';
 import { mesure, googleEnseignant } from '../config.js';
-import { $, esc, typo, messageErreur } from '../outils.js';
+import { $, esc, typo, messageErreur, icone } from '../outils.js';
 import * as Rg from '../reglages.js';
 import { dossierHTML } from '../dossierdoc.js';
 import { creerSeanceDemo } from '../demo.js';
@@ -13,6 +13,9 @@ import { resumeReglages, ouvrirEditeur, rendreEditeur } from './editeur.js';
 import { imprimer } from './rapport.js';
 
 const JOUR = 86400000;
+/** Une vignette à cliquer : une icône, un titre, une ligne (experte UI/UX : des « petits paquets » plutôt que des phrases). */
+const vignette = (attrs, ic, titre, ligne) => `<button class="vignette" type="button" ${attrs}>${icone(ic)}<b>${esc(titre)}</b>
+  <span class="hint">${esc(ligne)}</span></button>`;
 const dateCourte = (t) => new Date(t).toLocaleString('fr-CA', { dateStyle: 'medium', timeStyle: 'short' });
 
 /**
@@ -37,35 +40,33 @@ export async function afficherAccueil(erreur = '') {
         <p class="hint">Les élèves, eux, n'ont jamais de compte. Ni votre nom ni votre courriel ne sont écrits dans la base.</p>
         <div class="p-actions"><button class="btn" data-google="1">Se connecter avec Google</button></div>`;
   // la démonstration, juste sous « Créer la séance » : c'est là qu'on la cherche quand on découvre l'espace
-  const demo = donnees.mode === 'local' ? `<div class="demo" id="demo"><p class="hint">Pour découvrir l'espace sans élèves :
-      une séance de 50 minutes déjà en cours, avec quatre équipes à des étapes différentes (suivi en direct, débrief, rapport).</p>
+  const demo = donnees.mode === 'local' ? `<div class="demo" id="demo"><p class="hint">Découvrir l'espace sans élèves : une séance
+      déjà en cours, avec quatre équipes.</p>
       <div class="p-actions"><button class="btn btn--f" data-demo="1">Explorer une séance de démonstration →</button></div></div>` : '';
   $('#prof').innerHTML = typo(`<div class="p-tete">
       <h2>Vos séances</h2>
-      <p>Une séance = un code de cinq caractères. Vous l'affichez au tableau ; chaque équipe l'entre sur
-        son Chromebook. Vous suivez ensuite les équipes ici, en direct.</p>
+      <p>Une séance = un code à afficher au tableau ; chaque équipe l'entre sur son Chromebook.</p>
     </div>
     ${erreur ? `<p class="erreur" role="alert">${esc(erreur)}</p>` : ''}
     <div class="accueil-g">
     <div class="accueil-m">
     <section class="p-sect creer"><div class="p-sect-h"><h3>Nouvelle séance</h3></div>
-      <fieldset class="formats" id="formats"><legend>La durée</legend>
-        ${Object.entries(Rg.FORMATS).map(([k, f]) => `<label class="case-l"><input type="radio" name="format" value="${k}" ${k === fmt ? 'checked' : ''}>
+      <fieldset class="formats" id="formats"><legend>${icone('horloge')} La durée</legend>
+        ${Object.entries(Rg.FORMATS).filter(([k]) => k === 'standard' || k === 'mesure' || k === fmt).map(([k, f]) => `<label class="case-l"><input type="radio" name="format" value="${k}" ${k === fmt ? 'checked' : ''}>
           <span>${esc(f.nom)}${k === 'mesure' ? ` <input type="number" id="duree-mesure" class="duree-mesure" min="15" max="240" step="1"
             value="${v?.format === 'mesure' ? v.miseEnRoute + Object.entries(v.minutes).filter(([id]) => id !== 'avis').reduce((s, [, m]) => s + m, 0) : 60}"
             aria-label="Durée totale, en minutes"> min` : ''}<br><span class="hint">${esc(f.resume)}</span></span></label>`).join('')}
       </fieldset>
-      <p class="hint formats-n">${v ? `Votre version du jeu sert de départ (${esc(resumeReglages(v))}). Choisir un autre format reprend ses minutes et ses questions ; vos questions ajoutées et vos corrections restent.`
-        : 'Un format prêt suffit pour une première séance.'}</p>
-      ${mesure ? `<label class="case-l"><input type="checkbox" id="opt-avis">
-        <span>Proposer le questionnaire « Ton avis » à la fin (séances d'essai, hors du temps de la séance).</span></label>` : ''}
-      <div class="p-actions"><button class="btn" id="creer">Créer la séance →</button>
-        <button class="lien" type="button" data-apercu="choix">Voir le jeu comme une équipe (aperçu)</button></div>
+      ${v ? '<p class="hint formats-n">Votre version du jeu sert de départ.</p>' : ''}
+      ${mesure ? `<label class="bascule"><input type="checkbox" role="switch" id="opt-avis"><span class="bascule-p" aria-hidden="true"></span>
+        <span>Questionnaire « Ton avis » en fin de séance</span></label>` : ''}
+      <div class="p-actions p-actions--d"><button class="lien" type="button" data-apercu="choix">${icone('oeil')} Voir le jeu comme une équipe</button>
+        <button class="btn" id="creer">Créer la séance →</button></div>
       ${demo}
     </section>
-    ${liste.length ? `<section class="p-sect" id="mes-seances-s"><div class="p-sect-h"><h3>Retrouver une séance déjà créée (${liste.length})</h3></div>
-      <p class="hint">Imprimez le rapport, puis effacez la séance.${
-        donnees.mode === 'local' ? '' : ` Sinon, elle s'efface seule ${JOURS_CONSERVATION} jours après sa création.`}</p>
+    ${liste.length ? `<section class="p-sect" id="mes-seances-s"><div class="p-sect-h"><h3>Historique (${liste.length})</h3></div>
+      <p class="hint">${donnees.mode === 'local' ? 'Pour garder le rapport d’une séance, imprimez-le avant de l’effacer.'
+        : `Chaque séance s'efface seule ${JOURS_CONSERVATION} jours après sa création : imprimez son rapport avant, pour le garder.`}</p>
       <div class="tab-w"><table class="tab" id="mes-seances"><thead><tr><th>Créée le</th><th>Code</th><th>État</th><th></th></tr></thead>
         <tbody>${liste.map((x) => `<tr><td>${esc(dateCourte(x.creeLe))}${Date.now() - x.creeLe > 30 * JOUR
           ? ' <span class="badge badge--reprise">plus de 30 jours</span>' : ''}</td>
@@ -77,32 +78,30 @@ export async function afficherAccueil(erreur = '') {
     </section>` : ''}
     </div>
     <aside class="accueil-a">
-    <section class="p-sect" id="avant"><div class="p-sect-h"><h3>Avant la séance</h3></div>
-      <p class="p-txt">Le dossier élève, à distribuer d'avance : le portrait du territoire et les documents à trier, sans les surprises.</p>
-      <div class="p-actions"><button class="btn" data-dossier-avance="devoir">Imprimer le dossier élève</button></div>
+    <section class="p-sect" id="avant"><div class="p-sect-h"><h3>Préparer votre séance</h3></div>
+      <div class="vignettes">
+        ${vignette('data-dossier-avance="devoir"', 'imprimer', 'Dossier élève', 'À distribuer d’avance, sans les surprises')}
+        ${vignette('data-dossier-avance="complet"', 'imprimer', 'Dossier complet', 'Pour vous : avec les surprises')}
+      </div>
+      <p class="hint">En ligne : <a href="dossier.html" target="_blank" rel="noopener">le dossier élève</a>.</p>
     </section>
     <details class="p-sect plus-outils" data-k="accueil-plus" ${ui.ouverts.has('accueil-plus') ? 'open' : ''}>
       <summary><span class="plus-t">Plus d'outils</span>
-        <span class="hint">Dossier complet, votre version du jeu, trousse d'essai, fiche pour l'école</span></summary>
-      <h3>Le dossier complet</h3>
-      <p class="hint">Tout le dossier, surprises comprises. Vos corrections (votre version du jeu) s'y appliquent. En ligne :
-        <a href="dossier.html" target="_blank" rel="noopener">le dossier élève</a>.</p>
-      <div class="p-actions"><button class="btn btn--f" data-dossier-avance="complet">Dossier complet, version enseignant·e</button></div>
+        <span class="hint">Trousse d'essai, fiche pour l'école, votre version du jeu</span></summary>
+      <div class="vignettes">
+        ${vignette('data-trousse="demarrer"', 'imprimer', 'Démarrer en 5 minutes', 'Une page pour un essai du jeu')}
+        ${vignette('data-trousse="observation"', 'imprimer', 'Grille d’observation', 'Pour la personne qui observe')}
+        <a class="vignette" href="ecoles.html" target="_blank" rel="noopener">${icone('lien')}<b>Fiche pour l'école</b>
+          <span class="hint">Ce que le site fait des données, pour la direction</span></a>
+      </div>
       <h3>Votre version du jeu</h3>
-      <p class="p-txt">${v ? esc(resumeReglages(v)) : 'Aucune pour l\'instant : chaque séance part de la version d\'origine.'}</p>
-      <p class="hint">Vos corrections, vos questions ajoutées, vos minutes : reprises à chaque nouvelle séance. Les séances déjà créées ne changent pas.</p>
+      <p class="p-txt">${v ? esc(resumeReglages(v)) : 'Aucune pour l’instant : chaque séance part de la version d’origine.'}</p>
+      <p class="hint">Reprise à chaque nouvelle séance ; les séances déjà créées ne changent pas.</p>
       <div class="p-actions"><button class="btn btn--f" data-ma-version="1">${v ? 'Modifier votre version' : 'Créer votre version'}</button>${
         !v ? '' : ui.effacerVersion
           ? `<button class="btn btn--danger" data-effacer-version="1" data-confirme="1">Oui, supprimer</button>
              <button class="btn btn--f" data-effacer-version="">Annuler</button>`
           : '<button class="btn btn--f danger" data-effacer-version="1">Supprimer votre version</button>'}</div>
-      <h3>La trousse d'essai</h3>
-      <p class="hint">Pour un essai du jeu : une page pour démarrer, et une grille pour la personne qui observe.</p>
-      <div class="p-actions"><button class="btn btn--f" data-trousse="demarrer">Démarrer en 5 minutes</button>
-        <button class="btn btn--f" data-trousse="observation">Grille d'observation</button></div>
-      <h3>Pour la direction de l'école</h3>
-      <p class="hint">Votre direction ou votre centre de services demande ce que le site fait des données ?
-        <a href="ecoles.html" target="_blank" rel="noopener">La fiche pour l'école</a>, à leur transmettre.</p>
     </details>
     ${donnees.mode === 'local' ? '' : `<section class="p-sect"><div class="p-sect-h"><h3>Votre compte</h3></div>${compte}</section>`}
     </aside>

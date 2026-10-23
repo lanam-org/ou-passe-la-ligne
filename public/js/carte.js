@@ -36,7 +36,7 @@ export function carte(c, e, o = {}) {
       stroke="var(--surface)" stroke-width="2.5" stroke-linejoin="round"
       ${cliquable ? 'role="button" tabindex="0"' : 'pointer-events="none"'}
       aria-label="${esc(s.nom)} : ${esc(nomZone(c, z))}. ${esc(s.fait)}">
-      <title>${esc(s.nom)} — ${esc(nomZone(c, z))} · ${esc(s.fait)}</title></path>`;
+      <title>${esc(s.nom)} : ${esc(nomZone(c, z))} · ${esc(s.fait)}</title></path>`;
   }).join('');
 
   // le nom écrit sur la carte : déjà dit par le secteur lui-même (aria-label), pas deux fois au lecteur d'écran
@@ -71,7 +71,7 @@ export function carte(c, e, o = {}) {
   const pins = avecReleves ? c.releves.map((a, i) => {
     const vu = e.releves.includes(i);
     return `<g class="pin" data-releve="${i}" role="button" tabindex="0" aria-pressed="${vu}"
-      aria-label="Relevé ${i + 1} : ${esc(a.t)}"><title>Relevé ${i + 1} — ${esc(a.t)}</title>
+      aria-label="Relevé ${i + 1} : ${esc(a.t)}"><title>Relevé ${i + 1} : ${esc(a.t)}</title>
       <circle cx="${a.cx}" cy="${a.cy}" r="14" fill="${vu ? 'var(--env)' : 'var(--primaire)'}"
         stroke="var(--surface)" stroke-width="3"/>
       <text x="${a.cx}" y="${a.cy + 4}" text-anchor="middle" class="pin-n" fill="var(--surface)">${vu ? '✓' : i + 1}</text>
@@ -200,6 +200,6 @@ export function effetRecent(c, effet) {
     <p class="sur">Ce que ça vient de changer</p>
     <p class="effet-t"><b>${esc(effet.secteur)}</b> : ${esc(nomZone(c, effet.de))} → <b>${esc(nomZone(c, effet.a))}</b></p>
     <div class="effet-c">${bouts.join('') || '<span class="ch">rien d\'autre ne bouge</span>'}</div>
-    <p class="effet-f">${esc(effet.fait)} <span>— ${esc(effet.src)}</span></p>
+    <p class="effet-f">${esc(effet.fait)} <span>(${esc(effet.src)})</span></p>
   </div>`;
 }

@@ -30,13 +30,13 @@ export function vueDebrief() {
     const ap = posees.get(APPUIS[q.id]);
     return `<section class="p-sect">
       <p class="db-q"><span class="qid">${esc(qid(q))}</span> ${esc(q.eleve)}</p>
-      ${q.reponse ? `<p class="db-a">Attendu — ${esc(attendu(q))}</p>` : ''}
+      ${q.reponse ? `<p class="db-a">Attendu : ${esc(attendu(q))}</p>` : ''}
       ${ap ? `<p class="sur" style="margin-top:14px">Ce que les équipes ont écrit : ${esc(ap.eleve)} (${esc(ap.id)})</p><div class="db-r">${reponses(ap.id)}</div>` : ''}</section>`;
   };
   const ecritesDebrief = ecrites.filter((q) => q.etape === 'debrief');
   const f32 = posees.get('F3.2');
   return `<div class="${ui.projection ? 'projection' : ''} ${ui.cacheAttendu ? 'cache-att' : ''}">
-    <div class="p-tete"><h2>Le débrief, en classe entière</h2>
+    <div class="p-tete"><h2>La rétroaction, en classe entière</h2>
       <p>${c.etapes.find((x) => x.id === 'debrief').min} minutes, ${orales.length} question${orales.length > 1 ? 's' : ''} à l'oral.
         Cette page se projette : les noms d'équipes sont des animaux, aucun prénom.</p>
       <div class="p-actions">
@@ -52,8 +52,8 @@ export function vueDebrief() {
       </div></section>
     ${orales.map(bloc).join('')}
     ${ecritesDebrief.map((q) => `<section class="p-sect"><p class="db-q"><span class="qid">${esc(qid(q))}</span> ${esc(q.eleve)}</p>
-      ${q.reponse ? `<p class="db-a">Attendu — ${esc(attendu(q))}</p>` : ''}<div class="db-r">${reponses(q.id)}</div></section>`).join('')}
-    ${f32 ? `<section class="p-sect"><p class="db-q"><span class="qid">F3.2</span> À reprendre si le temps le permet : ${esc(f32.eleve)}</p>
-      ${f32.reponse ? `<p class="db-a">Attendu — ${esc(attendu(f32))}</p>` : ''}<div class="db-r">${reponses('F3.2')}</div></section>` : ''}
+      ${q.reponse ? `<p class="db-a">Attendu : ${esc(attendu(q))}</p>` : ''}<div class="db-r">${reponses(q.id)}</div></section>`).join('')}
+    ${f32 ? `<section class="p-sect"><p class="db-q"><span class="qid">Q3.2</span> À reprendre si le temps le permet : ${esc(f32.eleve)}</p>
+      ${f32.reponse ? `<p class="db-a">Attendu : ${esc(attendu(f32))}</p>` : ''}<div class="db-r">${reponses('F3.2')}</div></section>` : ''}
   </div>`;
 }

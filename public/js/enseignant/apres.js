@@ -2,7 +2,7 @@
 // séance a donné, l'export pour la recherche (s'il est permis) et le questionnaire papier.
 
 import { mesure } from '../config.js';
-import { esc, dec, telecharger } from '../outils.js';
+import { esc, dec, telecharger, icone } from '../outils.js';
 import * as J from '../jeu.js';
 import { etat } from './etat.js';
 
@@ -25,7 +25,7 @@ export function vueMesures() {
           ind.map((x) => `<td>${puce(x[i].ok)} ${esc(x[i].v)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>
         <p class="avert"><span class="pt pt--ok">●</span> repère atteint · <span class="pt pt--non">●</span> non atteint · sans pastille : pas encore mesuré.</p>`
       : '<p class="vide">Aucune équipe pour l\'instant.</p>'}
-      <div class="p-actions"><button class="btn btn--f" data-rapport="1" ${eq.length ? '' : 'disabled'}>Imprimer le rapport de séance</button>
+      <div class="p-actions"><button class="btn btn--f" data-rapport="1" ${eq.length ? '' : 'disabled'}>${icone('imprimer')} Imprimer le rapport de séance</button>
         <button class="btn" data-export="csv" ${mesure && eq.length ? '' : 'disabled'}>Exporter (CSV)</button></div>
     </section>
     <section class="p-sect"><div class="p-sect-h"><h3>Plan de mesure</h3><span class="hint">Un critère = un test oui / non. Repères à ajuster après le premier essai.</span></div>
@@ -34,7 +34,7 @@ export function vueMesures() {
           <td>${esc(p.c)}</td><td>${esc(p.test)}</td><td><span class="src-t src-t--${p.src.split(' ')[0]}">${esc(p.src)}</span></td></tr>`).join('')}</tbody></table></div>
       <div class="limite"><b>Ce que ces mesures ne disent pas.</b> Elles décrivent ce que l'équipe fait sur le site, pas ce
         qu'elle a appris. Pour parler d'apprentissage, il faut une mesure avant / après : les mêmes deux questions courtes
-        au début de la période et au débrief, codées à la main par équipe.</div>
+        au début de la période et à la rétroaction, codées à la main par équipe.</div>
     </section>`;
 }
 
@@ -51,7 +51,7 @@ export function exporterCSV() {
       clics_vides: e.compteurs?.clicsVides || 0, retours: e.compteurs?.retours || 0, sauts: e.compteurs?.sauts || 0,
       mentions: e.mentions.length };
     etapesJeu.forEach((x) => { o[`s_${x.id}`] = Math.round(J.tempsEtape(c, e, x.id) / 1000); });
-    // les réponses écrites ne sont PAS exportées : texte libre, à coder à la main dans l'espace enseignant·e
+    // les réponses écrites ne sont PAS exportées : texte libre, à coder à la main dans l'espace enseignant
     return o;
   });
   if (!lignes.length) return;
@@ -67,7 +67,7 @@ export function vueQuestionnaire() {
   const { c, S, AV } = etat;
   const echelles = c.avis.filter((q) => q.type === 'echelle');
   return `<div class="p-tete"><h2>Questionnaire élève</h2>
-      <p>Huit questions, trois minutes, après le débrief. Chaque élève répond seul, sans nom, sur le Chromebook de
+      <p>Huit questions, trois minutes, après la rétroaction. Chaque élève répond seul, sans nom, sur le Chromebook de
         l'équipe ou sur papier. ${mesure ? (S?.questionnaire ? 'Activé pour cette séance.' : 'Non activé pour cette séance.')
           : "Désactivé à l'écran tant que la collecte pour la recherche attend le certificat d'éthique ; la version papier reste disponible."}</p></div>
     <section class="p-sect"><div class="tab-w"><table class="tab">
@@ -84,14 +84,14 @@ export function vueQuestionnaire() {
       }).join('')}</tbody></table></div>
       <p class="avert">Échelle : ${c.echelle.map((x, i) => `${i + 1} = ${x}`).join(' · ')}. Quatre points, sans milieu.
         Q3 est inversée exprès. ${echelles.length} questions à échelle.</p>
-      <div class="p-actions"><button class="btn btn--f" data-imprimer="1">Imprimer (version papier)</button></div>
+      <div class="p-actions"><button class="btn btn--f" data-imprimer="1">${icone('imprimer')} Imprimer (version papier)</button></div>
     </section>`;
 }
 
 /** Le questionnaire sur papier, pour une classe sans Chromebook ou une collecte éteinte. */
 export function questionnairePapier() {
   const { c } = etat;
-  return `<h1>Où passe la ligne — ton avis</h1><p>Pas de nom. Il n'y a pas de bonne réponse.</p>
+  return `<h1>Où passe la ligne&nbsp;? · ton avis</h1><p>Pas de nom. Il n'y a pas de bonne réponse.</p>
       ${c.avis.map((q, i) => `<div class="p-q"><b>${i + 1}. ${esc(q.t)}</b>${
         q.type === 'echelle' ? `<div class="p-cases">${c.echelle.map((x) => `<span>${esc(x)}</span>`).join('')}</div>`
         : q.type === 'choix' ? `<div class="p-cases">${q.options.map((x) => `<span>${esc(x)}</span>`).join('')}</div>`

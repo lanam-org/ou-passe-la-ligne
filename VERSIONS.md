@@ -22,10 +22,23 @@ avec Chantal et Alexandra :
   recherche d'un mot ou d'un chiffre à corriger ; trois choix visibles « Requise / Facultative / Retirée ».
 - **Navigation** : onglets dans l'ordre d'une séance, titrés (Avant la classe · Pendant la classe · Après, pour la
   recherche) ; « ← Vos séances » au début ; la démonstration sous « Créer la séance » ; le « ✦ Bravo » annoncé.
-- **Le ton** : l'espace enseignant·e dit « vous » ; « Dossier complet, version enseignant·e », « dossier élève ».
+- **Le ton** : l'espace enseignant dit « vous » ; « Dossier complet, version enseignant·e », « dossier élève ».
 - **Dossier documentaire** : documents de terrain (les relevés, étape 2) et documents du dossier (étape 3).
 - **Versions** : l'adresse principale ne bouge plus à chaque modification ; `…/dev/` montre le travail en cours ;
   la version s'affiche en bas de chaque page.
+- **Retours de l'experte UI/UX (Alexandra)** :
+  - accueil : « Où passe la ligne ? », une grande image, une couleur et une icône pour chaque porte, l'affichage et le
+    guide en icônes, l'avis sur les données à côté de « Confidentialité » ;
+  - plus de tirets cadratins dans les textes ; « Espace enseignant » ;
+  - le chrono en lecteur de musique (gros bouton démarrer / pause, −5 / +5, terminer l'étape), plus gros, sur un fond
+    à lui ; le code de la séance plus gros ; lien et copie en icônes ; les messages en bulles ;
+  - onglets « Préparer · Animer · Pour la recherche », « Rétroaction » au lieu de « Débrief » ;
+  - deux durées (Standard ou Sur mesure), le questionnaire en interrupteur, « Historique », des vignettes pour
+    préparer la séance, des icônes d'imprimante ;
+  - « Mettre à jour les informations », Q2.1 au lieu de F2.1, une légende des états de question, une seule « forme »
+    pour une question ajoutée, le total au bout des minutes ;
+  - bulles du guide : une flèche et « 2 sur 7 » au lieu de « OK » ;
+  - côté équipe : une bannière à l'arrivée, l'animal de l'équipe à la fin.
 
 ## Playtest 0 — avec les professeurs · 17 octobre 2026
 
