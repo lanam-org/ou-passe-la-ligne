@@ -99,7 +99,15 @@ async function auditer(p, ecran) {
   // une apparition en fondu (un bravo, un geste reconnu) se lit une fois finie, pas à mi-transparence
   await p.evaluate(() => Promise.all(document.getAnimations()
     .filter((a) => a.effect?.getComputedTiming().endTime !== Infinity).map((a) => a.finished.catch(() => {}))));
-  const r = await new AxeBuilder({ page: p }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']).analyze();
+  const analyser = () => new AxeBuilder({ page: p }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']).analyze();
+  let r = await analyser();
+  // un écart saisi en pleine transition (survol, couleur qui change) : on regarde une seconde fois, un instant
+  // plus tard, et on ne garde que ce qui persiste
+  if (r.violations.length) {
+    await p.waitForTimeout(500);
+    const r2 = await analyser();
+    r = { violations: r2.violations.filter((v) => r.violations.some((w) => w.id === v.id)) };
+  }
   ecransAudites++;
   for (const v of r.violations) ecartsAxe.push(`${ecran} : ${v.id} — ${v.help} (${v.nodes.length}× ; ex. ${v.nodes[0]?.target.join(' ')})`);
 }
