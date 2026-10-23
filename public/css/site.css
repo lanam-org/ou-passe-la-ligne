@@ -1374,3 +1374,7 @@ body[data-espace="prof"] .retour-site:hover{background:rgba(255,255,255,.12)}
 .tete-chrono .lien{color:var(--prof-txt);text-decoration:underline;text-underline-offset:3px;display:inline-flex;align-items:center;gap:6px}
 /* contraste élevé : la barre de l'espace enseignant est noire ; le contour du focus y devient blanc */
 :root[data-theme="contrast"] body[data-espace="prof"] .barre :focus-visible{outline-color:#FFFFFF}
+
+/* l'affichage et le « ? » côte à côte, centrés sur la même ligne */
+[data-theme-ici]{display:inline-flex;align-items:center;gap:8px}
+[data-theme-ici] .aide-b{margin:0}

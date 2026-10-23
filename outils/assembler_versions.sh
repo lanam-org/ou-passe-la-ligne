@@ -13,6 +13,7 @@ set -euo pipefail
 SORTIE="${1:-site}"
 rm -rf "$SORTIE"
 mkdir -p "$SORTIE"
+court="$(git rev-parse --short HEAD)"
 
 # le dossier public/ d'une référence git (une étiquette, ou HEAD), sans rien d'autre
 extraire() {
@@ -23,8 +24,10 @@ extraire() {
 # le titre est nettoyé : ni apostrophe droite (chaîne JavaScript), ni caractère spécial pour sed
 numeroter() {
   local titre
-  titre="$(printf '%s' "$2" | sed -e "s/'/’/g" -e 's/[\\/&|]/ /g')"
-  sed -i "s|const VERSION = 'dev';|const VERSION = '$titre';|" "$1/sw.js"
+  # le nom court seulement (« Playtest 1 ») : ni le sous-titre après « — », ni numéro de commit
+  titre="$(printf '%s' "$2" | sed -e 's/ — .*//' -e "s/'/’/g" -e 's/[\\/&|]/ /g')"
+  # la copie hors ligne garde le commit dans son nom : chaque mise en ligne remplace l'ancienne copie
+  sed -i "s|const VERSION = 'dev';|const VERSION = '$titre $court';|" "$1/sw.js"
   if [ -f "$1/js/version.js" ]; then sed -i "s|var VERSION = 'locale';|var VERSION = '$titre';|" "$1/js/version.js"; fi
 }
 titre() { git tag -l --format='%(contents:subject)' "$1"; }
@@ -36,19 +39,18 @@ for v in $versions; do
 done
 
 derniere="$(git tag -l 'playtest-*' --sort=-version:refname | head -n 1)"
-court="$(git rev-parse --short HEAD)"
 if [ -n "$derniere" ]; then
   extraire "$derniere" "$SORTIE"
   numeroter "$SORTIE" "$(titre "$derniere")"
 else
   extraire HEAD "$SORTIE"
-  numeroter "$SORTIE" "main $court"
+  numeroter "$SORTIE" "main"
 fi
 
 # /dev/ : la version en préparation, d'après VERSIONS.md (« ## Playtest 1 — … · en préparation »)
 prochaine="$(grep -m 1 -E '^## .+ · en préparation' VERSIONS.md 2>/dev/null | sed -E 's/^## (.+) · en préparation.*/\1/' || true)"
 extraire HEAD "$SORTIE/dev"
-numeroter "$SORTIE/dev" "dev · ${prochaine:+$prochaine en préparation · }$court"
+numeroter "$SORTIE/dev" "dev · ${prochaine:-main} en préparation"
 
 echo "Adresse principale : ${derniere:-main ($court)}"
 echo "Versions figées    : $(echo ${versions:-aucune})"

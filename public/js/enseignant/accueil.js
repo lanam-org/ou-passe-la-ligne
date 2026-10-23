@@ -46,7 +46,6 @@ export async function afficherAccueil(erreur = '') {
       <div class="p-actions"><button class="btn btn--f" data-demo="1">Explorer une séance de démonstration →</button></div></div>` : '';
   $('#prof').innerHTML = typo(`<div class="p-tete">
       <h2>Vos séances</h2>
-      <p>Une séance = un code à afficher au tableau ; chaque équipe l'entre sur son Chromebook.</p>
     </div>
     ${erreur ? `<p class="erreur" role="alert">${esc(erreur)}</p>` : ''}
     <div class="accueil-g">
