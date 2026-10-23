@@ -1331,8 +1331,10 @@ body[data-espace="prof"] .retour-site:hover{background:rgba(255,255,255,.12)}
 .p-actions--d{justify-content:flex-end;align-items:center}
 .formats legend .ic{color:var(--primaire);margin-right:4px}
 .bascule{position:relative;display:flex;align-items:center;gap:12px;margin-top:16px;font-size:15.5px;line-height:1.4;cursor:pointer}
-.bascule input{position:absolute;left:0;top:50%;width:46px;height:28px;margin:-14px 0 0;opacity:0;cursor:pointer}
+/* la vraie case, invisible, reste au-dessus du dessin de l'interrupteur : c'est elle qui reçoit le clic */
+.bascule input{position:absolute;left:0;top:50%;z-index:1;width:46px;height:28px;margin:-14px 0 0;opacity:0;cursor:pointer}
 .bascule-p{position:relative;flex:none;width:46px;height:28px;border-radius:999px;background:var(--fond-2);border:1px solid var(--bord);
+  pointer-events:none;
   transition:background .15s}
 .bascule-p::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:var(--bord);
   transition:transform .15s,background .15s}
@@ -1363,6 +1365,6 @@ body[data-espace="prof"] .retour-site:hover{background:rgba(255,255,255,.12)}
 .minutes-total .temps{margin-left:8px;font-size:17px}
 
 /* l'arrivée : une bannière (l'image temporaire, jamais rognée) ; la fin : l'animal de l'équipe */
-.banniere{display:block;width:100%;height:auto;max-height:220px;object-fit:contain;margin:0 0 16px;border-radius:var(--r-s);
+.banniere{display:block;width:100%;height:auto;max-height:220px;object-fit:contain;margin:20px 0 0;border-radius:var(--r-s);
   background:var(--fond-2)}
 .merci-e{margin:0;font-size:44px;line-height:1}

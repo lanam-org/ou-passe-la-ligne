@@ -23,12 +23,13 @@ export const ECRANS = {
     guide: `Bienvenue sur la presqu'île. Ce que vous voyez est réel : le territoire, les chiffres,
       les documents. <b>La décision, elle, est la vôtre.</b> On vous demande de tracer la limite
       d'une aire protégée. Ça a l'air simple. Ça ne le restera pas.`,
-    // la question tout de suite sous la garde-parc : c'est ce qu'il y a à faire ; le reste se lit après
-    // une bannière de la presqu'île (experte UI/UX : plus de visuel dès l'arrivée) ; l'image temporaire en attendant
-    h: `${IMAGES ? '' : `<img class="banniere" src="${IMAGE_TEMPORAIRE}" alt="" width="306" height="175">`}
-        <p class="serif lead">En 1970, le gouvernement a tracé une ligne sur cette carte. À l'intérieur :
+    // la question tout de suite sous la garde-parc : c'est ce qu'il y a à faire ; le reste se lit après.
+    // La bannière de la presqu'île (experte UI/UX : plus de visuel dès l'arrivée) vient donc juste après la question :
+    // au-dessus, elle la pousserait sous le bas de l'écran d'un Chromebook. L'image temporaire en attendant la vraie.
+    h: `<p class="serif lead">En 1970, le gouvernement a tracé une ligne sur cette carte. À l'intérieur :
         un parc national. À l'extérieur : la vie qui continue.</p>
       ${blocQuestions('arrivee')}
+      ${IMAGES ? '' : `<img class="banniere" src="${IMAGE_TEMPORAIRE}" alt="" width="306" height="175">`}
       <p class="serif lead" style="margin-top:22px">Vous n'êtes pas des camps qui s'affrontent.
         Vous êtes <b>une équipe</b>, et vous avez la même question devant vous.</p>
       <div class="paires">
