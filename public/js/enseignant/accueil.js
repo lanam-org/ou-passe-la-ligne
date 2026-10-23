@@ -19,8 +19,9 @@ const vignette = (attrs, ic, titre, ligne) => `<button class="vignette" type="bu
 const dateCourte = (t) => new Date(t).toLocaleString('fr-CA', { dateStyle: 'medium', timeStyle: 'short' });
 
 /**
- * Dessine l'accueil : une nouvelle séance, les séances déjà créées, le dossier élève. « Less is more » : ce qui sert
- * moins souvent (dossier complet, version du jeu, trousse d'essai, fiche pour l'école) attend sous « Plus d'outils ».
+ * Dessine l'accueil : une nouvelle séance, l'historique, de quoi préparer la séance (les dossiers, en vignettes).
+ * « Less is more » : ce qui sert moins souvent (trousse d'essai, fiche pour l'école, version du jeu) attend sous
+ * « Plus d'outils ».
  */
 export async function afficherAccueil(erreur = '') {
   const { MOI } = etat;

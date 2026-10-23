@@ -1,4 +1,4 @@
-// enseignant/debrief.js — l'onglet « Débrief » : la page à projeter en classe
+// enseignant/debrief.js — l'onglet « Rétroaction » : la page à projeter en classe
 // entière, avec les questions orales et ce que les équipes ont écrit.
 
 import { esc } from '../outils.js';
@@ -31,7 +31,7 @@ export function vueDebrief() {
     return `<section class="p-sect">
       <p class="db-q"><span class="qid">${esc(qid(q))}</span> ${esc(q.eleve)}</p>
       ${q.reponse ? `<p class="db-a">Attendu : ${esc(attendu(q))}</p>` : ''}
-      ${ap ? `<p class="sur" style="margin-top:14px">Ce que les équipes ont écrit : ${esc(ap.eleve)} (${esc(ap.id)})</p><div class="db-r">${reponses(ap.id)}</div>` : ''}</section>`;
+      ${ap ? `<p class="sur" style="margin-top:14px">Ce que les équipes ont écrit : ${esc(ap.eleve)} (${esc(qid(ap))})</p><div class="db-r">${reponses(ap.id)}</div>` : ''}</section>`;
   };
   const ecritesDebrief = ecrites.filter((q) => q.etape === 'debrief');
   const f32 = posees.get('F3.2');

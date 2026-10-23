@@ -41,7 +41,7 @@ function pastilles(c, item, actives) {
   const ids = (item.sert || []).filter((id) => actives.has(id));
   if (!ids.length) return '';
   return `<span class="dd-pastilles">${ids.map((id) => `<span class="pastille fam-${fam[id] || 'aucune'}"
-    title="${esc(actives.get(id).eleve || '')}">${esc(id)}</span>`).join('')}</span>`;
+    title="${esc(actives.get(id).eleve || '')}">${esc(id.replace(/^F/, 'Q'))}</span>`).join('')}</span>`;
 }
 
 function copie(item) {
@@ -102,7 +102,7 @@ export function dossierHTML(c, { version = 'devoir', pastilles: avec = true, ens
       const ordre = [...actives.keys()];
       const qs = [...servies].filter((id) => fam[id] === f.id).sort((a, b) => ordre.indexOf(a) - ordre.indexOf(b));
       return qs.length ? `<div class="dd-fam"><p class="dd-fam-t"><span class="pastille fam-${f.id}">${esc(f.t)}</span></p>
-        <ul>${qs.map((id) => `<li><span class="pastille fam-${f.id}">${esc(id)}</span> ${esc(actives.get(id).eleve)}</li>`).join('')}</ul></div>` : '';
+        <ul>${qs.map((id) => `<li><span class="pastille fam-${f.id}">${esc(id.replace(/^F/, 'Q'))}</span> ${esc(actives.get(id).eleve)}</li>`).join('')}</ul></div>` : '';
     }).join('')}</section>` : '';
 
   // cle : l'élément dans « Corriger un texte ou un chiffre » (reglages.js, corrigeables)

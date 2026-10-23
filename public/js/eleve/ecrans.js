@@ -131,7 +131,7 @@ export const ECRANS = {
         : (E.comps < n ? '' : 'Voilà les quatre. ') + neuf.quoi,
       h: (lus.length ? `<details class="fige"><summary><span class="sur">Déjà lus</span>
             <b>${lus.length > 1 ? `${MOTS[lus.length] || lus.length} points de vue` : esc(lus[0].t)}</b></summary><div class="corps-f">${lus.map((x) =>
-              `<p><b>${esc(x.t)}</b> : ${x.x}</p><p>${x.quoi}</p>`).join('')}</div></details>` : '')
+              `<p><b>${esc(x.t)}</b><br>${x.x}</p><p>${x.quoi}</p>`).join('')}</div></details>` : '')
         + (neuf ? '' : '<p class="hint" style="margin-bottom:12px">Touchez le bouton pour entendre le premier.</p>')
         + carte(c, E, { outil: ui.outil }) + blocQuestions('comp'),
       carnet: [...(neuf ? [{ brut: `<div class="comp${ui.compNeuf ? ' comp--neuf' : ''}"><p class="sur">${esc(neuf.sur)}</p>
@@ -185,7 +185,7 @@ export const ECRANS = {
             aUnBravo(S, idEq, q.id) ? ' <span class="vos-bravo">✦ bravo de votre enseignant·e</span>' : ''}</dd>`).join('')}</dl>
         </details>
         <details class="d-sources" id="d-sources"><summary>D'où viennent les chiffres <span class="hint">(chaque source)</span></summary>
-          ${c.sources.map((s) => `<p class="src"><b>${esc(s.t)}</b> : ${esc(s.x)}</p>`).join('')}
+          ${c.sources.map((s) => `<p class="src"><b>${esc(s.t)}</b><br>${esc(s.x)}</p>`).join('')}
         </details>`,
       btn: avis ? 'Donner mon avis' : 'Terminer la partie', peut: pret,
       hint: pret ? '' : restent ? 'Une question d\'une étape précédente attend votre réponse.' : PAS_FINI

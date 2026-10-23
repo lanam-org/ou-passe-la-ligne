@@ -21,18 +21,18 @@ const contenuActuel = () => (etat.code ? etat.c : Rg.appliquer(base, ui.maVersio
 /* ------------------------------------------------------------ Démarrer en 5 minutes */
 
 function ficheDemarrer() {
-  const formats = Object.values(Rg.FORMATS).map((f) => f.nom).join(', ');
+  const formats = [Rg.FORMATS.standard.nom, Rg.FORMATS.mesure.nom].join(' ou ');
   const pas = [
     ['Créer la séance', `Ouvrir l'espace enseignant (${esc(adresse('enseignant.html'))}), choisir la durée (${esc(formats)}),
       puis « Créer la séance ». Un format prêt suffit pour une première séance. Pour l'adapter ensuite (rendre une question
-      facultative ou la retirer, corriger un chiffre ou un texte) : « Réglages avancés », dans l'onglet « Réglages », même
+      facultative ou la retirer, mettre à jour un chiffre ou un texte) : « Réglages avancés », dans l'onglet « Réglages », même
       pendant la séance, ou les liens sous chaque question (onglet « Questions ») et chaque document (onglet « Dossier »).
       « ← Vos séances », au début de la barre d'onglets, ramène à toutes vos séances.`],
     ['Faire entrer les équipes', `Dans « En direct » : le code de cinq caractères, à écrire au tableau, ou son code QR
       (« Agrandir le code QR »). Chaque équipe ouvre « Je suis élève » (${esc(adresse('eleve.html'))}), entre le code et
       choisit un nom d'animal. Un Chromebook par équipe, aucun prénom, ni dans le nom ni dans les réponses.`],
     ['Suivre la classe', `« En direct » : le chrono démarre avec la première équipe. « Message à toute la classe » pour
-      un rappel ; « +5 min » ou « Terminer l'étape maintenant » pour le temps. Toucher une équipe pour lire ses réponses,
+      un rappel ; le chrono, comme un lecteur de musique : pause, −5 et +5 minutes à l'étape, terminer l'étape. Toucher une équipe pour lire ses réponses,
       et « ✦ Bravo » pour en saluer une : l'équipe le voit tout de suite.`],
     ['Animer la rétroaction', `L'onglet « Rétroaction », à projeter : les lignes tracées par les équipes, les questions orales et ce
       que les équipes ont écrit. « Cacher les réponses attendues » avant de projeter ; « Plein écran ».`],
@@ -42,12 +42,12 @@ function ficheDemarrer() {
   ];
   const ou = [
     ['Vos séances', 'au début de la barre d\'onglets : retrouver une ancienne séance, en créer une autre'],
-    ['Réglages', 'la durée ; puis, dans « Réglages avancés » : chaque question, vos questions, corriger un chiffre ou un texte'],
-    ['Questions', 'chaque question et sa réponse attendue ; la rendre facultative, la retirer, corriger son texte'],
+    ['Réglages', 'la durée ; puis, dans « Réglages avancés » : chaque question, vos questions, mettre à jour un chiffre ou un texte'],
+    ['Questions', 'chaque question et sa réponse attendue ; la rendre facultative, la retirer, mettre à jour son texte'],
     ['Dossier', 'le dossier documentaire, chaque document avec « Mettre à jour ce texte » ; la version élève s\'imprime d\'avance'],
     ['Déroulement', 'l\'intention de chaque étape, ce qu\'elle fait travailler, quoi observer'],
     ['Mesures', 'ce que le site a mesuré, équipe par équipe'],
-    ['Revoir le guide', 'en haut à droite : les bulles d\'aide reviennent']
+    ['« ? »', 'en haut à droite, le guide de la page : les bulles d\'aide reviennent']
   ];
   return `<h1>Où passe la ligne&nbsp;? · démarrer en 5 minutes</h1>
     <p class="r-note">Un jeu de géographie en équipe : tracer la limite d'une aire protégée à Forillon, en 1970, puis voir

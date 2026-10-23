@@ -29,7 +29,7 @@ export const NOMS_EQUIPES = [
   'Cormoran', 'Grand héron', 'Lynx', 'Martin-pêcheur'
 ];
 
-/** Un emoji par animal, sur l'écran « Rejoindre » seulement (décoratif : le nom reste le nom). */
+/** Un emoji par animal, à l'écran « Rejoindre » et à la fin de la partie (décoratif : le nom reste le nom). */
 export const EMOJIS_EQUIPES = {
   'Fou de Bassan': '🦢', 'Phoque gris': '🦭', 'Petit rorqual': '🐋', 'Orignal': '🫎', 'Ours noir': '🐻', 'Castor': '🦫',
   'Renard roux': '🦊', 'Porc-épic': '🦔', 'Guillemot': '🐦', 'Petit pingouin': '🐧', 'Mouette tridactyle': '🕊️',

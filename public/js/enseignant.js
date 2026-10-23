@@ -8,7 +8,7 @@
 // répond aux gestes faits en séance. Chaque écran a son fichier dans enseignant/ :
 //   etat.js      l'état partagé (la séance, ses équipes, le contenu réglé) et de petits outils
 //   accueil.js   « Vos séances » : créer, rouvrir, effacer, imprimer le dossier d'avance
-//   direct.js    En direct          debrief.js   Débrief
+//   direct.js    En direct          debrief.js   Rétroaction
 //   editeur.js   Réglages et « Votre version du jeu »
 //   preparer.js  Questions, Dossier, Déroulement
 //   apres.js     Mesures, Questionnaire

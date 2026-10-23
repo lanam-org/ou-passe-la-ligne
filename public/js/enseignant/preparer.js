@@ -53,7 +53,7 @@ export function vueQuestions() {
   return `<div class="p-tete"><h2>Les questions</h2>
       <p>Dans cette séance (${esc(Rg.FORMATS[c.reglages.format]?.nom || '')}) : ${c.q.ecrites.length} questions écrites en équipe,
         dont ${nReq} requises, et ${c.q.orales.length} à l'oral, à la rétroaction. Les autres restent dans la banque, pour une reprise.
-        Sous chaque question : la rendre facultative, la retirer ou la poser, et corriger son texte, même pendant la séance.</p></div>
+        Sous chaque question : la rendre facultative, la retirer ou la poser, et mettre à jour son texte, même pendant la séance.</p></div>
     ${c.etapes.filter((x) => x.id !== 'avis').map((x) => {
       const l = c.banque.filter((q) => Rg.etapeQuestion(c, q) === x.id && !retiree(q));
       const a = ajouts.filter((q) => (q.etape || 'debrief') === x.id);

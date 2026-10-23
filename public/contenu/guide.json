@@ -31,7 +31,7 @@
   "F2.5": {
    "reponse": "Oui, comme des visiteurs. Depuis 2010, un laissez-passer gratuit est offert aux expropriés et à leurs descendants (trois générations). En 2020, il est étendu aux 4e, 5e et 6e générations.",
    "note": "L'information reste dans le relevé 5.",
-   "dansLeJeu": "Pose la question « qui a le droit de revenir ? », reprise au débrief."
+   "dansLeJeu": "Pose la question « qui a le droit de revenir ? », reprise à la rétroaction."
   },
   "F2.6": {
    "reponse": "Oui. Le mawiomi, grand rassemblement mi'gmaq, s'est tenu dans le parc en 2017, 2018, 2019 et 2023. En août 2025, la Nation y a inauguré Um'tgi Wapg – Terre de l'aube, une expérience d'hébergement et d'interprétation.",
@@ -44,7 +44,7 @@
   },
   "F3.2": {
    "reponse": "Les deux : elles ne comptent pas la même chose. Trois sources de 2020 donnent 983 habitants dans les 225 familles ; Radio-Canada écrit que « 1800 personnes céderont leur terrain ». Parcs Canada compte aussi près de 1 200 propriétaires qui ont perdu un lot à bois. Avant de comparer deux nombres, il faut savoir ce que chacun compte.",
-   "dansLeJeu": "Reprise au débrief. Bravo « Deux sources confrontées » si le document est gardé."
+   "dansLeJeu": "Reprise à la rétroaction. Bravo « Deux sources confrontées » si le document est gardé."
   },
   "F3.3": {
    "reponse": "• Visiteurs : chiffre de 2019, près de 50 ans après la décision. / • Forêt à 95 % : dit QUOI protéger, pas QUI peut habiter. / • Caribous : vrai, mais dans les Chic-Chocs, à plus de 100 km. / • Communiqué touristique : écrit pour attirer des visiteurs, pas pour décider.",
@@ -68,7 +68,7 @@
   "F4.4": {
    "reponse": "La nature : la forêt couvre 95 % du parc, avec le littoral et les falaises. Un patrimoine humain aussi : les maisons de Grande-Grave, pour lesquelles près de 9,8 M$ ont été annoncés (Parcs Canada, 2023).",
    "note": "",
-   "dansLeJeu": "Prépare la question du débrief « protégé de quoi, et pour qui ? »."
+   "dansLeJeu": "Prépare la question de la rétroaction « protégé de quoi, et pour qui ? »."
   },
   "F5.1": {
    "reponse": "Moins bien : une route coupe les passages des animaux. En 2022, le Canada investit 4,3 M$ pour effacer 5,5 km d'un ancien tronçon de la route 132 (asphalte retiré, emprise reboisée) et « restaurer la connectivité écologique de la forêt et des cours d'eau ». Regarder l'état du corridor.",
@@ -76,8 +76,8 @@
   },
   "F5.2": {
    "reponse": "Pas de réponse unique. Le communiqué annonce 3 000 nouveaux emplois, près de 700 000 visiteurs par an et 42 M$ par année pour la région. Beaucoup de Gaspésiens voient le futur parc comme une chance pour l'économie, et les expropriés subissent leurs pressions. Attendu : le parc protège la nature, mais il sert aussi un projet économique ; les familles, elles, partent.",
-   "note": "Consigne de la point de vue 2 (la région) ; reprise au débrief par F7.2.",
-   "dansLeJeu": "Nourrit le débrief (question F7.2)."
+   "note": "Consigne de la point de vue 2 (la région) ; reprise à la rétroaction par Q7.2.",
+   "dansLeJeu": "Nourrit la rétroaction (question Q7.2)."
   },
   "F5.3": {
    "reponse": "18 mois. Le 17 juillet 1970, la Loi sur le parc Forillon donne des pouvoirs d'expropriation ; le plan d'expropriation est annoncé le 22 juillet 1970.",

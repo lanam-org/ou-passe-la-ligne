@@ -56,8 +56,9 @@ function puces(e) {
 
 /**
  * Le chrono en lecteur, comme une application de musique (conseil de l'experte UI/UX) : un gros bouton
- * démarrer / pause au centre ; autour, −5 et +5 minutes à l'étape de la plupart des équipes, la remise à zéro et
- * « terminer l'étape ». Des icônes : chaque bouton garde son nom (aria-label) et une infobulle.
+ * démarrer / pause au centre ; autour, −5 et +5 minutes à l'étape de la plupart des équipes et « terminer l'étape ».
+ * Des icônes : chaque bouton garde son nom (aria-label, qui commence par ce qu'on lit) et une infobulle. La remise à zéro,
+ * qui efface le temps de toute la classe, attend dans « Le détail » : pas à côté de −5, où un clic de travers suffirait.
  */
 function lecteur(ch, classe) {
   const b = (attrs, nom, contenu, cls = '') => `<button class="lecteur-b${cls}" type="button" ${attrs} aria-label="${esc(nom)}" title="${esc(nom)}">${contenu}</button>`;
@@ -66,10 +67,9 @@ function lecteur(ch, classe) {
       : b('data-chrono="pause"', 'Mettre le chrono en pause', icone('pause'), ' lecteur-b--g');
   const etape = classe ? `l'étape « ${classe.t} »` : '';
   return `<div class="lecteur">
-    ${ch.debut ? b('data-chrono="zero"', 'Remettre le chrono à zéro', icone('zero')) : ''}
-    ${classe ? b(`data-minutes="${classe.id}" data-delta="-5" ${classe.min <= 1 ? 'disabled' : ''}`, `Enlever 5 minutes à ${etape}`, '<span aria-hidden="true">−5</span>') : ''}
+    ${classe ? b(`data-minutes="${classe.id}" data-delta="-5" ${classe.min <= 1 ? 'disabled' : ''}`, `−5 minutes à ${etape}`, '<span aria-hidden="true">−5</span>') : ''}
     ${grand}
-    ${classe ? b(`data-minutes="${classe.id}" data-delta="5"`, `Ajouter 5 minutes à ${etape}`, '<span aria-hidden="true">+5</span>') : ''}
+    ${classe ? b(`data-minutes="${classe.id}" data-delta="5"`, `+5 minutes à ${etape}`, '<span aria-hidden="true">+5</span>') : ''}
     ${classe ? b(`data-terminer="${classe.id}"`, `Terminer ${etape} maintenant : les équipes voient « Temps prévu dépassé »`, icone('fin')) : ''}
   </div>`;
 }
@@ -114,6 +114,7 @@ export function vueDirect() {
           <details class="chrono-detail" data-k="chrono-detail" ${ui.ouverts.has('chrono-detail') ? 'open' : ''}>
             <summary>Le détail, étape par étape</summary>
             <ol>${etapesJeu.map((x) => `<li>${esc(x.t)} · <span class="temps">${x.min} min</span>${nq(x.id) ? ` · ${nq(x.id)} question${nq(x.id) > 1 ? 's' : ''}` : ''}</li>`).join('')}</ol>
+            ${ch.debut ? `<p><button class="lien" type="button" data-chrono="zero">${icone('zero')} Remettre le chrono à zéro</button></p>` : ''}
           </details>
         </section>
       </div>

@@ -803,7 +803,7 @@ body[data-espace="prof"] .theme-c:has(select:focus-visible){outline-color:var(--
 :root[data-theme-choix="contrast"] .theme-i--contrast{display:block}
 .theme-c select{position:absolute;inset:0;width:100%;height:100%;margin:0;padding:0;border:0;border-radius:inherit;
   appearance:none;-webkit-appearance:none;background:transparent;color:transparent;font:inherit;font-size:15px;cursor:pointer}
-.theme-c select:focus{outline:none}
+.theme-c select:focus:not(:focus-visible){outline:none}
 .theme-c option{color:var(--encre);background:var(--surface)}
 @media (forced-colors:active){.theme-c select{forced-color-adjust:none;color:transparent}}
 body[data-espace="prof"] .theme-c{color:var(--prof-txt)}
@@ -987,7 +987,6 @@ body[data-espace="prof"] .aide-b:focus-visible{outline-color:var(--prof-txt)}
 .tete-code--qr,.tete-code--qr + .tete-chrono{grid-column:1 / -1}
 .tete-code--qr .code-g{flex-direction:column;align-items:center;text-align:center}
 .tete-code--qr .qr{width:min(62vh,480px);height:auto;aspect-ratio:1}
-.tete-chrono .signaux{margin-top:10px}
 
 /* détail d'une équipe : documents retenus */
 .docs-r{list-style:none;margin:8px 0 0;padding:0;font-size:14px;line-height:1.45}
@@ -1148,9 +1147,6 @@ body[data-espace="prof"] .aide-b:focus-visible{outline-color:var(--prof-txt)}
 .bravo-x:focus-visible{outline:2px solid #F2C46B;outline-offset:1px}
 
 /* accueil : la note de confidentialité, petite et sur une ligne */
-.accueil-note{margin-top:22px;font-size:13px;color:var(--pale);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.accueil-note a{color:var(--primaire);font-weight:600;text-underline-offset:3px}
-@media (max-width:700px){.accueil-note{white-space:normal}}
 
 /* ===================================================== page « Confidentialité et à propos » */
 .apropos{max-width:980px;margin:0 auto;padding:28px 20px 48px}
@@ -1318,6 +1314,9 @@ body[data-espace="prof"] .retour-site:hover{background:rgba(255,255,255,.12)}
 .lecteur-b:hover{background:rgba(255,255,255,.12)}
 .lecteur-b:active{transform:translateY(1px)}
 .lecteur-b:focus-visible{outline:3px solid var(--prof-txt);outline-offset:3px}
+/* sur fond sombre, le contour du focus reste clair, même en contraste élevé (où le fond du chrono est noir) */
+.tete-chrono .lecteur-b:focus-visible,.tete-chrono summary:focus-visible,.tete-chrono .lien:focus-visible{outline:3px solid var(--prof-txt);outline-offset:3px}
+.aide-bulle .aide-ok:focus-visible,.aide-bulle .aide-stop:focus-visible{outline:2px solid var(--nuit-txt);outline-offset:2px}
 .lecteur-b[disabled]{opacity:.45;cursor:not-allowed}
 .lecteur-b--g{width:68px;height:68px;background:var(--prof-txt);color:var(--prof-bande);border-color:var(--prof-txt)}
 .lecteur-b--g .ic{width:30px;height:30px}
@@ -1342,6 +1341,9 @@ body[data-espace="prof"] .retour-site:hover{background:rgba(255,255,255,.12)}
 .bascule input:checked + .bascule-p::after{transform:translateX(18px);background:var(--sur-primaire)}
 .bascule input:focus-visible + .bascule-p{outline:3px solid var(--primaire);outline-offset:2px}
 .bascule input:disabled + .bascule-p{opacity:.5}
+/* en couleurs forcées (Windows, contraste élevé) : le bouton rond garde un contour, et se remplit quand c'est activé */
+.bascule-p::after{border:1px solid transparent}
+@media (forced-colors:active){.bascule input:checked + .bascule-p::after{forced-color-adjust:none;background:Highlight;border-color:Highlight}}
 .vignettes{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin:4px 0 10px}
 .vignette{display:flex;flex-direction:column;align-items:flex-start;gap:4px;padding:12px 14px;min-height:96px;cursor:pointer;
   border:1px solid var(--bord);border-radius:var(--r-s);background:var(--surface);color:var(--encre);font:inherit;
@@ -1368,3 +1370,7 @@ body[data-espace="prof"] .retour-site:hover{background:rgba(255,255,255,.12)}
 .banniere{display:block;width:100%;height:auto;max-height:220px;object-fit:contain;margin:20px 0 0;border-radius:var(--r-s);
   background:var(--fond-2)}
 .merci-e{margin:0;font-size:44px;line-height:1}
+/* un lien dans le bloc du chrono (remise à zéro) : clair sur le fond sombre */
+.tete-chrono .lien{color:var(--prof-txt);text-decoration:underline;text-underline-offset:3px;display:inline-flex;align-items:center;gap:6px}
+/* contraste élevé : la barre de l'espace enseignant est noire ; le contour du focus y devient blanc */
+:root[data-theme="contrast"] body[data-espace="prof"] .barre :focus-visible{outline-color:#FFFFFF}

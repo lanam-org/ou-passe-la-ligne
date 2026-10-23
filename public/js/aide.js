@@ -83,14 +83,16 @@
       // pas de « OK » (conseil de l'experte UI/UX : un bouton dit ce qu'il fait) : une flèche, et où l'on en est
       bulle.innerHTML = '<p class="aide-t"></p><div class="aide-a"><span class="aide-n"></span>'
         + '<button type="button" class="aide-stop">Arrêter l’aide</button>'
-        + '<button type="button" class="aide-ok" aria-label="Bulle suivante" title="Suivante"><span aria-hidden="true">→</span></button></div>';
+        + '<button type="button" class="aide-ok" aria-label="Continuer" title="Continuer"><span aria-hidden="true">→</span></button></div>';
       bulle.querySelector('.aide-ok').addEventListener('click', function () { fermer(true); });
       bulle.querySelector('.aide-stop').addEventListener('click', function () { etat.off = true; garder(); fermer(true); });
       document.body.appendChild(bulle);
     }
     bulle.setAttribute('data-bulle', b[0]);
     bulle.querySelector('.aide-t').textContent = b[2];
-    bulle.querySelector('.aide-n').textContent = (liste.indexOf(b) + 1) + ' sur ' + liste.length;
+    // la progression : combien de bulles de la page sont déjà lues (elles viennent quand leur élément apparaît, pas dans l'ordre)
+    var lues = liste.filter(function (x) { return vu(x[0]); }).length;
+    bulle.querySelector('.aide-n').textContent = (lues + 1) + ' sur ' + liste.length;
     bulle.hidden = false;
     placer();
   }
