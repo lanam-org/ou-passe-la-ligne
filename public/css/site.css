@@ -1237,15 +1237,16 @@ body[data-espace="prof"] .aide-b:focus-visible{outline-color:var(--prof-txt)}
   --fond:#0E1A17; --fond-2:#13231F; --surface:#162B26; --trait:#23392F; --fort:#35514A; --bord:#6E9286;
   --primaire:#4FD1B5; --primaire-h:#7ADDC6; --sur-primaire:#0B1F1A;
 }
-/* l'espace enseignant en brun terre (bois, carnet de terrain) : bien distinct du vert des équipes, plus calme */
+/* l'espace enseignant en violet foncé : distinct du vert des équipes ; en sombre, les surfaces prennent la même teinte */
 :root[data-theme="light"] body[data-espace="prof"]{
-  --fond-prof:#EFEAE3; --prof-bande:#3B2A1E; --primaire:#8A5A2B; --primaire-h:#6F4721;
+  --fond-prof:#EFEBF1; --prof-bande:#3A2340; --primaire:#6B3F7A; --primaire-h:#55305F;
 }
 :root[data-theme="dark"] body[data-espace="prof"]{
-  --fond-prof:#14100C; --prof-bande:#3A2A1F; --primaire:#D9A66B; --primaire-h:#E6BC8A;
+  --fond-prof:#120E15; --surface:#1D1722; --fond-2:#241C2A; --trait:#352A3D; --fort:#4A3B55; --bord:#8A7896;
+  --prof-bande:#2E1F36; --primaire:#C9A3DB; --primaire-h:#D9BCE6;
 }
-:root[data-theme="light"] .porte--prof{--primaire:#8A5A2B}
-:root[data-theme="dark"] .porte--prof{--primaire:#D9A66B}
+:root[data-theme="light"] .porte--prof{--primaire:#6B3F7A}
+:root[data-theme="dark"] .porte--prof{--primaire:#C9A3DB}
 
 /* ===================================================== en-tête : le nom du site et « ← Accueil » ramènent à l'accueil */
 .marque h1 .marque-l{font-size:inherit}
