@@ -72,7 +72,7 @@ export function exporterReponses() {
   // une cellule qui commence par = + - @ serait prise pour une formule par le tableur : on la neutralise
   const cel = (v) => { let s = String(v ?? ''); if (/^[=+\-@\t\r]/.test(s)) s = `'${s}`; return `"${s.replace(/"/g, '""')}"`; };
   const tete = ['Équipe', 'Étape atteinte', 'Partie terminée', ...ecrites.map((q) => `${qid(q)} · ${q.eleve || q.q || ''}`)];
-  const lignes = eq.map((e) => [e.nom, `${e.atteinte + 1} / ${etapesJeu.length}`, e.fini ? 'oui' : 'non',
+  const lignes = eq.map((e) => [e.nom, `${Math.min(e.atteinte, etapesJeu.length - 1) + 1} / ${etapesJeu.length}`, e.fini ? 'oui' : 'non',
     ...ecrites.map((q) => String(e.reponses?.[q.id] || '').trim())]);
   telecharger(`forillon_${code}_reponses.csv`, '\uFEFF' + [tete, ...lignes].map((l) => l.map(cel).join(';')).join('\r\n'),
     'text/csv;charset=utf-8');

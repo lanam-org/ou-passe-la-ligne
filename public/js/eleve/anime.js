@@ -10,7 +10,7 @@ export const calme = () => { try { return matchMedia('(prefers-reduced-motion: r
 
 function carte(html, cls, ms) {
   if (calme()) return;
-  document.querySelectorAll(`.anim-carte.${cls}`).forEach((x) => x.remove());
+  document.querySelectorAll('.anim-carte').forEach((x) => x.remove());   // une seule carte à la fois
   const d = document.createElement('div');
   d.className = `anim-carte ${cls}`;
   d.setAttribute('aria-hidden', 'true');

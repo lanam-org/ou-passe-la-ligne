@@ -73,7 +73,8 @@ async function demarrer() {
 function retourAccueil(erreur = '') {
   arrets.forEach((f) => f()); arrets = [];
   Object.assign(etat, { code: null, S: null, reponses: null, EQ: [], AV: [], choisie: null, onglet: 'direct' });
-  ui.ed = null;
+  ui.ed = null; ui.projProg = false; ui.projection = false;
+  if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
   appliquerReglages(null);
   $('#onglets').innerHTML = '';
   return afficherAccueil(erreur);
@@ -144,7 +145,9 @@ function rendre(force = false) {
   // un message en cours d'écriture survit au rafraîchissement (toutes les 5 s, et à chaque geste d'équipe)
   const brouillon = $('#f-signal [name=texte]');
   const garde = brouillon && { v: brouillon.value, focus: document.activeElement === brouillon, a: brouillon.selectionStart, b: brouillon.selectionEnd };
+  const actif = ['data-proj-prog', 'data-rythme', 'data-rythme-suivante'].find((a) => document.activeElement?.hasAttribute?.(a));
   $('#prof').innerHTML = typo(VUES[onglet]());
+  if (actif) document.querySelector(`[${actif}]`)?.focus();
   const neuf = garde && $('#f-signal [name=texte]');
   if (neuf) {
     neuf.value = garde.v;
@@ -297,7 +300,11 @@ document.addEventListener('click', async (ev) => {
   }
   const sg = ev.target.closest('[data-signal]');
   if (sg) {
-    await donnees.majPartielle(cheminSeance(code), { signal: sg.dataset.signal ? { type: sg.dataset.signal, t: Date.now() } : null });
+    const champs = { signal: sg.dataset.signal ? { type: sg.dataset.signal, t: Date.now() } : null };
+    // avancer ensemble : envoyer la classe à la rétroaction ouvre aussi cette étape (sinon l'équipe y arrive… et attend)
+    const iDebrief = c.etapes.findIndex((x) => x.id === 'debrief');
+    if (sg.dataset.signal === 'debrief' && S?.rythme && S.rythme.etape < iDebrief) champs.rythme = { etape: iDebrief };
+    await donnees.majPartielle(cheminSeance(code), champs);
     return;
   }
   if (ev.target.closest('[data-fermer]')) { await donnees.majPartielle(cheminSeance(code), { etat: 'fermee' }); return; }
@@ -337,11 +344,12 @@ document.addEventListener('click', async (ev) => {
   const ry = ev.target.closest('input[data-rythme]');
   if (ry) {
     const classe = Rg.etapeDeLaClasse(c, EQ);
-    return reglerRythme(code, ry.checked ? { etape: Math.max(0, classe ? c.etapes.indexOf(classe) : 0) } : null);
+    return reglerRythme(code, ry.checked ? { etape: Math.max(0, classe ? c.etapes.indexOf(classe) : 0) } : null)
+      .catch((e) => { console.warn('Rythme non enregistré', e); rendre(); });
   }
   if (ev.target.closest('[data-rythme-suivante]') && S?.rythme) {
     ev.target.closest('[data-rythme-suivante]').disabled = true;
-    return reglerRythme(code, { etape: S.rythme.etape + 1 });
+    return reglerRythme(code, { etape: S.rythme.etape + 1 }).catch((e) => { console.warn('Rythme non enregistré', e); rendre(); });
   }
   if (ev.target.closest('[data-imprimer]')) return imprimer(questionnairePapier());
   if (ev.target.closest('[data-rapport]')) return imprimer(rapportHTML());

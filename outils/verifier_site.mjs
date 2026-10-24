@@ -657,10 +657,12 @@ await auditer(prof, 'enseignant · accueil « Vos séances »');
   const contenuT = JSON.parse(await readFile(join(PUBLIC, 'contenu', 'forillon.json'), 'utf8'));
   const aObserver = Object.entries(contenuT.observer).filter(([id]) => id !== 'avis' || MESURE).flatMap(([, l]) => l);
   dit(aObserver.every((x) => grille.includes(x)) && contenuT.plan.every((p) => grille.includes(p.test))
-    && grille.includes('Aucun prénom') && ['Choisir la durée de la séance', 'Corriger un chiffre ou un texte du jeu',
-      'Explorer une séance de démonstration', 'Féliciter une équipe pour une bonne réponse', 'Retrouver une ancienne séance'].every((f) => grille.includes(f))
-    && (grille.match(/☐/g) || []).length >= 18 * 3,
-    `la grille d’observation : les ${aObserver.length} « À observer », les 18 fonctions à trouver seul·e, les ${contenuT.plan.length} critères du plan de mesure, sans prénom`);
+    && grille.includes('Aucun prénom') && ['Choisir la durée de la séance', 'Mettre à jour un chiffre ou un texte du jeu',
+      'Explorer une séance de démonstration', 'Féliciter une équipe pour une bonne réponse', 'Retrouver une ancienne séance',
+      'Faire avancer les équipes ensemble', 'Projeter la progression de la classe', 'Exporter les réponses en tableur'].every((f) => grille.includes(f))
+    && grille.includes('autre territoire')
+    && (grille.match(/☐/g) || []).length >= 22 * 3,
+    `la grille d’observation : les ${aObserver.length} « À observer », les 22 fonctions à trouver seul·e, les ${contenuT.plan.length} critères du plan de mesure, sans prénom`);
   await prof.emulateMedia({ media: 'print' });
   await prof.pdf({ path: join(CAPTURES, `${MODE}-trousse-observation.pdf`), format: 'Letter', printBackground: true });
   await prof.emulateMedia({ media: 'screen' });

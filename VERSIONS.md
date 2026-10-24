@@ -39,6 +39,13 @@ avec Chantal et Alexandra :
     pour une question ajoutée, le total au bout des minutes ;
   - bulles du guide : une flèche et « 2 sur 7 » au lieu de « OK » ;
   - côté équipe : une bannière à l'arrivée, l'animal de l'équipe à la fin.
+- **Espace enseignant en violet foncé**, le vert des équipes sans reflet bleu ; un grain de papier en fond ; en rouge,
+  ce qui efface ou annule.
+- **Côté équipe plus animé** (inspiré de Kahoot, sans score) : cartes d'entrée et d'étape, confettis, barre du temps,
+  tuiles de l'avis en couleurs et formes.
+- **Inspiré de Socrative** : avancer ensemble (l'enseignant·e ouvre l'étape suivante), la progression à projeter,
+  l'export des réponses en tableur.
+- **Trousse d'essai** : la grille compte 22 fonctions, et deux questions sur l'adaptation du jeu.
 
 ## Playtest 0 — avec les professeurs · 17 octobre 2026
 

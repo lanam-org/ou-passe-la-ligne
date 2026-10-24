@@ -33,11 +33,12 @@ function ficheDemarrer() {
       choisit un nom d'animal. Un Chromebook par équipe, aucun prénom, ni dans le nom ni dans les réponses.`],
     ['Suivre la classe', `« En direct » : le chrono démarre avec la première équipe. « Message à toute la classe » pour
       un rappel ; le chrono, comme un lecteur de musique : pause, −5 et +5 minutes à l'étape, terminer l'étape. Toucher une équipe pour lire ses réponses,
-      et « ✦ Bravo » pour en saluer une : l'équipe le voit tout de suite.`],
+      et « ✦ Bravo » pour en saluer une : l'équipe le voit tout de suite. « Avancer ensemble » retient les équipes à l'étape
+      ouverte ; « Projeter la progression » montre au tableau où en est chaque équipe.`],
     ['Animer la rétroaction', `L'onglet « Rétroaction », à projeter : les lignes tracées par les équipes, les questions orales et ce
       que les équipes ont écrit. « Cacher les réponses attendues » avant de projeter ; « Plein écran ».`],
     ['Garder une trace, puis effacer', `« Imprimer le rapport de séance » (ou « Enregistrer au format PDF » dans la fenêtre
-      d'impression), puis « Effacer la séance et ses données ». Sans action, la séance s'efface seule
+      d'impression), « Exporter les réponses » pour un tableur, puis « Effacer la séance et ses données ». Sans action, la séance s'efface seule
       ${JOURS_CONSERVATION} jours après sa création.`]
   ];
   const ou = [
@@ -46,7 +47,7 @@ function ficheDemarrer() {
     ['Questions', 'chaque question et sa réponse attendue ; la rendre facultative, la retirer, mettre à jour son texte'],
     ['Dossier', 'le dossier documentaire, chaque document avec « Mettre à jour ce texte » ; la version élève s\'imprime d\'avance'],
     ['Déroulement', 'l\'intention de chaque étape, ce qu\'elle fait travailler, quoi observer'],
-    ['Mesures', 'ce que le site a mesuré, équipe par équipe'],
+    ['Données', 'ce que le site a mesuré, équipe par équipe (pour la recherche)'],
     ['« ? »', 'en haut à droite, le guide de la page : les bulles d\'aide reviennent']
   ];
   return `<h1>Où passe la ligne&nbsp;? · démarrer en 5 minutes</h1>
@@ -61,19 +62,23 @@ function ficheDemarrer() {
 
 /* ------------------------------------------------------------ la grille d'observation */
 
-// Ce que l'enseignant·e doit pouvoir trouver seul·e : les 18 fonctions du courriel d'essai, dans son ordre
-// (avant la séance, puis pendant et après).
+// Ce que l'enseignant·e doit pouvoir trouver seul·e : les 18 fonctions du courriel d'essai, dans son ordre (avant la
+// séance, puis pendant et après), avec les mots de l'interface d'aujourd'hui, et les fonctions ajoutées depuis.
 const FONCTIONS = [
   'Choisir la durée de la séance', 'Rendre une question facultative, ou la retirer', 'Ajouter votre propre question',
-  'Corriger un chiffre ou un texte du jeu', 'Garder vos réglages pour les prochaines séances', 'Imprimer le dossier élève avant la séance',
-  'Explorer une séance de démonstration', 'Trouver les réponses attendues aux questions', 'Créer une séance et afficher son code',
-  'Rejoindre la séance comme équipe', 'Suivre une équipe et lire ses réponses', 'Envoyer un message à toute la classe',
-  'Mettre le chrono en pause, ajouter 5 minutes', 'Féliciter une équipe pour une bonne réponse', 'Animer le débrief en plein écran',
-  'Imprimer le rapport de séance', 'Effacer la séance', 'Retrouver une ancienne séance'
+  'Mettre à jour un chiffre ou un texte du jeu', 'Garder vos réglages pour les prochaines séances', 'Imprimer le dossier élève avant la séance',
+  'Explorer une séance de démonstration', 'Voir le jeu comme une équipe (aperçu)', 'Trouver les réponses attendues aux questions',
+  'Créer une séance et afficher son code', 'Rejoindre la séance comme équipe', 'Suivre une équipe et lire ses réponses',
+  'Envoyer un message à toute la classe', 'Mettre le chrono en pause, ajouter 5 minutes', 'Faire avancer les équipes ensemble',
+  'Projeter la progression de la classe', 'Féliciter une équipe pour une bonne réponse', 'Animer la rétroaction en plein écran',
+  'Imprimer le rapport de séance', 'Exporter les réponses en tableur', 'Effacer la séance', 'Retrouver une ancienne séance'
 ];
 const QUESTIONS_APRES = ['Qu\'avez-vous cherché sans le trouver ?', 'Qu\'est-ce qui vous a ralenti·e, ou surpris·e ?',
-  'Qu\'est-ce qui a surpris les élèves ?', 'Referiez-vous ce jeu en classe ? Avec quels changements ?'];
-const MESURE_PAR = { auto: 'le site (onglet Mesures)', observation: 'vous', questionnaire: 'le questionnaire' };
+  'Qu\'est-ce qui a surpris les élèves ?', 'Referiez-vous ce jeu en classe ? Avec quels changements ?',
+  // la suite du jeu (rencontre avec l'experte UI/UX) : ce que les enseignant·es pensent d'adapter ou de créer un scénario
+  'Aimeriez-vous adapter ce jeu (questions, documents, images) ? Qu\'y changeriez-vous ?',
+  'Créeriez-vous un scénario sur un autre territoire ? Avec quoi : questions, photos, documents ?'];
+const MESURE_PAR = { auto: 'le site (onglet Données)', observation: 'vous', questionnaire: 'le questionnaire' };
 
 function grilleObservation() {
   const c = contenuActuel();
@@ -99,7 +104,7 @@ function grilleObservation() {
       <tbody>${FONCTIONS.map((f) => `<tr><td>${esc(f)}</td>${trois}<td class="t-rem"></td></tr>`).join('')}</tbody></table>
 
     <h2>3. Le plan de mesure</h2>
-    <p class="r-note">Un critère = un test oui / non. Ceux que mesure le site se lisent dans l'onglet « Mesures » ; ceux du
+    <p class="r-note">Un critère = un test oui / non. Ceux que mesure le site se lisent dans l'onglet « Données » ; ceux du
       questionnaire, dans l'onglet « Questionnaire ».</p>
     <table><thead><tr><th>Dimension</th><th>Critère</th><th>Le test</th><th>Mesuré par</th><th class="t-c">Oui</th><th class="t-c">Non</th><th class="t-c">Pas vu</th></tr></thead>
       <tbody>${c.plan.map((p, i) => `<tr><td>${i === 0 || c.plan[i - 1].g !== p.g ? `<b>${esc(p.g)}</b>` : ''}</td><td>${esc(p.c)}</td>

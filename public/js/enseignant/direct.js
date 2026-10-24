@@ -101,9 +101,10 @@ function vueProgression() {
     <div class="prog-proj-h"><h2>La progression</h2><span class="prog-proj-code">Code : <b>${esc(code)}</b></span>
       <button class="btn btn--f btn--s" type="button" data-proj-prog aria-pressed="true">Quitter la projection</button></div>
     <ol class="piste" style="grid-template-columns:repeat(${etapesJeu.length + 1},minmax(0,1fr))">
-      ${etapesJeu.map((x, i) => `<li class="${r && i > r.etape ? 'piste--fermee' : ''}"><p class="piste-t">${esc(x.n)}. ${esc(x.t)}</p>
+      ${etapesJeu.map((x, i) => `<li class="${r && i > r.etape ? 'piste--fermee' : ''}"><p class="piste-t">${r && i > r.etape
+        ? `${icone('cadenas')}<span class="cache-visuel">Pas encore ouverte : </span>` : ''}${esc(x.n)}. ${esc(x.t)}</p>
         <div class="piste-g">${eq.filter((e) => !e.fini && e.etape === i).map(animal).join('')}</div></li>`).join('')}
-      <li class="piste--fin"><p class="piste-t">Terminé</p><div class="piste-g">${eq.filter((e) => e.fini).map(animal).join('')}</div></li>
+      <li class="piste--fin"><p class="piste-t">Terminé</p><div class="piste-g">${eq.filter((e) => e.fini || e.etape >= etapesJeu.length).map(animal).join('')}</div></li>
     </ol></div>`;
 }
 

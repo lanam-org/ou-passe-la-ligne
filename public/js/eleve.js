@@ -205,7 +205,7 @@ function rendre() {
 function retenue() {
   const { c, E, S } = etat;
   const r = S?.rythme;
-  if (!r || etat.apercu || !E || E.fini) return false;
+  if (!r || etat.apercu || !E || E.fini || S.etat === 'fermee') return false;
   const e = c.etapes[E.etape];
   if (e.id === 'avis' || (e.id === 'dossier' && !E.juge) || (e.id === 'comp' && E.comps < c.complications.length)) return false;
   return E.etape >= r.etape;
@@ -217,7 +217,8 @@ function majMinutes() {
   const z = $('#minutes');
   if (!z || !E || E.fini) return;
   const e = c.etapes[E.etape];
-  if (e.id === 'avis') { z.textContent = ''; return; }
+  if (e.id === 'avis') { z.textContent = ''; const b = $('#temps-i'); if (b) b.parentElement.hidden = true; return; }
+  if ($('#temps-i')) $('#temps-i').parentElement.hidden = false;
   const reste = Rg.resteEtape(c, E, S?.chrono);
   const pause = !!S?.chrono?.pause;
   z.textContent = pause ? 'En pause'
@@ -244,6 +245,10 @@ function majPied(v) {
   const bloque = bt.disabled, attend = v.peut && retenue();
   bt.disabled = !v.peut || attend;
   if (bloque && !bt.disabled) sautiller(bt);   // la réponse est là, ou l'étape s'ouvre : « Continuer » le signale
+  if (attend !== ui.attend) {                    // l'attente, et sa fin, dites au lecteur d'écran (une fois)
+    if (attend) dire('En attente de votre enseignant·e.'); else if (ui.attend) dire('L\'étape suivante est ouverte.');
+    ui.attend = attend;
+  }
   // Une réponse requise manque : la phrase sous le bouton devient un lien qui y mène.
   const manque = !v.peut && v.hint && reponseManquante();
   $('#hint').innerHTML = attend ? '<span class="attend">En attente de votre enseignant·e</span>'
