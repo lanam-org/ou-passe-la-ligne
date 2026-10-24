@@ -93,7 +93,6 @@ export function vueDirect() {
             <div>
               <p class="sur">Code de la séance</p>
               <p class="code-v" id="code-seance">${esc(code)}</p>
-              <p class="code-u">À afficher au tableau.</p>
             </div>
             <div class="qr-f">${codeQR(lien)}
               <button class="lien" type="button" data-qr aria-pressed="${!!ui.qrGrand}">${ui.qrGrand ? 'Réduire le code QR' : 'Agrandir le code QR'}</button>

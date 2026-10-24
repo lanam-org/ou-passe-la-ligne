@@ -70,7 +70,7 @@ function article(c, item, o) {
     ${item.s ? `<p class="dd-s">${esc(item.s)}</p>` : ''}
     ${copie(item)}
     ${item.surprise && o.enseignant ? '<p class="dd-surprise">Surprise : absent du dossier élève.</p>' : ''}
-    ${o.corriger && cle ? `<p class="dd-corriger"><button class="lien" type="button" data-aller-reglage="c:${esc(cle)}">Mettre à jour ce texte</button></p>` : ''}
+    ${o.corriger && cle ? `<p class="dd-corriger"><button class="btn btn--f btn--s" type="button" data-aller-reglage="c:${esc(cle)}">Mettre à jour ce texte</button></p>` : ''}
   </article>`;
 }
 

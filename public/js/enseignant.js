@@ -43,7 +43,7 @@ const ONGLETS = [
     { id: 'dossier', t: 'Dossier' }, { id: 'deroulement', t: 'Déroulement' }] },
   { g: 'Animer', titre: 'Animer la séance', l: [{ id: 'direct', t: 'En direct' }, { id: 'debrief', t: 'Rétroaction' }] },
   { g: 'Pour la recherche', titre: 'Pour la recherche', replie: true,
-    l: [{ id: 'mesures', t: 'Mesures' }, { id: 'questionnaire', t: 'Questionnaire' }] }
+    l: [{ id: 'mesures', t: 'Données' }, { id: 'questionnaire', t: 'Questionnaire' }] }
 ];
 // « less is more » : un groupe replié (la recherche) ne montre que son titre, un bouton qui l'ouvre ; il s'ouvre seul
 // quand on y est déjà. Le menu des fenêtres étroites, lui, garde tous les onglets.
@@ -313,6 +313,12 @@ document.addEventListener('click', async (ev) => {
   }
   if (ev.target.closest('[data-attendu]')) { ui.cacheAttendu = !ui.cacheAttendu; return rendre(); }
   if (ev.target.closest('[data-plein]')) {
+    // un interrupteur : « Plein écran », puis « Quitter le plein écran »
+    if (ui.projection) {
+      ui.projection = false;
+      if (document.fullscreenElement) await document.exitFullscreen().catch(() => {});
+      return rendre();
+    }
     ui.projection = true;
     try { await document.documentElement.requestFullscreen(); } catch { /* refusé : on garde la mise en page agrandie */ }
     return rendre();

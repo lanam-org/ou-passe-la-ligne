@@ -422,7 +422,7 @@ await prof.emulateMedia({ media: 'print' });
 await prof.pdf({ path: join(CAPTURES, `${MODE}-dossier-complet.pdf`), format: 'Letter', printBackground: true });
 await prof.emulateMedia({ media: 'screen' });
 await prof.evaluate(() => { window.dispatchEvent(new Event('afterprint')); window.print = window.__printAvant; });
-const lienDossier = (await prof.textContent('#lien-dossier')).trim();
+const lienDossier = await prof.getAttribute('#lien-dossier', 'href');
 dit(lienDossier.endsWith(`dossier.html?code=${code}`), 'le lien du dossier élève porte le code de la séance');
 const dd = await page(ctxEleve, `/dossier.html?code=${code}`, 'dossier devoir');
 await dd.waitForSelector('.dossier');

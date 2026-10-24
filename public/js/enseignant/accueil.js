@@ -82,8 +82,9 @@ export async function afficherAccueil(erreur = '') {
       <div class="vignettes">
         ${vignette('data-dossier-avance="devoir"', 'imprimer', 'Dossier élève', 'À distribuer d’avance, sans les surprises')}
         ${vignette('data-dossier-avance="complet"', 'imprimer', 'Dossier complet', 'Pour vous : avec les surprises')}
+        <a class="vignette vignette--lien" href="dossier.html" target="_blank" rel="noopener">${icone('lien')}<b>Dossier élève en ligne</b>
+          <span class="hint">À ouvrir, pas à imprimer</span></a>
       </div>
-      <p class="hint">En ligne : <a href="dossier.html" target="_blank" rel="noopener">le dossier élève</a>.</p>
     </section>
     <details class="p-sect plus-outils" data-k="accueil-plus" ${ui.ouverts.has('accueil-plus') ? 'open' : ''}>
       <summary><span class="plus-t">Plus d'outils</span>

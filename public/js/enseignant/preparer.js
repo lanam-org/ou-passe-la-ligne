@@ -25,12 +25,12 @@ const retiree = (q) => etatQuestion(q)[0] === 'retirée';
  * retirée) et corriger son texte. Chacun mène à l'onglet Réglages, ouvert au bon endroit (enseignant.js).
  */
 function liensQuestion(q) {
-  if (q.ajout) return `<p class="bq-l"><button class="lien" data-aller-reglage="ajout:${esc(q.id)}">Modifier ou retirer cette question</button></p>`;
+  if (q.ajout) return `<p class="bq-l"><button class="btn btn--f btn--s" data-aller-reglage="ajout:${esc(q.id)}">Modifier ou retirer cette question</button></p>`;
   const m = Rg.modeQuestion(q), v = etat.c.reglages.questions[q.id];
   const changer = m === 'ecrite' ? (v === 'requise' ? 'Rendre facultative ou retirer' : v === 'facultative' ? 'Rendre requise ou retirer' : 'Poser cette question')
     : m === 'orale' ? (v === 'on' ? 'Retirer de la séance' : 'Poser à l\'oral') : '';
-  return `<p class="bq-l">${changer ? `<button class="lien" data-aller-reglage="q:${esc(q.id)}">${changer}</button>` : ''}
-    <button class="lien" data-aller-reglage="c:banque|${esc(q.id)}">Mettre à jour ce texte</button></p>`;
+  return `<p class="bq-l">${changer ? `<button class="btn btn--f btn--s" data-aller-reglage="q:${esc(q.id)}">${changer}</button>` : ''}
+    <button class="btn btn--f btn--s" data-aller-reglage="c:banque|${esc(q.id)}">Mettre à jour ce texte</button></p>`;
 }
 
 export function vueQuestions() {
@@ -71,17 +71,13 @@ export function vueQuestions() {
 export function vueDossier() {
   const lien = new URL(`dossier.html?code=${etat.code}`, location.href).href;
   return `<div class="p-tete"><h2>Le dossier documentaire</h2>
-      <p>Tout ce que le jeu montre, avec la phrase exacte de chaque source, la date de sa vérification et son lien : si un lien
-        meurt, l'information reste dans le site. Un chiffre ou un texte à mettre à jour : « Mettre à jour ce texte », sous chaque élément.</p>
+      <p>Chaque source, sa phrase exacte et sa date.</p>
       <div class="p-actions">
         <button class="btn" data-dossier-imprimer="complet">${icone('imprimer')} Imprimer le dossier complet</button>
         <button class="btn btn--f" data-dossier-imprimer="devoir">${icone('imprimer')} Imprimer le dossier élève (sans les surprises)</button>
         <label class="case-l dd-opt"><input type="checkbox" id="dd-pastilles" ${ui.pastilles ? 'checked' : ''}><span>Pastilles des questions</span></label>
       </div>
-      <p class="hint" style="margin-top:10px">Dossier élève : le portrait du territoire et les documents à trier, à lire avant la séance.
-        Les points de vue et la décision de 1970 n'y sont pas : ils servent à contredire ce que l'équipe croyait. Avec les pastilles,
-        les élèves voient quels documents servent ; le tri en classe devient alors un rappel.</p>
-      <p class="code-u" style="margin-top:10px">Dossier élève en ligne : <b id="lien-dossier">${esc(lien)}</b></p>
+      <p class="code-u" style="margin-top:10px"><a id="lien-dossier" href="${esc(lien)}" target="_blank" rel="noopener">${icone('lien')} Dossier élève en ligne</a></p>
     </div>
     <section class="p-sect">${dossierHTML(etat.c, { version: 'complet', pastilles: ui.pastilles, enseignant: true, corriger: true })}</section>`;
 }

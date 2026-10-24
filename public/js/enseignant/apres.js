@@ -15,7 +15,7 @@ export function vueMesures() {
   const lignes = ind[0] || J.indicateurs(c, J.nouvelEtat(c, '', ''));
   const puce = (ok) => ok === true ? '<span class="pt pt--ok" title="repère atteint">●</span>'
     : ok === false ? '<span class="pt pt--non" title="repère non atteint">●</span>' : '<span class="pt"></span>';
-  return `<div class="p-tete"><h2>Mesures</h2>
+  return `<div class="p-tete"><h2>Données de la recherche</h2>
       <p>Ce que le site enregistre pour chaque équipe, et le plan de mesure pour étudier l'efficacité du jeu.</p></div>
     <div class="garde"><b>Vie privée.</b> Aucun prénom, aucun courriel : une équipe n'est qu'un nom d'animal.
       L'export pour la recherche ${mesure ? 'est activé.' : "est désactivé tant que le certificat d'éthique n'est pas obtenu."}</div>
@@ -82,8 +82,7 @@ export function vueQuestionnaire() {
           <td>${q.type === 'echelle' ? 'échelle 1 à 4' : q.type === 'choix' ? 'un choix' : 'une phrase'}</td>
           <td>${esc(q.mesure)}</td><td>${esc(q.cible)}</td>${mesure ? `<td>${esc(res)}</td>` : ''}</tr>`;
       }).join('')}</tbody></table></div>
-      <p class="avert">Échelle : ${c.echelle.map((x, i) => `${i + 1} = ${x}`).join(' · ')}. Quatre points, sans milieu.
-        Q3 est inversée exprès. ${echelles.length} questions à échelle.</p>
+      <p class="avert">Échelle : ${c.echelle.map((x, i) => `${i + 1} = ${x}`).join(' · ')}. </p>
       <div class="p-actions"><button class="btn btn--f" data-imprimer="1">${icone('imprimer')} Imprimer (version papier)</button></div>
     </section>`;
 }

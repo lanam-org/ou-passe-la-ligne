@@ -1398,3 +1398,23 @@ body[data-espace="prof"] .retour-site:hover{background:rgba(255,255,255,.12)}
 /* les noms d'équipe : assez larges pour « Mouette tridactyle » sur une ligne */
 .noms-g{grid-template-columns:repeat(auto-fill,minmax(190px,1fr))}
 .nom-c span{white-space:nowrap}
+
+/* retours d'Ana (23 octobre 2026) */
+/* l'accueil prend la largeur de l'écran (jusqu'à 1200 px), au lieu d'une colonne étroite */
+.accueil{max-width:min(1200px,94vw)}
+.accueil + .pied-site{max-width:min(1200px,94vw)}
+/* le pied de page plus petit, sur une ligne quand il le peut */
+.pied-site{font-size:12.5px;gap:4px 16px;align-items:center}
+/* « La durée » : l'icône sur la ligne du mot */
+.formats legend{display:flex;align-items:center;gap:6px}
+.formats legend .ic{margin:0}
+/* le dossier en ligne : une vignette « lien », distincte des impressions */
+.vignette--lien{border-style:dashed}
+/* les boutons des pages alignés à droite */
+.p-actions{justify-content:flex-end}
+/* les liens d'action sous une question ou un document : de vrais petits boutons, alignés à droite */
+.bq-l{justify-content:flex-end;gap:8px;padding-left:0;margin-top:10px}
+.dd-corriger{display:flex;justify-content:flex-end}
+.bq-l .btn,.dd-corriger .btn{min-height:34px;padding:5px 12px;font-size:14px}
+/* les textes de précision : plus petits, en italique, pour se distinguer du texte principal */
+.hint,.bq-s{font-size:13px;font-style:italic}

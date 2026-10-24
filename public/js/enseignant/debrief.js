@@ -41,7 +41,7 @@ export function vueDebrief() {
         Cette page se projette : les noms d'équipes sont des animaux, aucun prénom.</p>
       <div class="p-actions">
         <button class="btn btn--f" data-attendu="1">${ui.cacheAttendu ? 'Montrer' : 'Cacher'} les réponses attendues</button>
-        <button class="btn btn--f" data-plein="1">Plein écran</button>
+        <button class="btn btn--f" data-plein="1" aria-pressed="${ui.projection}">${ui.projection ? 'Quitter le plein écran' : 'Plein écran'}</button>
       </div></div>
     <section class="p-sect"><div class="p-sect-h"><h3>Vos lignes</h3><span class="hint">${n} équipe${n > 1 ? 's ont' : ' a'} tracé une ligne</span></div>
       <div class="paires lignes">
