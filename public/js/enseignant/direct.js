@@ -113,7 +113,7 @@ export function vueDirect() {
           <details class="chrono-detail" data-k="chrono-detail" ${ui.ouverts.has('chrono-detail') ? 'open' : ''}>
             <summary>Le détail, étape par étape</summary>
             <ol>${etapesJeu.map((x) => `<li>${esc(x.t)} · <span class="temps">${x.min} min</span>${nq(x.id) ? ` · ${nq(x.id)} question${nq(x.id) > 1 ? 's' : ''}` : ''}</li>`).join('')}</ol>
-            ${ch.debut ? `<p><button class="lien" type="button" data-chrono="zero">${icone('zero')} Remettre le chrono à zéro</button></p>` : ''}
+            ${ch.debut ? `<p><button class="lien danger" type="button" data-chrono="zero">${icone('zero')} Remettre le chrono à zéro</button></p>` : ''}
           </details>
         </section>
       </div>
@@ -123,7 +123,7 @@ export function vueDirect() {
         <span class="hint">${texteSignal(sg) ? `Affiché : « ${esc(texteSignal(sg))} »` : 'Aucun message affiché.'}</span></div>
       <div class="signaux">
         ${Object.entries(SIGNAUX).map(([k, v]) => `<button class="btn btn--f bulle-b" data-signal="${k}" aria-pressed="${sg?.type === k}">${esc(v.court)}</button>`).join('')}
-        ${texteSignal(sg) ? '<button class="lien" data-signal="">Retirer le message</button>' : ''}
+        ${texteSignal(sg) ? '<button class="lien danger" data-signal="">Retirer le message</button>' : ''}
       </div>
       <details class="msg-perso" data-k="msg-perso" ${ui.ouverts.has('msg-perso') ? 'open' : ''}><summary>Écrire votre propre message</summary>
       <form class="signal-perso" id="f-signal" autocomplete="off">

@@ -1419,3 +1419,6 @@ body[data-espace="prof"] .retour-site:hover{background:rgba(255,255,255,.12)}
 .bq-l .btn,.dd-corriger .btn{min-height:34px;padding:5px 12px;font-size:14px}
 /* les textes de précision : plus petits, en italique, pour se distinguer du texte principal */
 .hint,.bq-s{font-size:13px;font-style:italic}
+
+/* en rouge : ce qui efface ou annule (le rouge clair sur le fond sombre du chrono) */
+.tete-chrono .lien.danger{color:#FFB4A8}

@@ -130,7 +130,7 @@ function editeur() {
         <label class="champ"><span>Raison de la mise à jour (gardée avec elle)</span>
           <input data-raison="${esc(ch.cle)}" value="${esc(corr?.raison || '')}" maxlength="200"
             placeholder="Ex. : chiffre mis à jour selon Parcs Canada, 2026"></label>
-        <button class="btn btn--f" data-retablir="${esc(ch.cle)}">Rétablir l'original</button>
+        <button class="btn btn--f danger" data-retablir="${esc(ch.cle)}">Rétablir l'original</button>
       </div></div>`;
   };
 
@@ -236,7 +236,7 @@ function editeur() {
       <span class="signaux">
         ${seance ? '<button class="btn" data-ed="appliquer">Appliquer à la séance</button>' : '<button class="btn" data-ed="enregistrer">Enregistrer votre version</button>'}
         <button class="btn btn--f" data-apercu="brouillon">Aperçu élève</button>
-        <button class="btn btn--f" data-ed="annuler">Annuler les changements</button>
+        <button class="btn btn--f danger" data-ed="annuler">Annuler les changements</button>
         ${seance ? '<button class="btn btn--f" data-ed="garder">Enregistrer aussi comme votre version</button>' : ''}
       </span></div></div>`;
 }
