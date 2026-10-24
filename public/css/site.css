@@ -81,6 +81,16 @@
 *{box-sizing:border-box}
 [hidden]{display:none !important}
 html{scroll-padding-top:90px}
+/* le focus clavier et les ancres s'arrêtent sous la barre collée du haut (106 px chez les équipes, 140 px côté
+   enseignant·e) et au-dessus de la barre « Continuer » ou « Appliquer » (WCAG 2.4.11) ; sous 701 px ou 601 px de
+   haut, la barre du haut défile avec la page : les 90 px d'origine suffisent */
+@media (min-width:701px) and (min-height:601px){
+  html:has(body[data-espace="eleve"]){scroll-padding:122px 0 96px}
+  html:has(body[data-espace="prof"]){scroll-padding:156px 0 90px}
+}
+@media (min-width:701px) and (max-width:980px) and (min-height:601px){
+  html:has(body[data-espace="prof"]){scroll-padding-top:186px}   /* la barre y garde le menu des sections (170 px) */
+}
 body{margin:0;background:var(--fond);color:var(--encre);padding-bottom:var(--hors-ligne-h,0px);
   font-family:var(--f);font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
 h1,h2,h3{margin:0;font-weight:800;letter-spacing:-.01em;line-height:1.2;text-wrap:balance}
@@ -702,7 +712,6 @@ h3.sous{font-size:17px;margin-top:26px;padding-top:20px;border-top:2px solid var
 .rg-nav a{padding:6px 12px;border-radius:999px;border:1px solid var(--bord);background:var(--surface);color:var(--encre);
   font-size:14px;font-weight:600;text-decoration:none}
 .rg-nav a:hover{border-color:var(--primaire);color:var(--primaire)}
-.rg .p-sect,.rg .rg-q,.rg .rg-form,.rg .rg-champ{scroll-margin-top:110px}
 .rg .rg-cherche input{max-width:420px}
 /* l'état d'une question (onglet Questions) : une étiquette qui se clique, comme on s'y attend */
 .badge-b{cursor:pointer;font-family:inherit;font-size:13px;min-height:28px;display:inline-flex;align-items:center;gap:4px}
@@ -1386,8 +1395,8 @@ ul.legende b{color:var(--encre)}
 .merci-e{margin:0;font-size:44px;line-height:1}
 /* un lien dans le bloc du chrono (remise à zéro) : clair sur le fond sombre */
 .tete-chrono .lien{color:var(--prof-txt);text-decoration:underline;text-underline-offset:3px;display:inline-flex;align-items:center;gap:6px}
-/* contraste élevé : la barre de l'espace enseignant est noire ; le contour du focus y devient blanc */
-:root[data-theme="contrast"] body[data-espace="prof"] .barre :focus-visible{outline-color:#FFFFFF}
+/* la barre de l'espace enseignant est foncée (violette, noire en contraste élevé) : le contour du focus y est clair */
+body[data-espace="prof"] .barre :focus-visible{outline-color:var(--prof-txt)}
 
 /* l'affichage et le « ? » côte à côte, centrés sur la même ligne */
 [data-theme-ici]{display:inline-flex;align-items:center;gap:8px}
