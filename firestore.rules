@@ -60,15 +60,19 @@ service cloud.firestore {
       allow create: if connecte()
         && code.matches('^[A-HJ-KM-NP-Z2-9]{5}$')
         && request.resource.data.enseignantId == request.auth.uid
-        && request.resource.data.keys().hasOnly(['enseignantId', 'creeLe', 'etat', 'questionnaire', 'signal', 'config', 'chrono', 'expireLe', 'bravos'])
+        && request.resource.data.keys().hasOnly(['enseignantId', 'creeLe', 'etat', 'questionnaire', 'signal', 'config', 'chrono', 'expireLe', 'bravos', 'rythme'])
         && expiration(request.resource.data)
         && request.resource.data.etat == 'ouverte';
       allow update: if connecte()
         && resource.data.enseignantId == request.auth.uid
         && request.resource.data.enseignantId == resource.data.enseignantId
-        && request.resource.data.keys().hasOnly(['enseignantId', 'creeLe', 'etat', 'questionnaire', 'signal', 'config', 'chrono', 'expireLe', 'bravos'])
+        && request.resource.data.keys().hasOnly(['enseignantId', 'creeLe', 'etat', 'questionnaire', 'signal', 'config', 'chrono', 'expireLe', 'bravos', 'rythme'])
         && expiration(request.resource.data)
         && (!('bravos' in request.resource.data) || request.resource.data.bravos is map)
+        // avancer ensemble : rien, ou une étape (un entier)
+        && (!('rythme' in request.resource.data) || request.resource.data.rythme == null
+          || (request.resource.data.rythme is map && request.resource.data.rythme.keys().hasOnly(['etape'])
+            && request.resource.data.rythme.etape is int && request.resource.data.rythme.etape >= 0 && request.resource.data.rythme.etape <= 20))
         && messageCourt(request.resource.data);
       allow delete: if connecte() && resource.data.enseignantId == request.auth.uid;
 

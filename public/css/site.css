@@ -1236,6 +1236,7 @@ body[data-espace="prof"] .aide-b:focus-visible{outline-color:var(--prof-txt)}
 :root[data-theme="dark"] body[data-espace="eleve"]{
   --fond:#0E1A17; --fond-2:#13231F; --surface:#162B26; --trait:#23392F; --fort:#35514A; --bord:#6E9286;
   --primaire:#4FD1B5; --primaire-h:#7ADDC6; --sur-primaire:#0B1F1A;
+  --doux:#A9BCB4; --pale:#94A89F;   /* des gris verts : plus de reflet bleu dans le vert */
 }
 /* l'espace enseignant en violet foncé : distinct du vert des équipes ; en sombre, les surfaces prennent la même teinte */
 :root[data-theme="light"] body[data-espace="prof"]{
@@ -1459,7 +1460,7 @@ body[data-espace="prof"] .retour-site:hover{background:rgba(255,255,255,.12)}
 /* l'échelle de l'avis : quatre tuiles, chacune sa couleur ET sa forme */
 .ech button{display:flex;align-items:center;gap:8px;text-align:left;border-left:6px solid var(--k)}
 .ech .ech-f{font-size:18px;line-height:1;color:var(--k)}
-.ech-1{--k:#E21B3C}.ech-2{--k:#1368CE}.ech-3{--k:#8A6100}.ech-4{--k:#1F7A0A}
+.ech-1{--k:#E21B3C}.ech-2{--k:#7A3E9D}.ech-3{--k:#8A6100}.ech-4{--k:#1F7A0A}
 .ech button[aria-pressed="true"]{background:var(--k);border-color:var(--k);color:#FFFFFF}
 .ech button[aria-pressed="true"] .ech-f{color:#FFFFFF}
 @media (prefers-reduced-motion:reduce){
@@ -1468,3 +1469,33 @@ body[data-espace="prof"] .retour-site:hover{background:rgba(255,255,255,.12)}
   .temps-barre i,.prog-seg button{transition:none}
 }
 @media print{.anim-carte,.confettis,.temps-barre{display:none}}
+
+/* la teinte douce (bulle de la garde-parc, cartes de question) se recalcule sur body : elle suit le vert des équipes
+   et le violet des enseignants, au lieu de garder le bleu de :root où elle est d'abord définie */
+body{--primaire-doux:color-mix(in srgb,var(--primaire) 9%,var(--surface))}
+
+/* avancer ensemble : l'interrupteur et l'étape ouverte, en tête de la liste des équipes */
+.rythme{display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;margin:4px 0 14px;font-size:15px}
+.rythme .bascule{margin:0}
+.attend{font-weight:700;color:var(--eco)}
+/* la progression à projeter : une piste, une colonne par étape, les animaux dessus */
+.prog-proj{min-height:100vh;padding:24px}
+.prog-proj-h{display:flex;flex-wrap:wrap;align-items:center;gap:12px 24px;margin-bottom:22px}
+.prog-proj-h h2{margin:0;font-size:clamp(28px,4vw,44px)}
+.prog-proj-code{font-size:clamp(18px,2vw,26px)}
+.prog-proj-code b{font-family:var(--f-d);letter-spacing:.12em}
+.prog-proj-h .btn{margin-left:auto}
+.piste{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.piste > li{display:flex;flex-direction:column;gap:10px;min-height:52vh;padding:12px 10px;border-radius:var(--r);
+  background:var(--surface);border:1px solid var(--trait)}
+.piste > li.piste--fermee{opacity:.45}
+.piste > li.piste--fin{background:var(--primaire-doux);border-color:var(--primaire)}
+.piste-t{margin:0;font-weight:800;font-size:clamp(14px,1.4vw,18px);line-height:1.25}
+.piste-g{display:flex;flex-direction:column;align-items:center;gap:10px}
+.piste-a{display:flex;flex-direction:column;align-items:center;gap:2px;text-align:center}
+.piste-e{font-size:clamp(32px,4vw,52px);line-height:1}
+.piste-a small{font-size:clamp(12px,1.1vw,15px);font-weight:700}
+@media (max-width:900px){.piste{grid-template-columns:repeat(2,minmax(0,1fr)) !important}.piste > li{min-height:0}}
+/* pendant la projection de la progression : seulement la piste (ni barre, ni bande, ni pied de page) */
+body:has(.prog-proj) :is(.barre,.pied-site,.mode-local,.bande-dev){display:none}
+body:has(.prog-proj) .page{max-width:none;padding:0}

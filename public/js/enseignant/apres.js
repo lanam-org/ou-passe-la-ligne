@@ -4,7 +4,7 @@
 import { mesure } from '../config.js';
 import { esc, dec, telecharger, icone } from '../outils.js';
 import * as J from '../jeu.js';
-import { etat } from './etat.js';
+import { etat, qid } from './etat.js';
 
 /* ------------------------------------------------------------ mesures */
 
@@ -58,6 +58,23 @@ export function exporterCSV() {
   const cols = Object.keys(lignes[0]);
   const cel = (v) => `"${String(v).replace(/"/g, '""')}"`;
   telecharger(`forillon_${code}_mesures.csv`, '﻿' + [cols.join(';'), ...lignes.map((l) => cols.map((k) => cel(l[k])).join(';'))].join('\n'),
+    'text/csv;charset=utf-8');
+}
+
+/**
+ * Les réponses écrites des équipes, en tableur : une ligne par équipe (son animal, jamais un prénom), une colonne
+ * par question. Pour l'enseignant·e, avec ou sans la collecte de la recherche.
+ */
+export function exporterReponses() {
+  const { EQ, code, ecrites, etapesJeu } = etat;
+  const eq = [...EQ].sort((a, b) => a.creeLe - b.creeLe);
+  if (!eq.length) return;
+  // une cellule qui commence par = + - @ serait prise pour une formule par le tableur : on la neutralise
+  const cel = (v) => { let s = String(v ?? ''); if (/^[=+\-@\t\r]/.test(s)) s = `'${s}`; return `"${s.replace(/"/g, '""')}"`; };
+  const tete = ['Équipe', 'Étape atteinte', 'Partie terminée', ...ecrites.map((q) => `${qid(q)} · ${q.eleve || q.q || ''}`)];
+  const lignes = eq.map((e) => [e.nom, `${e.atteinte + 1} / ${etapesJeu.length}`, e.fini ? 'oui' : 'non',
+    ...ecrites.map((q) => String(e.reponses?.[q.id] || '').trim())]);
+  telecharger(`forillon_${code}_reponses.csv`, '\uFEFF' + [tete, ...lignes].map((l) => l.map(cel).join(';')).join('\r\n'),
     'text/csv;charset=utf-8');
 }
 

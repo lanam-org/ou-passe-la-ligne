@@ -33,7 +33,7 @@ export function confettis(n = 60) {
   const z = document.createElement('div');
   z.className = 'confettis';
   z.setAttribute('aria-hidden', 'true');
-  const couleurs = ['#E21B3C', '#1368CE', '#D89E00', '#26890C', '#0C7365', '#F2C46B'];
+  const couleurs = ['#E21B3C', '#7A3E9D', '#D89E00', '#26890C', '#0C7365', '#F2C46B'];
   for (let i = 0; i < n; i++) {
     const s = document.createElement('i');
     s.style.left = `${Math.random() * 100}%`;

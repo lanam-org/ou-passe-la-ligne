@@ -5,7 +5,7 @@ import { esc, icone } from '../outils.js';
 import * as J from '../jeu.js';
 import * as Rg from '../reglages.js';
 import { carte, blocReleve } from '../carte.js';
-import { SIGNAUX, texteSignal, MAX_MESSAGE, aUnBravo } from '../seance.js';
+import { SIGNAUX, texteSignal, MAX_MESSAGE, aUnBravo, EMOJIS_EQUIPES } from '../seance.js';
 import { encode } from '../vendor/uqr.js';
 import { etat, ui, qid, etapeDe, chronoDe, chronoTexte, autresReponses } from './etat.js';
 
@@ -74,7 +74,41 @@ function lecteur(ch, classe) {
   </div>`;
 }
 
+/** Avancer ensemble : un interrupteur, et l'étape ouverte avec le bouton qui ouvre la suivante. */
+function vueRythme() {
+  const { c, S } = etat;
+  const r = S?.rythme, dernier = c.etapes.findIndex((x) => x.id === 'debrief');
+  const ouverte = r && r.etape <= dernier ? c.etapes[r.etape] : null;
+  return `<div class="rythme">
+    <label class="bascule"><input type="checkbox" role="switch" data-rythme ${r ? 'checked' : ''}><span class="bascule-p" aria-hidden="true"></span>
+      <span>Avancer ensemble</span></label>
+    ${!r ? '' : ouverte ? `<span>Jusqu'à <b>${esc(ouverte.n)}. ${esc(ouverte.t)}</b></span>
+      <button class="btn btn--s" type="button" data-rythme-suivante>${r.etape === dernier ? 'Ouvrir la fin' : 'Ouvrir l\'étape suivante'} →</button>`
+      : '<span>Toutes les étapes sont ouvertes</span>'}
+  </div>`;
+}
+
+/**
+ * La progression, à projeter (comme la course de Space Race dans Socrative, mais sans course) : chaque équipe, son
+ * animal, sur l'étape où elle se trouve. Avec « avancer ensemble », les étapes pas encore ouvertes sont estompées.
+ */
+function vueProgression() {
+  const { c, S, EQ, code, etapesJeu } = etat;
+  const eq = [...EQ].sort((a, b) => a.creeLe - b.creeLe);
+  const r = S?.rythme;
+  const animal = (e) => `<span class="piste-a"><span class="piste-e" aria-hidden="true">${EMOJIS_EQUIPES[e.nom] || ''}</span><small>${esc(e.nom)}</small></span>`;
+  return `<div class="projection prog-proj">
+    <div class="prog-proj-h"><h2>La progression</h2><span class="prog-proj-code">Code : <b>${esc(code)}</b></span>
+      <button class="btn btn--f btn--s" type="button" data-proj-prog aria-pressed="true">Quitter la projection</button></div>
+    <ol class="piste" style="grid-template-columns:repeat(${etapesJeu.length + 1},minmax(0,1fr))">
+      ${etapesJeu.map((x, i) => `<li class="${r && i > r.etape ? 'piste--fermee' : ''}"><p class="piste-t">${esc(x.n)}. ${esc(x.t)}</p>
+        <div class="piste-g">${eq.filter((e) => !e.fini && e.etape === i).map(animal).join('')}</div></li>`).join('')}
+      <li class="piste--fin"><p class="piste-t">Terminé</p><div class="piste-g">${eq.filter((e) => e.fini).map(animal).join('')}</div></li>
+    </ol></div>`;
+}
+
 export function vueDirect() {
+  if (ui.projProg) return vueProgression();
   const { c, S, EQ, code, choisie, ecrites, etapesJeu } = etat;
   const ch = chronoDe();
   const total = c.miseEnRoute.min + Rg.totalPrevu(c);
@@ -134,6 +168,9 @@ export function vueDirect() {
     </section>
     <section class="p-sect">
       <div class="p-sect-h"><h3>Les équipes (${eq.length})</h3>
+        <button class="btn btn--f btn--s" type="button" data-proj-prog aria-pressed="false">${icone('ecran')} Projeter la progression</button></div>
+      ${vueRythme()}
+      <div class="p-sect-h">
         <span class="hint">Temps dans l'étape / temps prévu · vert, puis ocre au-delà du prévu, rouge au-delà de 1,5 fois</span></div>
       ${eq.length ? '<p class="hint eq-aide">Touchez une équipe pour lire ses réponses, et saluer une bonne réponse d\'un <b>✦ Bravo</b> : l\'équipe le voit tout de suite.</p>' : ''}
       ${eq.length ? `<div class="equipes">${eq.map((e) => {
@@ -151,6 +188,7 @@ export function vueDirect() {
       <p class="hint">Fermer : plus aucune équipe n'entre. Effacer : tout est supprimé pour de bon ; imprimez le rapport avant.</p>
       <div class="p-actions">
         <button class="btn" data-rapport="1" ${EQ.length ? '' : 'disabled'}>${icone('imprimer')} Imprimer le rapport de séance</button>
+        <button class="btn btn--f" data-export-reponses="1" ${EQ.length ? '' : 'disabled'}>${icone('tableur')} Exporter les réponses</button>
         ${S?.etat === 'ouverte' ? '<button class="btn btn--f danger" data-fermer="1">Fermer la séance</button>' : '<span class="hint">Séance fermée.</span>'}
         ${ui.effacer
           ? '<button class="btn btn--danger" data-effacer="oui">Oui, tout effacer</button><button class="btn btn--f" data-effacer="non">Annuler</button>'

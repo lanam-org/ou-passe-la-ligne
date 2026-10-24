@@ -397,6 +397,35 @@ await prof.waitForSelector('[data-minutes="marche"][data-delta="5"]');
 await prof.click('[data-minutes="marche"][data-delta="5"]');
 await autre.waitForFunction(() => document.querySelector('#minutes')?.title.includes('12 min'), null, { timeout: 5000 });
 dit(true, '« +5 min » allonge l’étape de la classe, chez les équipes aussi');
+
+// avancer ensemble (le rythme de l'enseignant·e) : l'équipe en avance attend l'ouverture de l'étape suivante
+await prof.click('input[data-rythme]');
+await eleve.waitForFunction(() => document.querySelector('#hint')?.textContent.includes('En attente'), null, { timeout: 5000 });
+dit(await eleve.isDisabled('#suivant'), 'avancer ensemble : une équipe en avance attend que l’enseignant·e ouvre l’étape suivante');
+await prof.waitForSelector('[data-rythme-suivante]');
+const rythmeAvant = await prof.textContent('.rythme');
+await prof.click('[data-rythme-suivante]');
+await prof.waitForFunction((a) => document.querySelector('.rythme')?.textContent !== a, rythmeAvant, { timeout: 5000 });
+dit(true, 'avancer ensemble : « Ouvrir l’étape suivante » ouvre l’étape d’après');
+await prof.click('input[data-rythme]');
+await eleve.waitForFunction(() => !document.querySelector('#suivant')?.disabled, null, { timeout: 5000 });
+dit(true, 'avancer ensemble, coupé : chaque équipe reprend à son rythme');
+
+// la progression, à projeter
+await prof.click('[data-proj-prog]');
+await prof.waitForSelector('.piste');
+dit(await prof.locator('.piste > li').count() === 8 && (await prof.textContent('.piste')).includes('Orignal'),
+  'la progression à projeter : une colonne par étape, et chaque équipe dessus');
+await capture(prof, '09e-progression');
+await auditer(prof, 'enseignant · progression projetée');
+await prof.click('[data-proj-prog]');
+await prof.waitForSelector('[data-chrono]');
+
+// les réponses, en tableur
+const [dlRep] = await Promise.all([prof.waitForEvent('download'), prof.click('[data-export-reponses]')]);
+const csvRep = await (await import('node:fs/promises')).readFile(await dlRep.path(), 'utf8');
+dit(csvRep.includes('"Équipe"') && csvRep.includes('"Orignal"') && csvRep.includes('Q1.2'),
+  'l’enseignant·e exporte les réponses en tableur : une ligne par équipe, une colonne par question');
 await capture(prof, '09d-chrono');
 
 // ---------------------------------------------------------------- le dossier documentaire

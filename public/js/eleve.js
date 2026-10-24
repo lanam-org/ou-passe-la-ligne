@@ -113,7 +113,9 @@ function entrer(cd, id, fiche) {
     etat.S = s;
     const bravos = JSON.stringify(s?.bravos?.[id] || {}), changes = bravos !== ui.bravos;
     ui.bravos = bravos;
-    if (appliquerReglages(s?.config) || changes) rendre(); else majMinutes();
+    const rythme = JSON.stringify(s?.rythme || null), rythmeChange = rythme !== ui.rythme;
+    ui.rythme = rythme;
+    if (appliquerReglages(s?.config) || changes) rendre(); else { majMinutes(); if (rythmeChange) majPied(); }
     rendreSignal();
     bravosRecus();
   });
@@ -196,6 +198,19 @@ function rendre() {
   ui.nouvelles = [];
 }
 
+/**
+ * Avancer ensemble : le prochain « Continuer » changerait d'étape, au-delà de celle que l'enseignant·e a ouverte.
+ * Ce qui se fait dans l'étape (juger les documents, lire le point de vue suivant) reste possible.
+ */
+function retenue() {
+  const { c, E, S } = etat;
+  const r = S?.rythme;
+  if (!r || etat.apercu || !E || E.fini) return false;
+  const e = c.etapes[E.etape];
+  if (e.id === 'avis' || (e.id === 'dossier' && !E.juge) || (e.id === 'comp' && E.comps < c.complications.length)) return false;
+  return E.etape >= r.etape;
+}
+
 /** Le temps qui reste à l'étape : discret, jamais bloquant ; ocre une fois le temps prévu dépassé. */
 function majMinutes() {
   const { c, E, S } = etat;
@@ -226,14 +241,14 @@ function majPied(v) {
   if (!bt || !etat.E) return;          // écran de fin : il n'y a plus de pied
   v ||= ECRANS[etat.c.etapes[etat.E.etape].id]();
   bt.textContent = v.btn + (v.fleche === false ? '' : ' →');
-  const bloque = bt.disabled;
-  bt.disabled = !v.peut;
-  if (bloque && !bt.disabled) sautiller(bt);   // la réponse est là : « Continuer » le signale d'un petit saut
+  const bloque = bt.disabled, attend = v.peut && retenue();
+  bt.disabled = !v.peut || attend;
+  if (bloque && !bt.disabled) sautiller(bt);   // la réponse est là, ou l'étape s'ouvre : « Continuer » le signale
   // Une réponse requise manque : la phrase sous le bouton devient un lien qui y mène.
   const manque = !v.peut && v.hint && reponseManquante();
-  $('#hint').innerHTML = manque
-    ? `<button type="button" class="lien lien-manque" data-aller="${esc(manque.id)}">${esc(v.hint)}</button>`
-    : esc(v.hint || '');
+  $('#hint').innerHTML = attend ? '<span class="attend">En attente de votre enseignant·e</span>'
+    : manque ? `<button type="button" class="lien lien-manque" data-aller="${esc(manque.id)}">${esc(v.hint)}</button>`
+      : esc(v.hint || '');
 }
 
 Object.assign(page, { rendre, majPied });
@@ -310,7 +325,7 @@ document.addEventListener('click', async (ev) => {
 
   if (ev.target.closest('#suivant')) {
     const e = c.etapes[E.etape];
-    if (!ECRANS[e.id]().peut) return;
+    if (!ECRANS[e.id]().peut || retenue()) return;
     if (e.id === 'dossier' && !E.juge) return apres(J.juger(c, E));
     if (e.id === 'trace' && J.releve(c, E).corridor === 'continu') ui.nouvelles.push(...J.mentionner(E, 'corridor'));
     if (e.id === 'comp' && E.comps < c.complications.length) {

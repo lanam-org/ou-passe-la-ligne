@@ -20,14 +20,14 @@ import { mesure } from './config.js';
 import { $, typo, validationEnFrancais } from './outils.js';
 import * as Rg from './reglages.js';
 import { dossierHTML } from './dossierdoc.js';
-import { cheminSeance, cheminReponses, effacerSeance, reglerMinutes, reglerChrono, chronoNeuf, donnerBravo, MAX_MESSAGE, ouvrirApercu } from './seance.js';
+import { cheminSeance, cheminReponses, effacerSeance, reglerMinutes, reglerChrono, reglerRythme, chronoNeuf, donnerBravo, MAX_MESSAGE, ouvrirApercu } from './seance.js';
 import { base, etat, ui, page, appliquerReglages, configSeance, seanceGardee, stable, chronoDe, chronoTexte } from './enseignant/etat.js';
 import { afficherAccueil } from './enseignant/accueil.js';
 import { vueDirect } from './enseignant/direct.js';
 import { vueDebrief } from './enseignant/debrief.js';
 import { vueReglages, idQuestion } from './enseignant/editeur.js';
 import { vueQuestions, vueDossier, vueDeroulement } from './enseignant/preparer.js';
-import { vueMesures, vueQuestionnaire, exporterCSV, questionnairePapier } from './enseignant/apres.js';
+import { vueMesures, vueQuestionnaire, exporterCSV, exporterReponses, questionnairePapier } from './enseignant/apres.js';
 import { rapportHTML, imprimer } from './enseignant/rapport.js';
 import './enseignant/trousse.js';   // ses boutons [data-trousse] : il écoute lui-même les clics
 
@@ -324,6 +324,25 @@ document.addEventListener('click', async (ev) => {
     return rendre();
   }
   if (ev.target.closest('[data-export]')) return exporterCSV();
+  if (ev.target.closest('[data-export-reponses]')) return exporterReponses();
+  // la progression à projeter : en plein écran, et le même bouton en sort
+  if (ev.target.closest('[data-proj-prog]')) {
+    ui.projProg = !ui.projProg;
+    if (ui.projProg) { try { await document.documentElement.requestFullscreen(); } catch { /* refusé : la vue s'affiche quand même */ } }
+    else if (document.fullscreenElement) await document.exitFullscreen().catch(() => {});
+    window.scrollTo({ top: 0 });
+    return rendre();
+  }
+  // avancer ensemble : l'interrupteur, puis « Ouvrir l'étape suivante »
+  const ry = ev.target.closest('input[data-rythme]');
+  if (ry) {
+    const classe = Rg.etapeDeLaClasse(c, EQ);
+    return reglerRythme(code, ry.checked ? { etape: Math.max(0, classe ? c.etapes.indexOf(classe) : 0) } : null);
+  }
+  if (ev.target.closest('[data-rythme-suivante]') && S?.rythme) {
+    ev.target.closest('[data-rythme-suivante]').disabled = true;
+    return reglerRythme(code, { etape: S.rythme.etape + 1 });
+  }
   if (ev.target.closest('[data-imprimer]')) return imprimer(questionnairePapier());
   if (ev.target.closest('[data-rapport]')) return imprimer(rapportHTML());
   const ddi = ev.target.closest('[data-dossier-imprimer]');
@@ -333,6 +352,8 @@ document.addEventListener('click', async (ev) => {
   }
 });
 
-document.addEventListener('fullscreenchange', () => { if (!document.fullscreenElement && ui.projection) { ui.projection = false; rendre(); } });
+document.addEventListener('fullscreenchange', () => {
+  if (!document.fullscreenElement && (ui.projection || ui.projProg)) { ui.projection = false; ui.projProg = false; rendre(); }
+});
 
 demarrer();

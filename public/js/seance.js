@@ -121,6 +121,14 @@ export async function reglerChrono(code, chrono) {
   await donnees.majPartielle(cheminSeance(code), { chrono });
 }
 
+/**
+ * Avancer ensemble (comme le « rythme de l'enseignant » de Socrative) : `{ etape }`, les équipes ne dépassent pas
+ * cette étape (son rang dans les étapes du jeu) ; `null`, chacune avance à son rythme.
+ */
+export async function reglerRythme(code, rythme) {
+  await donnees.majPartielle(cheminSeance(code), { rythme });
+}
+
 /*
  * Les « bravos » de l'enseignant·e : une réponse remarquée, dite à l'équipe tout de suite
  * (inspiré des retours positifs de ClassDojo et du « coup de projecteur » de Nearpod).
