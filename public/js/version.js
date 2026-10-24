@@ -13,7 +13,7 @@
     var bande = document.createElement('p'), fort = document.createElement('b');
     bande.className = 'bande-dev';
     fort.textContent = 'Version en cours de développement';
-    bande.append(fort, ' (' + VERSION + ') : les testeurs voient la dernière version publiée, à l’adresse principale du site.');
+    bande.append(fort);
     document.body.insertBefore(bande, document.body.firstChild);
   });
 })();
