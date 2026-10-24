@@ -1381,6 +1381,10 @@ body[data-espace="prof"] .retour-site:hover{background:rgba(255,255,255,.12)}
 /* l'affichage et le « ? » côte à côte, centrés sur la même ligne */
 [data-theme-ici]{display:inline-flex;align-items:center;gap:8px}
 [data-theme-ici] .aide-b{margin:0}
+/* l'accueil : l'icône d'affichage toujours en haut à droite (l'« inline-flex » ci-dessus la ramenait à gauche) ;
+   le pied de page aligné sur la largeur du contenu */
+.accueil-h[data-theme-ici]{display:flex;justify-content:flex-end}
+.accueil + .pied-site{max-width:920px;align-items:center}
 
 /* un grain de papier à peine visible sous chaque page (pas en contraste élevé, ni à l'impression) */
 :root:not([data-theme="contrast"]) body{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .5 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)' opacity='.09'/%3E%3C/svg%3E")}
