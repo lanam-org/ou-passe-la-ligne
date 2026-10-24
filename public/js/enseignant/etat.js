@@ -53,9 +53,17 @@ appliquerReglages(null);
 
 /** La séance ouverte reste ouverte après un rafraîchissement (dans ce navigateur seulement). */
 const CLE = 'forillon:seance-prof';
+// la séance ouverte se rouvre seule après un rechargement, mais seulement le temps d'une période (2 h) :
+// au-delà, on arrive sur « Vos séances »
+const REPRISE_MS = 2 * 3600000;
 export const seanceGardee = {
-  lire: () => { try { return localStorage.getItem(CLE); } catch { return null; } },
-  garder: (code) => { try { localStorage.setItem(CLE, code); } catch { /* vide */ } },
+  lire: () => {
+    try {
+      const g = JSON.parse(localStorage.getItem(CLE) || 'null');
+      return g && g.code && Date.now() - g.t < REPRISE_MS ? g.code : null;
+    } catch { return null; }
+  },
+  garder: (code) => { try { localStorage.setItem(CLE, JSON.stringify({ code, t: Date.now() })); } catch { /* vide */ } },
   oublier: () => { try { localStorage.removeItem(CLE); } catch { /* vide */ } }
 };
 

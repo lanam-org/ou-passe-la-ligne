@@ -63,7 +63,7 @@ async function demarrer() {
   if (garde && etat.MOI) {
     try {
       const s = await donnees.lire(cheminSeance(garde));
-      if (s && (donnees.mode === 'local' || s.enseignantId === etat.MOI.uid)) return ouvrir(garde);
+      if (s && s.etat === 'ouverte' && (donnees.mode === 'local' || s.enseignantId === etat.MOI.uid)) return ouvrir(garde);
     } catch { /* on revient à la liste */ }
   }
   retourAccueil();
