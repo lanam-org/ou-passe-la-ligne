@@ -5,6 +5,7 @@ import { $, esc } from '../outils.js';
 import * as J from '../jeu.js';
 import { texteSignal, cleBravo } from '../seance.js';
 import { etat, ui, page, idx } from './etat.js';
+import { confettis } from './anime.js';
 
 const CLE_SIGNAL = 'forillon:signal-lu';
 const CLE_BRAVO = 'forillon:bravo-vu';   // le dernier « bravo » de l'enseignant·e déjà fêté sur cet appareil
@@ -51,6 +52,7 @@ function annoncerBravoEnseignant(qs) {
     qs.map((q) => `<p class="bravo-l"><span class="bravo-i" aria-hidden="true">✦</span><span>Votre réponse à « ${esc(q.eleve)} »</span></p>`).join('')}</div>`;
   clearTimeout(minuterieBravo);
   minuterieBravo = setTimeout(() => { z.innerHTML = ''; }, 7500);
+  confettis(70);
 }
 
 /** Les gestes reconnus pendant la partie : un « Bravo » court, sans score. */
@@ -61,6 +63,7 @@ export function annoncer(ids) {
     <span class="bravo-i" aria-hidden="true">✦</span><span><b>${esc(etat.c.mentions[id].nom)}</b><br>${esc(etat.c.mentions[id].court)}</span></p>`).join('')}</div>`;
   clearTimeout(minuterieBravo);
   minuterieBravo = setTimeout(() => { z.innerHTML = ''; }, 4600);
+  confettis(40);
 }
 
 /** Un « bravo » vient d'arriver : on le fête une fois, quelle que soit l'étape où l'équipe se trouve. */

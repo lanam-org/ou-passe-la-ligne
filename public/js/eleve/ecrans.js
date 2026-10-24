@@ -12,6 +12,11 @@ import { lienSource } from '../dossierdoc.js';
 import { aUnBravo, EMOJIS_EQUIPES } from '../seance.js';
 import { etat, ui, avisActif, etapesVisibles } from './etat.js';
 import { blocQuestions, ok, R, PAS_FINI, questionsBravo } from './questions.js';
+import { confettis } from './anime.js';
+
+// les quatre degrés de l'échelle : une couleur ET une forme chacun (comme les tuiles de Kahoot)
+const FORMES = ['▲', '◆', '●', '■'];
+let finFetee = false;
 
 const MOTS = ['aucun', 'un', 'deux', 'trois', 'quatre', 'cinq', 'six'];
 
@@ -204,8 +209,8 @@ export const ECRANS = {
       guide: `Dernière chose, et c'est pour toi seul·e. <b>Il n'y a pas de bonne réponse</b> : on veut savoir si
         le site t'a aidé ou t'a mêlé. Pas de nom.`,
       h: `<div class="avis">${c.avis.map((q, i) => `<fieldset class="q"><legend><span class="q-n">${i + 1}</span>${esc(q.t)}</legend>
-        ${q.type === 'echelle' ? `<div class="ech">${c.echelle.map((x, j) => `<button type="button" data-avis="${q.id}"
-            data-val="${j + 1}" aria-pressed="${ui.avis[q.id] === String(j + 1)}">${esc(x)}</button>`).join('')}</div>`
+        ${q.type === 'echelle' ? `<div class="ech">${c.echelle.map((x, j) => `<button type="button" class="ech-${j + 1}" data-avis="${q.id}"
+            data-val="${j + 1}" aria-pressed="${ui.avis[q.id] === String(j + 1)}"><span class="ech-f" aria-hidden="true">${FORMES[j] || ''}</span>${esc(x)}</button>`).join('')}</div>`
         : q.type === 'choix' ? `<div class="choix">${q.options.map((x) => `<button type="button" data-avis="${q.id}"
             data-val="${esc(x)}" aria-pressed="${ui.avis[q.id] === x}">${esc(x)}</button>`).join('')}</div>`
         : `<textarea data-avis-t="${q.id}" rows="2" maxlength="300" placeholder="Une phrase suffit.">${esc(ui.avis[q.id] || '')}</textarea>`}
@@ -221,7 +226,8 @@ export const gabarit = () => `
   <div class="corps" id="corps">
     <div class="jeu">
       <section class="scene">
-        <div class="scene-h"><h2 id="titre" tabindex="-1">…</h2><span class="hint" id="minutes"></span></div>
+        <div class="scene-h"><h2 id="titre" tabindex="-1">…</h2>
+          <span class="temps-z"><span class="hint" id="minutes"></span><span class="temps-barre" aria-hidden="true"><i id="temps-i"></i></span></span></div>
         <div class="guide${IMAGES ? '' : ' guide--temp'}">${GARDE}<div class="bulle">
           <p class="nom">Jeanne Element <small>· garde-parc (personnage fictif)</small></p>
           <p id="guide-txt">…</p></div></div>
@@ -242,6 +248,7 @@ export function rendreFin() {
   $('#prog').innerHTML = '';
   const ecrites = J.questionsEcrites(c).filter((q) => R(q.id));
   const bravos = questionsBravo();
+  if (!finFetee) { finFetee = true; confettis(90); }   // la fin de la partie se fête une fois
   $('#app').innerHTML = typo(`<section class="scene fin"><div class="scene-c merci">
     <p class="merci-e" aria-hidden="true">${EMOJIS_EQUIPES[E.nom] || ''}</p>
     <p class="merci-t">Partie terminée</p>

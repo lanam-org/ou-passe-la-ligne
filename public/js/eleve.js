@@ -25,6 +25,7 @@ import { ECRANS, gabarit, rendreFin } from './eleve/ecrans.js';
 import { MAX_REPONSE, rattrapage, questionsBravo, reponseManquante } from './eleve/questions.js';
 import { signalLu, relireAnnonces, dire, direEffet, sansBalises, fermerBravo, annoncer, bravosRecus, rendreSignal } from './eleve/annonces.js';
 import { sauver, sauverTout } from './eleve/envoi.js';
+import { carteEntree, carteEtape, sautiller } from './eleve/anime.js';
 
 validationEnFrancais();
 
@@ -88,6 +89,7 @@ function accueil(prerempli = '', erreur = '', nomChoisi = '') {   // le nom choi
       const moi = await donnees.identite();
       try { localStorage.setItem(`${CLE}:${moi.uid}`, JSON.stringify({ code: cd, id: r.id })); } catch { /* vide */ }
       entrer(cd, r.id, r.etat);
+      carteEntree(EMOJIS_EQUIPES[nom], nom);
     } catch (e) {
       accueil(cd, messageErreur(e, 'Impossible de rejoindre la séance pour le moment. Réessayez.'), nom);
     }
@@ -170,7 +172,7 @@ function rendre() {
   majMinutes();
   $('#guide-txt').innerHTML = typo(v.guide);
   $('#scene').innerHTML = typo((e.id === 'avis' ? '' : rattrapage()) + v.h);
-  if (focusTitre) $('#titre').focus({ preventScroll: true });
+  if (focusTitre) { $('#titre').focus({ preventScroll: true }); carteEtape(e.n, e.t); }
   else if (actif) {
     const t = document.querySelector(`[data-rep="${CSS.escape(actif.id)}"]`);
     if (t) { t.focus(); try { t.setSelectionRange(actif.a, actif.b); } catch { /* vide */ } }
@@ -209,6 +211,13 @@ function majMinutes() {
         : `Il reste environ ${Math.ceil(reste / 60000)} min`;
   z.toggleAttribute('data-depasse', !pause && reste <= 0);
   z.title = `Temps prévu pour cette étape : ${e.min} min`;
+  // la barre du temps qui reste, qui se vide (comme le compte à rebours d'un Kahoot, sans pression de score)
+  const b = $('#temps-i');
+  if (b) {
+    const part = Math.max(0, Math.min(1, reste / (e.min * 60000 || 1)));
+    b.style.width = `${Math.round(part * 100)}%`;
+    b.parentElement.dataset.niveau = reste <= 0 ? 'fini' : part < 0.2 ? 'bas' : '';
+  }
 }
 setInterval(majMinutes, 10000);
 
@@ -217,7 +226,9 @@ function majPied(v) {
   if (!bt || !etat.E) return;          // écran de fin : il n'y a plus de pied
   v ||= ECRANS[etat.c.etapes[etat.E.etape].id]();
   bt.textContent = v.btn + (v.fleche === false ? '' : ' →');
+  const bloque = bt.disabled;
   bt.disabled = !v.peut;
+  if (bloque && !bt.disabled) sautiller(bt);   // la réponse est là : « Continuer » le signale d'un petit saut
   // Une réponse requise manque : la phrase sous le bouton devient un lien qui y mène.
   const manque = !v.peut && v.hint && reponseManquante();
   $('#hint').innerHTML = manque

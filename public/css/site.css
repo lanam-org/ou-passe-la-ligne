@@ -1422,3 +1422,49 @@ body[data-espace="prof"] .retour-site:hover{background:rgba(255,255,255,.12)}
 
 /* en rouge : ce qui efface ou annule (le rouge clair sur le fond sombre du chrono) */
 .tete-chrono .lien.danger{color:#FFB4A8}
+
+/* =============================================================================
+   Côté équipe, plus animé (inspiré de Kahoot, sans score ni course) : js/eleve/anime.js.
+   Décoratif, jamais bloquant ; rien ne bouge si l'appareil demande moins d'animations.
+   ========================================================================== */
+.anim-carte{position:fixed;inset:0;z-index:75;display:grid;place-items:center;pointer-events:none;padding:16px}
+.anim-carte > div{max-width:min(560px,92vw);padding:22px 40px;border-radius:22px;text-align:center;
+  background:var(--primaire);color:var(--sur-primaire);box-shadow:0 18px 50px rgba(0,0,0,.28);
+  animation:carte-in .5s cubic-bezier(.2,.9,.3,1.25) both,carte-out .4s ease-in forwards;animation-delay:0s,var(--sortie,1s)}
+.anim-carte--etape{--sortie:1.1s}
+.anim-carte--entree{--sortie:2.2s}
+.anim-n{margin:0;font-size:14px;font-weight:800;letter-spacing:.1em;text-transform:uppercase}
+.anim-t{margin:4px 0 0;font-size:clamp(26px,4vw,40px);font-weight:800;line-height:1.15}
+.anim-s{margin:6px 0 0;font-size:17px;font-weight:700}
+.anim-e{margin:0 0 4px;font-size:76px;line-height:1;animation:sautille .7s .25s ease-out both}
+@keyframes carte-in{from{transform:scale(.6) rotate(-3deg);opacity:0}to{transform:none;opacity:1}}
+@keyframes carte-out{to{transform:scale(1.06);opacity:0}}
+@keyframes sautille{0%,100%{transform:none}40%{transform:translateY(-16px) rotate(-6deg)}70%{transform:translateY(0) rotate(4deg)}}
+.confettis{position:fixed;inset:0;z-index:80;overflow:hidden;pointer-events:none}
+.confettis i{position:absolute;top:-16px;width:8px;height:14px;border-radius:2px;animation-name:tombe;animation-timing-function:ease-in;animation-fill-mode:forwards}
+@keyframes tombe{to{transform:translate(var(--dx),105vh) rotate(var(--r))}}
+/* « Continuer » qui se débloque ; le nom d'équipe choisi ; l'étape en cours qui respire */
+#suivant.pret{animation:pret .45s ease-out}
+@keyframes pret{45%{transform:scale(1.07)}}
+.nom-c .nom-e{font-size:20px}
+.nom-c input:checked + span{animation:pret .3s ease-out}
+.prog-seg button{transition:background .4s}
+.prog-seg button[aria-current="step"]{animation:pouls 2.4s ease-in-out infinite}
+@keyframes pouls{50%{box-shadow:0 0 0 4px color-mix(in srgb,var(--primaire) 25%,transparent)}}
+/* le temps qui reste : une barre qui se vide, ocre à la fin */
+.temps-z{display:flex;flex-direction:column;align-items:flex-end;gap:4px;min-width:140px}
+.temps-barre{display:block;width:140px;height:6px;border-radius:999px;background:var(--trait);overflow:hidden}
+.temps-barre i{display:block;height:100%;width:100%;border-radius:inherit;background:var(--primaire);transition:width 1s linear,background .3s}
+.temps-barre[data-niveau="bas"] i,.temps-barre[data-niveau="fini"] i{background:var(--eco)}
+/* l'échelle de l'avis : quatre tuiles, chacune sa couleur ET sa forme */
+.ech button{display:flex;align-items:center;gap:8px;text-align:left;border-left:6px solid var(--k)}
+.ech .ech-f{font-size:18px;line-height:1;color:var(--k)}
+.ech-1{--k:#E21B3C}.ech-2{--k:#1368CE}.ech-3{--k:#8A6100}.ech-4{--k:#1F7A0A}
+.ech button[aria-pressed="true"]{background:var(--k);border-color:var(--k);color:#FFFFFF}
+.ech button[aria-pressed="true"] .ech-f{color:#FFFFFF}
+@media (prefers-reduced-motion:reduce){
+  .anim-carte,.confettis{display:none}
+  #suivant.pret,.nom-c input:checked + span,.prog-seg button[aria-current="step"]{animation:none}
+  .temps-barre i,.prog-seg button{transition:none}
+}
+@media print{.anim-carte,.confettis,.temps-barre{display:none}}

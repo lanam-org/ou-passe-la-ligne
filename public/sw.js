@@ -36,7 +36,7 @@ const COQUILLE = [
   'js/enseignant/accueil.js', 'js/enseignant/apres.js', 'js/enseignant/debrief.js', 'js/enseignant/direct.js',
   'js/enseignant/editeur.js', 'js/enseignant/etat.js', 'js/enseignant/preparer.js', 'js/enseignant/rapport.js',
   'js/enseignant/trousse.js',
-  'js/eleve/annonces.js', 'js/eleve/ecrans.js', 'js/eleve/envoi.js', 'js/eleve/etat.js', 'js/eleve/questions.js',
+  'js/eleve/anime.js', 'js/eleve/annonces.js', 'js/eleve/ecrans.js', 'js/eleve/envoi.js', 'js/eleve/etat.js', 'js/eleve/questions.js',
   'js/vendor/uqr.js'
 ];
 
