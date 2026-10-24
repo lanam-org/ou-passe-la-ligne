@@ -145,7 +145,7 @@ function rendre(force = false) {
   // un message en cours d'écriture survit au rafraîchissement (toutes les 5 s, et à chaque geste d'équipe)
   const brouillon = $('#f-signal [name=texte]');
   const garde = brouillon && { v: brouillon.value, focus: document.activeElement === brouillon, a: brouillon.selectionStart, b: brouillon.selectionEnd };
-  const actif = ['data-proj-prog', 'data-rythme', 'data-rythme-suivante'].find((a) => document.activeElement?.hasAttribute?.(a));
+  const actif = ['data-proj-prog', 'data-rythme', 'data-rythme-suivante', 'data-rythme-precedente'].find((a) => document.activeElement?.hasAttribute?.(a));
   $('#prof').innerHTML = typo(VUES[onglet]());
   if (actif) document.querySelector(`[${actif}]`)?.focus();
   const neuf = garde && $('#f-signal [name=texte]');
@@ -345,6 +345,13 @@ document.addEventListener('click', async (ev) => {
   if (ry) {
     const classe = Rg.etapeDeLaClasse(c, EQ);
     return reglerRythme(code, ry.checked ? { etape: Math.max(0, classe ? c.etapes.indexOf(classe) : 0) } : null)
+      .catch((e) => { console.warn('Rythme non enregistré', e); rendre(); });
+  }
+  // une étape ouverte par erreur : on revient d'une étape (une équipe déjà plus loin n'est pas renvoyée en arrière)
+  if (ev.target.closest('[data-rythme-precedente]') && S?.rythme) {
+    ev.target.closest('[data-rythme-precedente]').disabled = true;
+    const fin = c.etapes.findIndex((x) => x.id === 'debrief') + 1;
+    return reglerRythme(code, { etape: Math.max(0, Math.min(S.rythme.etape, fin) - 1) })
       .catch((e) => { console.warn('Rythme non enregistré', e); rendre(); });
   }
   if (ev.target.closest('[data-rythme-suivante]') && S?.rythme) {

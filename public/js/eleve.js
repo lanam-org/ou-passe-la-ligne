@@ -16,7 +16,7 @@
 //   envoi.js      l'enregistrement de la fiche, et le voyant « Enregistré »
 
 import * as donnees from './donnees.js';
-import { $, esc, typo, messageErreur, validationEnFrancais } from './outils.js';
+import { $, esc, typo, messageErreur, validationEnFrancais, icone } from './outils.js';
 import * as J from './jeu.js';
 import * as Rg from './reglages.js';
 import { NOMS_EQUIPES, EMOJIS_EQUIPES, rejoindre, cheminSeance, cheminEquipe, normaliserCode, codeValide, expiration, CLE_APERCU } from './seance.js';
@@ -139,7 +139,7 @@ function entrerApercu() {
   document.body.dataset.ecran = 'jeu';
   $('#app').innerHTML = `<div class="apercu-bande" role="status"><p><b>Aperçu enseignant·e</b> : le jeu tel que les équipes le
       voient, avec vos réglages. Rien n'est enregistré. Toutes les étapes sont ouvertes : touchez la barre du haut pour y aller.</p>
-      <button class="btn btn--f btn--s" type="button" data-fermer-apercu>Fermer l'aperçu</button></div>` + gabarit();
+      <button class="btn btn--f btn--s" type="button" data-fermer-apercu>${icone('croix')} Fermer l'aperçu</button></div>` + gabarit();
   $('#equipe').textContent = 'Aperçu enseignant·e';
   rendre();
 }

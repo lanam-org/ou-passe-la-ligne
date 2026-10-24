@@ -1500,3 +1500,8 @@ body{--primaire-doux:color-mix(in srgb,var(--primaire) 9%,var(--surface))}
 /* pendant la projection de la progression : seulement la piste (ni barre, ni bande, ni pied de page) */
 body:has(.prog-proj) :is(.barre,.pied-site,.mode-local,.bande-dev){display:none}
 body:has(.prog-proj) .page{max-width:none;padding:0}
+
+/* ce qui efface ou ferme : le contour rouge, et un fond rouge pâle au survol */
+.btn--f.danger{border-color:var(--action)}
+.btn--f.danger:hover{background:color-mix(in srgb,var(--action) 10%,var(--surface))}
+.lien.danger:hover{background:color-mix(in srgb,var(--action) 10%,transparent)}
