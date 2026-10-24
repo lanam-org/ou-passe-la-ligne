@@ -151,7 +151,7 @@ export function vueDirect() {
       <p class="hint">Fermer : plus aucune équipe n'entre. Effacer : tout est supprimé pour de bon ; imprimez le rapport avant.</p>
       <div class="p-actions">
         <button class="btn" data-rapport="1" ${EQ.length ? '' : 'disabled'}>${icone('imprimer')} Imprimer le rapport de séance</button>
-        ${S?.etat === 'ouverte' ? '<button class="btn btn--f" data-fermer="1">Fermer la séance</button>' : '<span class="hint">Séance fermée.</span>'}
+        ${S?.etat === 'ouverte' ? '<button class="btn btn--f danger" data-fermer="1">Fermer la séance</button>' : '<span class="hint">Séance fermée.</span>'}
         ${ui.effacer
           ? '<button class="btn btn--danger" data-effacer="oui">Oui, tout effacer</button><button class="btn btn--f" data-effacer="non">Annuler</button>'
           : '<button class="btn btn--f danger" data-effacer="demander">Effacer la séance et ses données</button>'}
