@@ -162,7 +162,7 @@ button{font:inherit;color:inherit;cursor:pointer;border:0;background:none;text-a
 .avert{font-size:13px;color:var(--pale);line-height:1.5;margin-top:10px}
 
 /* ===================================================== panneau latéral */
-.carnet{display:flex;flex-direction:column;gap:14px;position:sticky;top:96px}
+.carnet{display:flex;flex-direction:column;gap:14px;position:sticky;top:122px}   /* sous la barre du haut (106 px) */
 @media (max-width:960px){.carnet{position:static}}
 .bloc{border-radius:var(--r);background:var(--surface);padding:16px 18px;
   border:1px solid var(--trait)}
@@ -321,7 +321,7 @@ button.bascule{display:inline-flex;align-items:center;gap:7px;font-size:13.5px;f
   .pied{gap:8px}
   .pied .btn{padding:12px 14px;font-size:15px}
   .pied .hint{font-size:13px}
-  .bravo-zone{top:auto;bottom:84px}
+  .bravo-zone{bottom:calc(84px + var(--hors-ligne-h,0px))}
   .carnet{top:0}
 }
 
@@ -585,7 +585,7 @@ h3.sous{font-size:17px;margin-top:26px;padding-top:20px;border-top:2px solid var
 .db-r{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px;margin-top:12px}
 .db-r div{background:var(--fond-2);border-radius:var(--r-s);padding:11px 13px;font-size:15px;line-height:1.5}
 .db-r small{display:block;font-size:12.5px;color:var(--pale);font-weight:700;margin-bottom:3px}
-.lignes{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-top:12px}
+.lignes{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:12px}
 .cache-att .db-a{display:none}
 
 /* banque de questions */
@@ -714,10 +714,9 @@ h3.sous{font-size:17px;margin-top:26px;padding-top:20px;border-top:2px solid var
 .dd-corriger{margin-top:8px;font-size:14px}
 @media print{.dd-corriger{display:none}}
 /* l'aperçu élève de l'enseignant·e : une bande en haut du jeu, qui dit que rien n'est enregistré */
-.apercu-bande{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;justify-content:space-between;max-width:1200px;
-  margin:12px auto 0;padding:10px 14px;border:2px dashed var(--primaire);border-radius:var(--r-s);background:var(--primaire-doux)}
+.apercu-bande{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;justify-content:space-between;
+  margin:0 0 18px;padding:10px 14px;border:2px dashed var(--primaire);border-radius:var(--r-s);background:var(--primaire-doux)}
 .apercu-bande p{margin:0;font-size:14.5px;line-height:1.5;flex:1 1 320px}
-@media (max-width:560px){.apercu-bande{margin:12px 16px 0}}
 /* le message écrit par l'enseignant·e, replié sous les messages prêts */
 .msg-perso{margin-top:12px}
 .msg-perso > summary{cursor:pointer;font-weight:700;font-size:15px;color:var(--primaire);min-height:28px;display:list-item}
@@ -973,6 +972,9 @@ body[data-espace="prof"] .aide-b:focus-visible{outline-color:var(--prof-txt)}
 
 /* espace enseignant·e : l'en-tête de la séance — le code et le chrono, alignés */
 .retour{margin:0 0 10px -10px}
+.lien[data-retour]{margin-left:-10px}   /* « ← Vos séances » au-dessus d'un titre : le texte sur son bord */
+.barre-d > .lien:first-child{margin-left:-10px}   /* « ← Accueil », passé seul à la ligne sur un téléphone */
+.p-sect-h > .lien:last-child{margin-right:-10px}   /* « Fermer », au bord droit de la carte */
 .tete-g{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;align-items:stretch}
 .tete-g .p-sect{margin:0}
 @media (max-width:860px){.tete-g{grid-template-columns:1fr}}
@@ -1026,7 +1028,8 @@ body[data-espace="prof"] .aide-b:focus-visible{outline-color:var(--prof-txt)}
 .evitement:focus{top:10px}
 
 /* le lien « Confidentialité et à propos », en bas de chaque page */
-.pied-site{max-width:1200px;margin:0 auto;padding:18px 20px calc(28px + var(--hors-ligne-h,0px));
+/* le filet du haut s'arrête aux bords du contenu (1160 px, comme la barre du haut), pas 20 px au-delà */
+.pied-site{margin:0 max(20px,calc((100% - 1160px) / 2));padding:18px 0 calc(28px + var(--hors-ligne-h,0px));
   display:flex;flex-wrap:wrap;gap:6px 18px;font-size:14px;color:var(--doux);border-top:1px solid var(--trait)}
 .pied-site a{display:inline-block;padding:4px 0;color:var(--primaire);font-weight:600;text-underline-offset:3px}
 @media print{.pied-site,.evitement{display:none}}
@@ -1082,14 +1085,16 @@ body[data-espace="prof"] .aide-b:focus-visible{outline-color:var(--prof-txt)}
 /* ===================================================== onglets de l'espace enseignant·e : trois groupes */
 .onglets-g{display:flex;flex-wrap:wrap;align-items:flex-end;align-content:flex-end;column-gap:2px;padding-right:12px;margin-right:8px;
   border-right:1px solid rgba(255,255,255,.18)}
-.onglets-g:last-child{border-right:0;margin-right:0;padding-right:0}
+.onglets-g:last-of-type{border-right:0;margin-right:0;padding-right:0}   /* le menu (un label) le suit : :last-child ne le trouvait pas */
 /* le titre du groupe, au-dessus de ses onglets : le moment de la séance se lit d'abord */
-.onglets-t{flex-basis:100%;font-size:13px;font-weight:400;letter-spacing:.02em;color:#D9BE88;margin:8px 0 0 14px;white-space:nowrap}
+.onglets-t{flex-basis:100%;font-size:13px;font-weight:400;letter-spacing:.02em;color:#D9BE88;margin:8px 0 0 14px;white-space:nowrap;
+  line-height:24px}   /* la hauteur du titre-bouton (24 px) : la barre ne grandit pas quand la recherche s'ouvre */
 .onglets .onglets-retour{align-self:flex-end}
 /* un groupe replié (la recherche) : son titre est un bouton ; replié, il se tient en bas, comme un onglet */
 .onglets .onglets-bascule{display:inline-flex;align-items:center;min-height:24px;background:none;border:0;cursor:pointer;
   color:#D9BE88;font-size:13px;font-weight:700;padding:0;margin:8px 0 0 14px;text-align:left}
-.onglets .onglets-bascule[aria-expanded="false"]{flex-basis:auto;margin:0;padding:11px 14px 12px;align-self:flex-end}
+.onglets .onglets-bascule[aria-expanded="false"]{flex-basis:auto;margin:0;padding:11px 14px;align-self:flex-end;
+  border-bottom:3px solid transparent}   /* le filet des onglets : le texte sur leur ligne */
 .onglets .onglets-bascule:hover{color:#fff}
 /* « ← Vos séances », toujours au début de la barre : retrouver une autre séance sans chercher */
 .onglets .onglets-retour{flex:0 0 auto;margin-right:8px;padding-right:14px;border-right:1px solid rgba(255,255,255,.18);white-space:nowrap}
@@ -1113,6 +1118,7 @@ body[data-espace="prof"] .aide-b:focus-visible{outline-color:var(--prof-txt)}
   .pied .btn{white-space:normal}
   #suivant{flex:1}
   .pied .hint{order:3;flex-basis:100%;margin-left:0;text-align:left}
+  .bravo-zone{bottom:calc(150px + var(--hors-ligne-h,0px))}   /* la barre, sur deux rangées, est plus haute : la bulle passe au-dessus */
 }
 /* écran bas (zoom à 200 %) : l'en-tête défile avec la page, seule la barre d'action reste */
 @media (max-height:600px){
@@ -1273,6 +1279,7 @@ body[data-espace="prof"] .retour-site:hover{background:rgba(255,255,255,.12)}
 .chrono-detail summary{cursor:pointer;font-weight:600;color:var(--primaire)}
 .chrono-detail ol{margin:6px 0 0;padding-left:20px;line-height:1.6}
 .code-u a{color:var(--primaire);font-weight:700;overflow-wrap:anywhere}
+#lien-dossier{display:inline-flex;align-items:center;gap:6px}
 .lien-copier{padding:2px 8px;font-size:13.5px}
 .signal-perso .champ input{width:100%;font-size:15px}
 
@@ -1349,6 +1356,7 @@ label.bascule{position:relative;display:flex;align-items:center;gap:12px;margin-
 .bascule-p::after{border:1px solid transparent}
 @media (forced-colors:active){.bascule input:checked + .bascule-p::after{forced-color-adjust:none;background:Highlight;border-color:Highlight}}
 .vignettes{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin:4px 0 10px}
+.vignettes:last-child{margin-bottom:0}   /* en bas de la carte : le même blanc qu'en haut */
 .vignette{display:flex;flex-direction:column;align-items:flex-start;gap:4px;padding:12px 14px;min-height:96px;cursor:pointer;
   border:1px solid var(--bord);border-radius:var(--r-s);background:var(--surface);color:var(--encre);font:inherit;
   text-align:left;text-decoration:none}
@@ -1358,6 +1366,8 @@ label.bascule{position:relative;display:flex;align-items:center;gap:12px;margin-
 .vignette b{font-size:15px}
 .vignette .hint{font-size:13px;line-height:1.35}
 .plus-outils .vignettes{margin-top:12px}
+/* la colonne de droite (deux vignettes par rangée) : la troisième prend la rangée, au lieu d'y rester seule */
+@media (min-width:961px){.accueil-a .vignette:last-child:nth-child(odd){grid-column:1 / -1}}
 @media (prefers-reduced-motion:reduce){.bascule-p,.bascule-p::after{transition:none}}
 
 /* les réglages : la légende des états de question (un symbole ET une couleur), le total au bout des minutes */
@@ -1385,7 +1395,7 @@ ul.legende b{color:var(--encre)}
 /* l'accueil : l'icône d'affichage toujours en haut à droite (l'« inline-flex » ci-dessus la ramenait à gauche) ;
    le pied de page aligné sur la largeur du contenu */
 .accueil-h[data-theme-ici]{display:flex;justify-content:flex-end}
-.accueil + .pied-site{max-width:920px;align-items:center}
+.accueil + .pied-site{align-items:center}
 
 /* un grain de papier à peine visible sous chaque page (pas en contraste élevé, ni à l'impression) */
 :root:not([data-theme="contrast"]) body{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .5 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)' opacity='.09'/%3E%3C/svg%3E")}
@@ -1403,7 +1413,7 @@ ul.legende b{color:var(--encre)}
 /* retours d'Ana (23 octobre 2026) */
 /* l'accueil prend la largeur de l'écran (jusqu'à 1200 px), au lieu d'une colonne étroite */
 .accueil{max-width:min(1200px,94vw)}
-.accueil + .pied-site{max-width:min(1200px,94vw)}
+.accueil + .pied-site{margin-inline:max(20px,calc((100% - min(1200px,94vw)) / 2 + 20px))}
 /* le pied de page plus petit, sur une ligne quand il le peut */
 .pied-site{font-size:12.5px;gap:4px 16px;align-items:center}
 /* « La durée » : l'icône sur la ligne du mot */
@@ -1469,20 +1479,21 @@ ul.legende b{color:var(--encre)}
 
 /* la teinte douce (bulle de la garde-parc, cartes de question) se recalcule sur body : elle suit le vert des équipes
    et le violet des enseignants, au lieu de garder le bleu de :root où elle est d'abord définie */
-body{--primaire-doux:color-mix(in srgb,var(--primaire) 9%,var(--surface))}
+body{--primaire-doux:color-mix(in srgb,var(--primaire) 9%,var(--surface));
+  accent-color:var(--primaire)}   /* les cases et boutons radio natifs aussi (ils restaient bleu Chrome) */
 
 /* avancer ensemble : l'interrupteur et l'étape ouverte, en tête de la liste des équipes */
 .rythme{display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;margin:4px 0 14px;font-size:15px}
 .rythme .bascule{margin:0}
 .attend{font-weight:700;color:var(--eco)}
 /* la progression à projeter : une piste, une colonne par étape, les animaux dessus */
-.prog-proj{min-height:100vh;padding:24px}
+.prog-proj{min-height:100vh;padding:24px;display:flex;flex-direction:column}
 .prog-proj-h{display:flex;flex-wrap:wrap;align-items:center;gap:12px 24px;margin-bottom:22px}
 .prog-proj-h h2{margin:0;font-size:clamp(28px,4vw,44px)}
 .prog-proj-code{font-size:clamp(18px,2vw,26px)}
 .prog-proj-code b{font-family:var(--f-d);letter-spacing:.12em}
 .prog-proj-h .btn{margin-left:auto}
-.piste{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.piste{list-style:none;margin:0;padding:0;display:grid;gap:8px;flex:1}   /* les colonnes descendent jusqu'au bas de l'écran */
 .piste > li{display:flex;flex-direction:column;gap:10px;min-height:52vh;padding:12px 10px;border-radius:var(--r);
   background:var(--surface);border:1px solid var(--trait)}
 .piste > li.piste--fermee{background:var(--fond-2);border-style:dashed;border-color:var(--bord)}
@@ -1496,7 +1507,8 @@ body{--primaire-doux:color-mix(in srgb,var(--primaire) 9%,var(--surface))}
 @media (max-width:900px){.piste{grid-template-columns:repeat(2,minmax(0,1fr)) !important}.piste > li{min-height:0}}
 /* pendant la projection de la progression : seulement la piste (ni barre, ni bande, ni pied de page) */
 body:has(.prog-proj) :is(.barre,.pied-site,.mode-local,.bande-dev){display:none}
-body:has(.prog-proj) .page{max-width:none;padding:0}
+body:has(.prog-proj) :is(.page,.espace-prof){max-width:none}   /* tout l'écran du projecteur */
+body:has(.prog-proj) .page{padding:0}
 
 /* ce qui efface ou ferme : le contour rouge, et un fond rouge pâle au survol */
 .btn--f.danger{border-color:var(--action)}
