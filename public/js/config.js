@@ -8,13 +8,16 @@
 // ici les valeurs que la console te donne, entre les accolades, et enlève les //.
 // Le site bascule tout seul : aucun autre fichier à changer.
 
+// Le projet « ou-passe-la-ligne » (base à Montréal, northamerica-northeast1). Ces valeurs sont publiques par
+// conception : ce sont les règles (firestore.rules) qui protègent les données. Pas de measurementId : aucune mesure
+// d'audience (Google Analytics) n'est chargée par le site.
 export const firebase = {
-  // apiKey:            "",
-  // authDomain:        "",
-  // projectId:         "",
-  // storageBucket:     "",
-  // messagingSenderId: "",
-  // appId:             ""
+  apiKey:            "AIzaSyBkStLKZpL7sEpo6Q8f8HIlItgFyCYiRVs",
+  authDomain:        "ou-passe-la-ligne.firebaseapp.com",
+  projectId:         "ou-passe-la-ligne",
+  storageBucket:     "ou-passe-la-ligne.firebasestorage.app",
+  messagingSenderId: "895765056239",
+  appId:             "1:895765056239:web:1f45597d3a942e9aa0691a"
 };
 
 // Version de Firebase chargée depuis le CDN de Google (aucun npm, aucun build).
@@ -26,7 +29,9 @@ export const versionFirebase = '12.19.0';
  * À activer aussi dans la console Firebase : Authentication → Mode de connexion → Google.
  * Mettre `false` cache le bouton (l'enseignant·e reste alors en anonyme, lié·e à son navigateur).
  */
-export const googleEnseignant = true;
+// Éteinte pour l'instant : l'écran de connexion Google afficherait l'adresse d'assistance du projet, et le projet
+// n'a pas encore d'adresse dédiée. À rallumer une fois cette adresse créée (et Google activé dans la console).
+export const googleEnseignant = false;
 
 /**
  * La collecte pour la recherche. ÉTEINTE, et elle doit le rester jusqu'à ce que

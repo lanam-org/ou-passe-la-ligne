@@ -32,13 +32,16 @@ await mkdir(CAPTURES, { recursive: true });
 const TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.css': 'text/css',
   '.json': 'application/json', '.svg': 'image/svg+xml', '.png': 'image/png', '.txt': 'text/plain; charset=utf-8' };
 const fauxFb = creerFauxFirebase();
+// Les tests ne touchent jamais la vraie base : config.js est servi sans sa configuration Firebase (le mode local se
+// joue en démonstration ; le mode « firebase » le remplace par le double de Firestore, plus bas).
+const sansFirebase = (t) => t.replace(/export const firebase = \{[\s\S]*?\};/, 'export const firebase = {};');
 const servir = async (req, res) => {
   const url = new URL(req.url, 'http://x');
   if (await fauxFb.router(req, res, url)) return;
   let p = decodeURIComponent(url.pathname);
   if (p.endsWith('/')) p += 'index.html';
   try {
-    const corps = await readFile(join(PUBLIC, p));
+    const corps = p === '/js/config.js' ? sansFirebase(await readFile(join(PUBLIC, p), 'utf8')) : await readFile(join(PUBLIC, p));
     res.writeHead(200, { 'content-type': TYPES[extname(p)] || 'application/octet-stream', 'cache-control': 'no-store' });
     res.end(corps);
   } catch { res.writeHead(404); res.end('introuvable'); }
@@ -64,7 +67,7 @@ async function contexte(largeur = 1366, hauteur = 768) {
   // les polices Google ne sont pas nécessaires au test
   await ctx.route(/fonts\.(googleapis|gstatic)\.com/, (r) => r.fulfill({ status: 200, body: '' }));
   if (MODE === 'local' && IMAGES) {
-    const local = (await readFile(join(PUBLIC, 'js', 'config.js'), 'utf8')).replace('export const images = false;', 'export const images = true;');
+    const local = sansFirebase(await readFile(join(PUBLIC, 'js', 'config.js'), 'utf8')).replace('export const images = false;', 'export const images = true;');
     await ctx.route('**/js/config.js', (r) => r.fulfill({ contentType: 'text/javascript', body: local }));
   }
   if (MODE === 'firebase') {

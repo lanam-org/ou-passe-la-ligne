@@ -460,9 +460,13 @@ se vérifient dans la console Firebase (Firestore → Règles → Terrain de jeu
 
 ## Ce qui reste à faire
 
-- [ ] Brancher Firebase avant la première classe (et ajouter le domaine github.io aux domaines autorisés)
-- [ ] Créer la base Firestore à Montréal (`northamerica-northeast1`)
-- [ ] Activer les quatre politiques TTL sur `expireLe` (voir « Avec Firebase ») : sans elles, rien ne s'efface tout seul
+- [x] Brancher Firebase : projet `ou-passe-la-ligne`, connexion anonyme, domaine `lanam-org.github.io` autorisé,
+      règles publiées, configuration dans `config.js` (24 octobre 2026). Les tests, eux, ne touchent jamais la vraie base.
+- [x] Créer la base Firestore à Montréal (`northamerica-northeast1`)
+- [ ] Connexion Google des enseignant·es : créer une adresse dédiée au projet (l'adresse d'assistance s'affiche sur
+      l'écran de connexion Google), activer Google dans la console, puis `googleEnseignant = true` dans `config.js`
+- [ ] Activer les quatre politiques TTL sur `expireLe` (voir « Avec Firebase ») : sans elles, rien ne s'efface tout seul.
+      Elles demandent la facturation (forfait Blaze, avec une alerte de budget) : à faire avant la première classe
 - [ ] Firebase branché : se connecter une fois avec Google sur le site en ligne, et vérifier dans la console
       du navigateur qu'aucune ligne « Refused to … Content Security Policy » n'apparaît
 - [ ] Transmettre la fiche pour l'école (`ecoles.html`) à l'école ou au centre de services scolaire, pour son ÉFVP,
