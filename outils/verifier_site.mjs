@@ -541,7 +541,7 @@ await ecrire(eleve, 'F6.1', "Tout le territoire ; nous, on garde un village.");
 await eleve.waitForTimeout(1600); // laisse partir l'envoi différé
 await eleve.reload();
 await eleve.waitForSelector('#titre');
-dit((await eleve.textContent('#titre')).includes('La décision de 1970'), 'après un rafraîchissement, l’équipe reprend à « La décision de 1970 »');
+dit((await eleve.textContent('#titre')).includes('Découvrir la décision de 1970'), 'après un rafraîchissement, l’équipe reprend à « La décision de 1970 »');
 dit((await eleve.inputValue('[data-rep="F6.1"]')).includes('Tout le territoire'), 'et retrouve sa réponse');
 await capture(eleve, '10-bilan');
 await auditer(eleve, 'équipe · étape 6, bilan');

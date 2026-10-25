@@ -13,7 +13,7 @@ démonstration : tout reste dans le navigateur de la personne qui essaie, rien n
 | Page | Pour qui | Ce qu'on y fait |
 |---|---|---|
 | `index.html` | tout le monde | Choisir : équipe ou enseignant·e |
-| `eleve.html` | une équipe, un Chromebook | Entrer le code, choisir un nom d'animal, jouer les 7 étapes : Arriver, Faire le portrait du territoire, Se questionner, Prendre position, D'autres points de vue, La décision de 1970, Revenir sur sa démarche |
+| `eleve.html` | une équipe, un Chromebook | Entrer le code, choisir un nom d'animal, jouer les 7 étapes : Arriver, Faire le portrait du territoire, Se questionner, Prendre position, Entendre d'autres points de vue, Découvrir la décision de 1970, Revenir sur sa démarche |
 | `dossier.html` | les élèves, avant la séance | Le dossier élève (le dossier documentaire à lire avant la séance) : le portrait et les documents, sans les surprises ; imprimable |
 | `enseignant.html` | l'enseignant·e | Se connecter (Google, facultatif), retrouver ses séances, en créer une, suivre en direct, afficher le code et son code QR, chrono de classe, envoyer un message, réglages, débrief, questions, dossier documentaire, mesures, rapport imprimable, trousse d'essai (« Démarrer en 5 minutes », grille d'observation) |
 | `confidentialite.html` | tout le monde (parents, écoles, service informatique) | Ce que le site enregistre, pourquoi, où, combien de temps ; la responsable et ses coordonnées ; les droits ; les adresses à autoriser dans le filtre de l'école. Liée en bas de chaque page |
