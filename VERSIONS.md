@@ -8,9 +8,13 @@ une bande « version en cours de développement ». La version s'affiche en bas 
 Une version publiée = une étiquette git `playtest-N`, dont le message est le titre de la version. La version en
 préparation est le titre « … · en préparation » ci-dessous : `…/dev/` l'affiche. Publier : README, « Versions ».
 
-## Playtest 1 — avec les professeurs · en préparation
+## Playtest 2 — avec les professeurs · en préparation
 
-À `…/dev/` seulement : pas encore publiée. Retours des premiers essais avec des enseignant·es, et de la rencontre
+À `…/dev/` seulement : le travail après Playtest 1.
+
+## Playtest 1 — avec les professeurs · 29 octobre 2026
+
+Étiquette `playtest-1`. Retours des premiers essais avec des enseignant·es, et de la rencontre
 avec Chantal et Alexandra :
 
 - **Clé en main d'abord (« less is more »)** : l'onglet Réglages montre la durée ; minutes, questions une à une,
