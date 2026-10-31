@@ -4,6 +4,7 @@
 
 import { mesure } from '../config.js';
 import { esc, icone } from '../outils.js';
+import { tableauArrimage } from './pfeq.js';
 import * as Rg from '../reglages.js';
 import { dossierHTML } from '../dossierdoc.js';
 import { etat, ui, qid } from './etat.js';
@@ -91,9 +92,16 @@ export function vueDeroulement() {
   return `<div class="p-tete"><h2>Déroulement de la séance</h2>
       <p>${c.miseEnRoute.min + Rg.totalPrevu(c)} minutes (${esc(Rg.FORMATS[c.reglages.format]?.nom || '')}) : ${c.miseEnRoute.min} de mise en route, puis sept étapes.
         Ce que vit l'équipe, ce que ça fait travailler, et quoi observer. Rien de ceci n'apparaît chez les élèves.</p>
-      ${c.coupure ? `<p class="hint">Deux périodes : coupure conseillée après « ${esc(c.etapes.find((x) => x.id === c.coupure).t)} ».
-        À la période suivante, chaque équipe reprend sur le même Chromebook, avec le même code.</p>` : ''}
-      <div class="p-actions"><button class="btn btn--f" data-trousse="observation">${icone('imprimer')} Imprimer la grille d'observation</button></div></div>
+      ${c.coupure ? `<p class="hint">Deux périodes : coupure conseillée après « ${esc(c.etapes.find((x) => x.id === c.coupure).t)} »
+        (« Avancer ensemble » y arrête les équipes). À la période suivante, chaque équipe reprend sur le même Chromebook, avec le même code.</p>` : ''}
+      <div class="p-actions"><button class="btn btn--f" data-trousse="retroaction">${icone('imprimer')} Guide de la rétroaction</button>
+        <button class="btn btn--f" data-trousse="observation">${icone('imprimer')} Imprimer la grille d'observation</button></div></div>
+    <section class="p-sect" id="programme"><div class="p-sect-h"><h3>Lien avec le programme</h3>
+        <span class="hint">Géographie, 1er cycle du secondaire · territoire protégé (parc naturel)</span></div>
+      <p class="hint">Forillon est cité en exemple dans la Progression des apprentissages. L'expropriation de 1970 et Gespe'gewa'gi
+        enrichissent les compétences 2 et 3, sans être des savoirs prescrits.</p>
+      ${tableauArrimage(c)}
+    </section>
     <div class="etapes-p">
       <article class="etape-p"><header><span class="etape-n">0</span><div><h3>Mise en route</h3>
         <span class="hint">${c.miseEnRoute.min} min · par l'enseignant·e</span></div></header>

@@ -4,7 +4,7 @@
 import { esc } from '../outils.js';
 import * as J from '../jeu.js';
 import * as Rg from '../reglages.js';
-import { aUnBravo } from '../seance.js';
+import { aUnBravo, retourDe, RETOURS } from '../seance.js';
 import { etat } from './etat.js';
 
 export const MAX_REPONSE = 400;   // deux ou trois phrases ; le compteur sous la case le montre
@@ -12,13 +12,14 @@ export const PAS_FINI = 'Répondez à la question avant de continuer.';
 
 function blocQuestion(q) {
   const { E, S, idEq } = etat;
-  const bravo = aUnBravo(S, idEq, q.id);
+  const bravo = aUnBravo(S, idEq, q.id), ret = retourDe(S, idEq, q.id);
   return `<div class="qe${bravo ? ' qe--bravo' : ''}">
     <label class="qe-l" for="r-${esc(q.id)}"><span class="sur">Question pour l'équipe${q.requise ? '' : ' · facultative'}</span>${esc(q.eleve)}</label>
     <textarea id="r-${esc(q.id)}" data-rep="${esc(q.id)}" rows="2" maxlength="${MAX_REPONSE}"
       placeholder="Une ou deux phrases, écrites ensemble.">${esc(E.reponses?.[q.id] || '')}</textarea>
     <p class="qe-compte" data-compte="${esc(q.id)}" aria-hidden="true">${String(E.reponses?.[q.id] || '').length} / ${MAX_REPONSE}</p>
-    ${bravo ? '<p class="qe-bravo"><span aria-hidden="true">✦</span> Bravo de votre enseignant·e pour cette réponse.</p>' : ''}
+    ${ret ? `<p class="qe-bravo${bravo ? '' : ' qe-bravo--piste'}"><span aria-hidden="true">${bravo ? '✦' : '↻'}</span>
+      ${esc(RETOURS[ret.k].long)} : votre enseignant·e, pour cette réponse.</p>` : ''}
   </div>`;
 }
 

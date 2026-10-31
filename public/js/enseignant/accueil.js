@@ -92,6 +92,7 @@ export async function afficherAccueil(erreur = '') {
       <div class="vignettes">
         ${vignette('data-trousse="demarrer"', 'imprimer', 'Démarrer en 5 minutes', 'Une page pour un essai du jeu')}
         ${vignette('data-trousse="observation"', 'imprimer', 'Grille d’observation', 'Pour la personne qui observe')}
+        ${vignette('data-trousse="retroaction"', 'imprimer', 'Animer la rétroaction', 'Cinq temps, et les pièges à éviter')}
         <a class="vignette" href="ecoles.html" target="_blank" rel="noopener">${icone('lien')}<b>Fiche pour l'école</b>
           <span class="hint">Ce que le site fait des données, pour la direction</span></a>
       </div>

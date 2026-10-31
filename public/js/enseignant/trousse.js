@@ -11,7 +11,7 @@ import { mesure } from '../config.js';
 import { esc } from '../outils.js';
 import * as Rg from '../reglages.js';
 import { JOURS_CONSERVATION } from '../seance.js';
-import { base, etat, ui } from './etat.js';
+import { base, etat, ui, qid } from './etat.js';
 import { imprimer } from './rapport.js';
 
 const adresse = (page) => new URL(page, location.href).href;
@@ -114,8 +114,45 @@ function grilleObservation() {
     ${QUESTIONS_APRES.map((q) => `<div class="p-q"><b>${esc(q)}</b><div class="p-lignes"></div><div class="p-lignes"></div></div>`).join('')}`;
 }
 
+/* ------------------------------------------------------------ animer la rétroaction */
+
+// L'apprentissage se fait surtout dans la rétroaction (le retour réflexif) : cinq temps, les questions orales de la
+// séance, les pièges à éviter, et le découpage en deux périodes.
+const TEMPS = [
+  ['Décrire', 'Qu\'avez-vous décidé, et pourquoi ? Projeter deux ou trois lignes sans nom (« Comparer les lignes »).'],
+  ['Comparer avec 1970', 'Montrer la ligne de 1970. En quoi la vôtre est-elle différente ? Qui y gagne, qui y perd ?'],
+  ['Les points de vue', 'Quel point de vue vous a fait changer d\'avis ? Lequel avez-vous écarté, et pourquoi ?'],
+  ['Les sources', 'Quel document vous a le plus servi ? Deux nombres circulent (983 et 1 800) : que comptent-ils ?'],
+  ['Aujourd\'hui', 'L\'accord de 2024 avec la Nation Micmac de Gespeg change-t-il votre ligne ? Que garderiez-vous ?']
+];
+const PIEGES = [
+  'Présenter la ligne de 1970 comme la bonne, ou la mauvaise, réponse : c\'est une décision à comprendre.',
+  'Parler à la place de la Nation Micmac de Gespeg ou des familles expropriées : citer les documents.',
+  'Noter ou classer les lignes : il n\'y a pas de gagnant.',
+  'Nommer des élèves : les équipes portent des noms d\'animaux.'
+];
+
+function guideRetroaction() {
+  const c = contenuActuel();
+  const debrief = c.etapes.find((x) => x.id === 'debrief');
+  const coupure = c.coupure ? c.etapes.find((x) => x.id === c.coupure) : null;
+  return `<h1>Où passe la ligne&nbsp;? · animer la rétroaction</h1>
+    <p class="r-note">${debrief.min} minutes à l'étape « ${esc(debrief.t)} ». Onglet « Rétroaction », en plein écran.</p>
+    <h2>En cinq temps</h2>
+    <ol class="t-pas">${TEMPS.map(([t, x]) => `<li><div><b>${esc(t)}</b>${esc(x)}</div></li>`).join('')}</ol>
+    ${c.q.orales.length ? `<h2>Les questions orales de cette séance</h2>
+      <ul>${c.q.orales.map((q) => `<li><b>${esc(qid(q))}</b> ${esc(q.eleve)}</li>`).join('')}</ul>` : ''}
+    <h2>Pièges à éviter</h2>
+    <ul>${PIEGES.map((x) => `<li>${esc(x)}</li>`).join('')}</ul>
+    <h2>En deux périodes</h2>
+    <p>Période 1 : de l'arrivée jusqu'à « ${esc(coupure ? coupure.t : 'Prendre position')} » ; « Avancer ensemble » arrête les équipes à cette étape.
+      Période 2 : les équipes reprennent sur le même Chromebook, avec le même code (séance rouverte depuis « Historique »),
+      puis les points de vue, la décision de 1970 et cette rétroaction.</p>`;
+}
+
 document.addEventListener('click', (ev) => {
   const b = ev.target.closest('[data-trousse]');
   if (!b) return;
-  imprimer(b.dataset.trousse === 'observation' ? grilleObservation() : ficheDemarrer());
+  const fiches = { observation: grilleObservation, retroaction: guideRetroaction, demarrer: ficheDemarrer };
+  imprimer((fiches[b.dataset.trousse] || ficheDemarrer)());
 });

@@ -3,7 +3,7 @@
 
 import { $, esc } from '../outils.js';
 import * as J from '../jeu.js';
-import { texteSignal, cleBravo } from '../seance.js';
+import { texteSignal, cleBravo, retourDe, RETOURS } from '../seance.js';
 import { etat, ui, page, idx } from './etat.js';
 import { confettis } from './anime.js';
 
@@ -44,15 +44,17 @@ let minuterieBravo = null;
 const FERMER_BRAVO = '<button type="button" class="bravo-x" data-fermer-bravo aria-label="Fermer">×</button>';
 export function fermerBravo() { clearTimeout(minuterieBravo); const z = $('#bravo'); if (z) z.innerHTML = ''; }
 
-/** Le « bravo » de l'enseignant·e : plus long à l'écran qu'un geste reconnu, et il nomme la question. */
-function annoncerBravoEnseignant(qs) {
+/** Un retour de l'enseignant·e (« bravo » ou retour précis) : plus long à l'écran qu'un geste reconnu ; il nomme la question. */
+function annoncerBravoEnseignant(items) {
   const z = $('#bravo');
   if (!z) return;
-  z.innerHTML = `<div class="bravo bravo--ens">${FERMER_BRAVO}<p class="bravo-sur"><span aria-hidden="true">✦</span> Bravo de votre enseignant·e</p>${
-    qs.map((q) => `<p class="bravo-l"><span class="bravo-i" aria-hidden="true">✦</span><span>Votre réponse à « ${esc(q.eleve)} »</span></p>`).join('')}</div>`;
+  const fete = items.some((x) => RETOURS[x.k].positif);
+  z.innerHTML = `<div class="bravo bravo--ens">${FERMER_BRAVO}<p class="bravo-sur">${fete ? '<span aria-hidden="true">✦</span> Bravo de votre enseignant·e'
+    : 'Un retour de votre enseignant·e'}</p>${items.map((x) => `<p class="bravo-l"><span class="bravo-i" aria-hidden="true">${RETOURS[x.k].positif ? '✦' : '↻'}</span>
+      <span><b>${esc(RETOURS[x.k].long)}</b><br>Votre réponse à « ${esc(x.q.eleve)} »</span></p>`).join('')}</div>`;
   clearTimeout(minuterieBravo);
   minuterieBravo = setTimeout(() => { z.innerHTML = ''; }, 7500);
-  confettis(70);
+  if (fete) confettis(70);
 }
 
 /** Les gestes reconnus pendant la partie : un « Bravo » court, sans score. */
@@ -70,12 +72,14 @@ export function annoncer(ids) {
 export function bravosRecus() {
   const { S, idEq, E, c } = etat;
   const mes = S?.bravos?.[idEq] || {};
-  const neufs = Object.entries(mes).filter(([, t]) => t && t > ui.bravoVu);
+  const quand = (v) => (typeof v === 'number' ? v : v?.t || 0);   // une date seule (séances d'avant), ou { k, t }
+  const neufs = Object.entries(mes).filter(([, v]) => quand(v) > ui.bravoVu);
   if (!neufs.length) return;
-  ui.bravoVu = Math.max(...neufs.map(([, t]) => t));
+  ui.bravoVu = Math.max(...neufs.map(([, v]) => quand(v)));
   try { localStorage.setItem(`${CLE_BRAVO}:${E.appareil}`, String(ui.bravoVu)); } catch { /* vide */ }
-  const qs = neufs.map(([k]) => (c.q?.ecrites || []).find((q) => cleBravo(q.id) === k)).filter(Boolean);
-  if (qs.length) annoncerBravoEnseignant(qs);
+  const items = neufs.map(([k]) => (c.q?.ecrites || []).find((q) => cleBravo(q.id) === k)).filter(Boolean)
+    .map((q) => ({ q, k: retourDe(S, idEq, q.id)?.k })).filter((x) => x.k);
+  if (items.length) annoncerBravoEnseignant(items);
 }
 
 /* ------------------------------------------------------------ le message de l'enseignant·e */

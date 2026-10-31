@@ -68,6 +68,9 @@ export const FORMATS = {
 export function reglagesSurMesure(base, total, garder = {}) {
   const r = reglagesDuFormat(base, 'mesure', garder);
   const t = Math.max(15, Math.min(240, Math.round(Number(total) || 50)));
+  // les questions du format le plus proche : la version courte sous 40 min, celle des deux périodes dès 90 min
+  const proche = t < 40 ? 'courte' : t >= 90 ? 'deux' : null;
+  if (proche) r.questions = reglagesDuFormat(base, proche).questions;
   const etapes = Object.keys(MINUTES_50).filter((k) => k !== 'avis');
   const somme = etapes.reduce((s, k) => s + MINUTES_50[k], 0) + FORMATS.standard.miseEnRoute;
   r.miseEnRoute = Math.max(1, Math.round(FORMATS.standard.miseEnRoute * t / somme));
@@ -236,7 +239,10 @@ export function appliquer(base, reglages) {
   ecrites.sort((a, b) => ordre(a) - ordre(b));
   c.q = { ecrites, orales };
   c.reglages = r;
-  c.coupure = FORMATS[r.format]?.coupure || null;
+  // sur mesure, dès 90 minutes : deux périodes, la coupure après le tracé (comme le format « Deux périodes »)
+  const totalSurMesure = r.format === 'mesure'
+    ? (r.miseEnRoute || 0) + Object.entries(r.minutes || {}).filter(([k]) => k !== 'avis').reduce((s, [, m]) => s + (Number(m) || 0), 0) : 0;
+  c.coupure = FORMATS[r.format]?.coupure || (totalSurMesure >= 90 ? FORMATS.deux.coupure : null);
   return c;
 }
 

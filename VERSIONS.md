@@ -12,6 +12,16 @@ préparation est le titre « … · en préparation » ci-dessous : `…/dev/` l
 
 À `…/dev/` seulement : le travail après Playtest 1.
 
+- **Animer la rétroaction** : un guide imprimable (cinq temps, les questions orales, les pièges à éviter, deux
+  périodes), depuis la Rétroaction, le Déroulement et « Plus d'outils ».
+- **Comparer les lignes** : deux ou trois lignes projetées sans nom d'équipe, puis la ligne de 1970.
+- **Des retours précis** en plus du « bravo » : « Bien appuyé », « Points de vue », et deux pistes, « À préciser » et
+  « Une preuve ? ».
+- **Lien avec le programme** : étapes × compétences et énoncés du parc naturel (Déroulement, rapport imprimé), et une
+  grille facultative par équipe dans le rapport.
+- **Deux périodes** : un « Sur mesure » de 90 minutes ou plus coupe après le tracé ; sous 40 minutes, il reprend les
+  questions de la version courte.
+
 ## Playtest 1 — avec les professeurs · 29 octobre 2026
 
 Étiquette `playtest-1`. Retours des premiers essais avec des enseignant·es, et de la rencontre

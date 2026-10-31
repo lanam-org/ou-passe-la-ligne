@@ -1525,3 +1525,31 @@ body:has(.prog-proj) .page{padding:0}
 .btn--f.danger{border-color:var(--action)}
 .btn--f.danger:hover{background:color-mix(in srgb,var(--action) 10%,var(--surface))}
 .lien.danger:hover{background:color-mix(in srgb,var(--action) 10%,transparent)}
+
+/* =============================================================================
+   Recommandations de l'analyse concurrentielle (30 octobre 2026)
+   ========================================================================== */
+/* les retours sur une réponse : un « bravo » ou un retour précis ; les pistes (↻) en ocre, sans fête */
+.retours{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.retour-b{min-height:34px;padding:5px 10px;font-size:13.5px}
+.retour-b[aria-pressed="true"]{background:var(--primaire);border-color:var(--primaire);color:var(--sur-primaire)}
+.retour-b--piste[aria-pressed="true"]{background:var(--surface);border:2px solid var(--eco);color:var(--eco);font-weight:800}
+.qe-bravo--piste{color:var(--eco)}
+/* comparer les lignes, côte à côte ; le choix des équipes (leurs noms) ne se projette pas */
+.cmp-choix{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.projection .cmp-choix{display:none}
+.cmp-g{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.cmp-c{display:flex;flex-direction:column;gap:8px;padding:12px;border:1px solid var(--trait);border-radius:var(--r-s);background:var(--fond-2);min-width:0}
+.cmp-c h4{margin:0;font-size:17px}
+.cmp-c--1970{border:2px solid var(--primaire)}
+.cmp-r{list-style:none;margin:0;padding:0;display:grid;gap:2px;font-size:14px}
+/* le lien avec le programme : un tableau étapes × compétences */
+.arrimage th[scope="row"]{font-weight:600;text-align:left}
+.arrimage .t-c{text-align:center;color:var(--primaire)}
+.r-cd{margin-top:8pt;width:100%;border-collapse:collapse;font-size:10pt}
+.r-cd th,.r-cd td{border:1px solid #999;padding:3pt 5pt;text-align:left}
+.r-cd .t-c{text-align:center}
+@media print{.cmp-choix,.retours{display:none}}
+/* « Réponse attendue », sous les boutons de retour : une cible d'au moins 24 px, un peu détachée */
+.rep > details{margin-top:8px}
+.rep > details > summary{min-height:24px;display:list-item;padding-block:2px}

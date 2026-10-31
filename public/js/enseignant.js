@@ -20,7 +20,7 @@ import { mesure } from './config.js';
 import { $, typo, validationEnFrancais } from './outils.js';
 import * as Rg from './reglages.js';
 import { dossierHTML } from './dossierdoc.js';
-import { cheminSeance, cheminReponses, effacerSeance, reglerMinutes, reglerChrono, reglerRythme, chronoNeuf, donnerBravo, MAX_MESSAGE, ouvrirApercu } from './seance.js';
+import { cheminSeance, cheminReponses, effacerSeance, reglerMinutes, reglerChrono, reglerRythme, chronoNeuf, donnerRetour, MAX_MESSAGE, ouvrirApercu } from './seance.js';
 import { base, etat, ui, page, appliquerReglages, configSeance, seanceGardee, stable, chronoDe, chronoTexte } from './enseignant/etat.js';
 import { afficherAccueil } from './enseignant/accueil.js';
 import { vueDirect } from './enseignant/direct.js';
@@ -242,9 +242,9 @@ document.addEventListener('click', async (ev) => {
   }
   const bv = ev.target.closest('[data-bravo]');
   if (bv) {
-    // un « bravo » se donne ou se reprend ; l'écran se redessine quand la séance change
+    // un retour (« bravo » ou retour précis) se donne, se change ou se reprend ; l'écran se redessine quand la séance change
     bv.disabled = true;
-    await donnerBravo(code, bv.dataset.pour, bv.dataset.bravo, bv.getAttribute('aria-pressed') !== 'true');
+    await donnerRetour(code, bv.dataset.pour, bv.dataset.bravo, bv.getAttribute('aria-pressed') === 'true' ? null : (bv.dataset.k || 'bravo'));
     return;
   }
   const eqb = ev.target.closest('[data-equipe]');
@@ -319,6 +319,14 @@ document.addEventListener('click', async (ev) => {
     return finie();
   }
   if (ev.target.closest('[data-attendu]')) { ui.cacheAttendu = !ui.cacheAttendu; return rendre(); }
+  // comparer les lignes : trois équipes au plus, puis la ligne de 1970
+  const cm = ev.target.closest('[data-cmp]');
+  if (cm) {
+    const id = cm.dataset.cmp;
+    ui.comparer = ui.comparer.includes(id) ? ui.comparer.filter((x) => x !== id) : [...ui.comparer, id].slice(0, 3);
+    rendre(); document.querySelector(`[data-cmp="${CSS.escape(id)}"]`)?.focus(); return;
+  }
+  if (ev.target.closest('[data-voir1970]')) { ui.voir1970 = !ui.voir1970; rendre(); document.querySelector('[data-voir1970]')?.focus(); return; }
   if (ev.target.closest('[data-plein]')) {
     // un interrupteur : « Plein écran », puis « Quitter le plein écran »
     if (ui.projection) {

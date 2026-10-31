@@ -9,7 +9,8 @@ import { $, esc, typo, dec, mmss } from '../outils.js';
 import * as J from '../jeu.js';
 import * as Rg from '../reglages.js';
 import { carte } from '../carte.js';
-import { aUnBravo } from '../seance.js';
+import { retourDe, RETOURS } from '../seance.js';
+import { tableauArrimage, grilleCompetences } from './pfeq.js';
 import { base, etat, qid, autresReponses } from './etat.js';
 
 export function rapportHTML() {
@@ -48,6 +49,8 @@ export function rapportHTML() {
       <tr><td>Ont rezoné après un autre point de vue</td><td>${rezone}</td></tr>
       <tr><td>Ont terminé la partie</td><td>${eq.filter((e) => e.fini).length}</td></tr>
     </tbody></table>
+    <h2>Lien avec le programme</h2>
+    ${tableauArrimage(c)}
     <h2>Le temps, étape par étape</h2>
     <table><thead><tr><th>Étape</th><th>Prévu</th><th>Moyenne</th><th>Le plus long</th><th>Équipes</th></tr></thead><tbody>${temps}</tbody></table>
     ${rapportReglages()}
@@ -73,8 +76,9 @@ export function rapportHTML() {
           ${e.mentions.length ? `<p><span class="r-k">Gestes reconnus :</span> ${e.mentions.map((id) => esc(c.mentions[id].nom)).join(', ')}</p>` : ''}
         </div></div>
         <dl class="r-rep">${ecrites.map((q) => `<dt>${esc(qid(q))} · ${esc(q.eleve)}${q.requise ? '' : ' (facultative)'}</dt>
-          <dd>${String(e.reponses?.[q.id] || '').trim() ? esc(e.reponses[q.id]) + (aUnBravo(S, e.id, q.id) ? ' <b>✦ bravo</b>' : '') : '<i>pas de réponse</i>'}</dd>`).join('')}${
+          <dd>${String(e.reponses?.[q.id] || '').trim() ? esc(e.reponses[q.id]) + (retourDe(S, e.id, q.id) ? ` <b>${esc(RETOURS[retourDe(S, e.id, q.id).k].court)}</b>` : '') : '<i>pas de réponse</i>'}</dd>`).join('')}${
           autresReponses(e).map((x) => `<dt>${esc(x.t)} (${esc(x.k)})</dt><dd>${esc(x.r)}</dd>`).join('')}</dl>
+        ${grilleCompetences()}
       </section>`;
     }).join('')}`;
 }

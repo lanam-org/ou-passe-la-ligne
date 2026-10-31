@@ -5,7 +5,7 @@ import { esc, icone } from '../outils.js';
 import * as J from '../jeu.js';
 import * as Rg from '../reglages.js';
 import { carte, blocReleve } from '../carte.js';
-import { SIGNAUX, texteSignal, MAX_MESSAGE, aUnBravo, EMOJIS_EQUIPES } from '../seance.js';
+import { SIGNAUX, texteSignal, MAX_MESSAGE, aUnBravo, retourDe, RETOURS, EMOJIS_EQUIPES } from '../seance.js';
 import { encode } from '../vendor/uqr.js';
 import { etat, ui, qid, etapeDe, chronoDe, chronoTexte, autresReponses } from './etat.js';
 
@@ -210,11 +210,12 @@ function vueDetail(e) {
           return `<li class="${d.utile ? 'ok' : 'hs'}"><span aria-hidden="true">${d.utile ? '✓' : '—'}</span> ${esc(d.t)}${d.utile ? '' : ' <small>(hors sujet)</small>'}</li>`; }).join('')}</ul>` : ''}</div>
       <div class="rep-l">${ecrites.map((q) => {
         const r = String(e.reponses?.[q.id] || '').trim();
-        const bravo = aUnBravo(S, e.id, q.id);
+        const bravo = aUnBravo(S, e.id, q.id), ret = retourDe(S, e.id, q.id);
         return `<div class="rep${r ? '' : ' rep--vide'}${bravo ? ' rep--bravo' : ''}"><p class="k">${esc(qid(q))} · ${esc(c.etapes.find((x) => x.id === q.etape).t)}${q.requise ? '' : ' · facultative'}</p>
           <p><b>${esc(q.eleve)}</b></p><p>${r ? esc(r) : 'pas encore de réponse'}</p>
-          ${r ? `<button class="btn btn--f btn--s bravo-b" data-bravo="${esc(q.id)}" data-pour="${esc(e.id)}" aria-pressed="${bravo}"
-            title="L'équipe voit tout de suite que cette réponse vous a plu">${bravo ? '✦ Bravo envoyé' : '✦ Bravo'}</button>` : ''}
+          ${r ? `<div class="retours" role="group" aria-label="Un retour à l'équipe sur cette réponse">${Object.entries(RETOURS).map(([k, x]) =>
+            `<button class="btn btn--f btn--s retour-b${x.positif ? '' : ' retour-b--piste'}" data-bravo="${esc(q.id)}" data-pour="${esc(e.id)}"
+              data-k="${k}" aria-pressed="${ret?.k === k}" title="${esc(x.long)} : l'équipe le voit tout de suite">${esc(x.court)}</button>`).join('')}</div>` : ''}
           ${q.reponse ? `<details data-k="${esc(e.id)}-${esc(q.id)}" ${ui.ouverts.has(`${e.id}-${q.id}`) ? 'open' : ''}><summary class="hint">Réponse attendue</summary><p class="att">${esc(q.reponse)}</p></details>` : ''}</div>`;
       }).join('')}${autresReponses(e).map((x) => `<div class="rep"><p class="k">${esc(x.k)}</p><p><b>${esc(x.t)}</b></p><p>${esc(x.r)}</p></div>`).join('')}</div>
     </div></section>`;

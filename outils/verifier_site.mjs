@@ -285,6 +285,10 @@ dit((await eleve.textContent('.bravo--ens')).includes('Le territoire porte déj�
 await prof.waitForSelector('#detail [data-bravo="F5.4"][aria-pressed="true"]');
 await capture(eleve, '08c-bravo-equipe');
 await auditer(eleve, 'équipe · bravo de l’enseignant·e');
+await prof.click('#detail [data-bravo="F1.2"][data-k="preciser"]');
+await eleve.waitForFunction(() => document.querySelector('.bravo--ens')?.textContent.includes('À préciser'), null, { timeout: 5000 });
+await prof.waitForSelector('#detail [data-bravo="F1.2"][data-k="preciser"][aria-pressed="true"]');
+dit(true, 'un retour précis (« À préciser ») arrive chez l’équipe, avec sa question');
 await prof.click('[data-signal="temps"]');
 await eleve.waitForSelector('#signal:not([hidden])', { timeout: 5000 });
 dit((await eleve.textContent('#signal')).includes('5 minutes'), 'le message de l’enseignant·e arrive chez l’équipe');
@@ -576,6 +580,12 @@ await prof.waitForTimeout(300);
 const db = await prof.textContent('#prof');
 dit(db.includes("Les Mi'gmaq, depuis des temps immémoriaux"), 'le débrief rassemble les réponses des équipes');
 dit(db.includes('✦ bravo'), 'au débrief, la réponse saluée d’un « bravo » passe en premier, marquée ✦');
+await prof.click('[data-cmp]');
+await prof.waitForSelector('.cmp-c');
+await prof.click('[data-voir1970]');
+await prof.waitForSelector('.cmp-c--1970');
+dit((await prof.textContent('.cmp-g')).includes('Ligne A') && !(await prof.textContent('.cmp-g')).includes('Orignal'),
+  'rétroaction : les lignes se comparent sans nom d’équipe, puis la ligne de 1970');
 await capture(prof, '12-enseignant-debrief');
 await auditer(prof, 'enseignant · débrief');
 dit(!(await prof.locator('[data-onglet="mesures"]').count()) && await prof.getAttribute('[data-bascule-groupe]', 'aria-expanded') === 'false',
@@ -674,6 +684,11 @@ await auditer(prof, 'enseignant · accueil « Vos séances »');
   await prof.emulateMedia({ media: 'screen' });
   await prof.evaluate(() => window.dispatchEvent(new Event('afterprint')));
   dit(!(await prof.evaluate(() => document.body.classList.contains('imprime'))), 'après la trousse, l’écran revient');
+  await prof.click('[data-trousse="retroaction"]');
+  const guide = sansInsecables(await prof.textContent('#papier'));
+  dit(guide.includes('animer la rétroaction') && guide.includes('Pièges à éviter') && guide.includes('En deux périodes'),
+    'le guide pour animer la rétroaction : cinq temps, les pièges, deux périodes');
+  await prof.evaluate(() => window.dispatchEvent(new Event('afterprint')));
 }
 await autre.waitForSelector('#signal:not([hidden])', { timeout: 5000 });
 dit((await autre.textContent('#signal')).includes('terminée'), 'les équipes encore en jeu voient « séance terminée »');
@@ -897,6 +912,10 @@ if (MODE === 'local') {
   dit(total(reglagesDuFormat(contenu, 'courte')) === 35 && total(reglagesDuFormat(contenu, 'standard')) === 50
     && total(reglagesDuFormat(contenu, 'deux')) === 100 && total(reglagesSurMesure(contenu, 62)) === 62,
     'formats : 35, 50 (le standard) et 100 min, ou sur mesure à la minute près');
+  const { appliquer: appl } = await import('../public/js/reglages.js');
+  dit(appl(contenu, reglagesSurMesure(contenu, 100)).coupure === 'trace' && !appl(contenu, reglagesSurMesure(contenu, 60)).coupure
+    && JSON.stringify(reglagesSurMesure(contenu, 35).questions) === JSON.stringify(reglagesDuFormat(contenu, 'courte').questions),
+    'sur mesure : dès 90 min, deux périodes (coupure après le tracé) ; sous 40 min, les questions de la version courte');
   dit(c.releves[0].t === 'Titre corrigé' && !('url' in c.releves[0]) && foret(c) === foret(contenu)
     && !c.complications[0].x.includes('<img'),
     'une correction ne touche que les champs prévus : ni lien, ni tracé de la carte, ni HTML actif');

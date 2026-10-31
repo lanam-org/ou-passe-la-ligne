@@ -137,9 +137,27 @@ export async function reglerRythme(code, rythme) {
  * Une date, pas un point : pas de total, pas de classement. Ils partent avec la séance.
  */
 export const cleBravo = (qid) => String(qid).replace(/\./g, '_');   // « F2.1 » : un point couperait le chemin du champ
-export const aUnBravo = (s, equipe, qid) => !!s?.bravos?.[equipe]?.[cleBravo(qid)];
-export async function donnerBravo(code, equipe, qid, oui) {
-  await donnees.majPartielle(cheminSeance(code), { [`bravos.${equipe}.${cleBravo(qid)}`]: oui ? Date.now() : null });
+/**
+ * Les retours possibles sur une réponse : le « bravo », et des retours précis, centrés sur la démarche (une rétroaction
+ * qui informe aide bien plus qu'un éloge seul). Les « pistes » invitent à reprendre la réponse, sans confettis.
+ * Gardé dans la séance : { k, t } ; une date seule (séances d'avant) vaut un « bravo ».
+ */
+export const RETOURS = {
+  bravo: { court: '✦ Bravo', long: 'Bravo', positif: true },
+  source: { court: '✦ Bien appuyé', long: 'Bien appuyé sur un document', positif: true },
+  points: { court: '✦ Points de vue', long: "Tient compte d'autres points de vue", positif: true },
+  preciser: { court: '↻ À préciser', long: 'À préciser', positif: false },
+  preuve: { court: '↻ Une preuve ?', long: 'Ajoutez une preuve : un document, un chiffre', positif: false }
+};
+export function retourDe(s, equipe, qid) {
+  const v = s?.bravos?.[equipe]?.[cleBravo(qid)];
+  if (!v) return null;
+  if (typeof v === 'number') return { k: 'bravo', t: v };
+  return RETOURS[v.k] ? v : null;
+}
+export const aUnBravo = (s, equipe, qid) => !!RETOURS[retourDe(s, equipe, qid)?.k]?.positif;
+export async function donnerRetour(code, equipe, qid, k) {
+  await donnees.majPartielle(cheminSeance(code), { [`bravos.${equipe}.${cleBravo(qid)}`]: k && RETOURS[k] ? { k, t: Date.now() } : null });
 }
 
 export async function effacerMaVersion(uid) {

@@ -9,7 +9,7 @@ import * as J from '../jeu.js';
 import * as Rg from '../reglages.js';
 import { carte, blocReleve, effetRecent } from '../carte.js';
 import { lienSource } from '../dossierdoc.js';
-import { aUnBravo, EMOJIS_EQUIPES } from '../seance.js';
+import { aUnBravo, retourDe, RETOURS, EMOJIS_EQUIPES } from '../seance.js';
 import { etat, ui, avisActif, etapesVisibles } from './etat.js';
 import { blocQuestions, ok, R, PAS_FINI, questionsBravo } from './questions.js';
 import { confettis } from './anime.js';
@@ -262,7 +262,7 @@ export function rendreFin() {
       <div class="recap-g"><div>${carte(c, E, { cliquable: false })}</div><div>${blocReleve(c, E, true)}</div></div>
       ${bravos.length || E.mentions.length ? `<h3 class="sous">Ce que vous avez fait de bien</h3><div class="mentions">${
         bravos.map((q) => `<div class="mention mention--ens"><span class="mention-i" aria-hidden="true">✦</span>
-          <span><b>Bravo de votre enseignant·e</b><span>« ${esc(q.eleve)} »</span></span></div>`).join('')}${
+          <span><b>${esc(RETOURS[retourDe(S, idEq, q.id)?.k]?.long || 'Bravo')} : votre enseignant·e</b><span>« ${esc(q.eleve)} »</span></span></div>`).join('')}${
         E.mentions.map((id) => `<div class="mention"><span class="mention-i" aria-hidden="true">✦</span>
           <span><b>${esc(c.mentions[id].nom)}</b><span>${esc(c.mentions[id].court)}</span></span></div>`).join('')}</div>` : ''}
       ${ecrites.length ? `<h3 class="sous">Vos réponses</h3><dl class="vos-rep">${ecrites.map((q) => `<dt>${esc(q.eleve)}</dt>
