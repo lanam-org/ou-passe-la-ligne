@@ -1071,7 +1071,7 @@
    ]
   },
   "marche": {
-   "c": "Territoire protégé · territoire autochtone",
+   "c": "Territoire protégé",
    "m": [
     "conservation",
     "aménagement",
@@ -1096,7 +1096,7 @@
    ]
   },
   "comp": {
-   "c": "Territoire autochtone",
+   "c": "Enjeu territorial · concepts du territoire autochtone",
    "m": [
     "droits ancestraux",
     "convention",
@@ -1112,10 +1112,10 @@
    ]
   },
   "debrief": {
-   "c": "Les deux contenus se rencontrent",
+   "c": "Territoire protégé et enjeu territorial",
    "m": [
     "territoire protégé",
-    "territoire autochtone"
+    "enjeu territorial"
    ]
   }
  },
@@ -1526,7 +1526,7 @@
   },
   {
    "t": "Programme",
-   "x": "Ministère de l'Éducation, Progression des apprentissages au secondaire, Géographie, 1er cycle, p. 26 (territoire protégé ; Forillon et Banff nommés en exemple) et Programme de formation de l'école québécoise, Géographie (territoire autochtone ; enjeu territorial)."
+   "x": "Ministère de l'Éducation, Progression des apprentissages au secondaire, Géographie, 1er cycle, p. 26 (territoire protégé ; Forillon et Banff nommés en exemple) et Programme de formation de l'école québécoise, Géographie (concepts du territoire autochtone ; enjeu territorial)."
   },
   {
    "t": "À savoir",

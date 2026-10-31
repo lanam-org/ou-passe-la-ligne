@@ -116,9 +116,10 @@ function reglagesChoisis() {
   const v = ui.maVersion ? Rg.completer(base, ui.maVersion) : null;
   const garder = { ajouts: v?.ajouts, corrections: v?.corrections };
   if (fmt !== 'mesure') return v && v.format === fmt ? v : Rg.reglagesDuFormat(base, fmt, garder);
-  // sur mesure : la durée totale tapée ; les questions de sa version sur mesure, s'il y en a une
+  // sur mesure : la durée totale tapée ; les questions de sa version sur mesure, si elle est de la même tranche de durée
   const reglages = Rg.reglagesSurMesure(base, Number($('#duree-mesure')?.value), garder);
-  if (v?.format === 'mesure') reglages.questions = { ...reglages.questions, ...v.questions };
+  if (v?.format === 'mesure' && Rg.formatProche(Rg.totalReglages(v)) === Rg.formatProche(Rg.totalReglages(reglages)))
+    reglages.questions = { ...reglages.questions, ...v.questions };
   return reglages;
 }
 

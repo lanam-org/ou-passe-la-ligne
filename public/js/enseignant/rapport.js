@@ -76,7 +76,7 @@ export function rapportHTML() {
           ${e.mentions.length ? `<p><span class="r-k">Gestes reconnus :</span> ${e.mentions.map((id) => esc(c.mentions[id].nom)).join(', ')}</p>` : ''}
         </div></div>
         <dl class="r-rep">${ecrites.map((q) => `<dt>${esc(qid(q))} · ${esc(q.eleve)}${q.requise ? '' : ' (facultative)'}</dt>
-          <dd>${String(e.reponses?.[q.id] || '').trim() ? esc(e.reponses[q.id]) + (retourDe(S, e.id, q.id) ? ` <b>${esc(RETOURS[retourDe(S, e.id, q.id).k].court)}</b>` : '') : '<i>pas de réponse</i>'}</dd>`).join('')}${
+          <dd>${String(e.reponses?.[q.id] || '').trim() ? esc(e.reponses[q.id]) + (retourDe(S, e.id, q.id) ? ` <b>${RETOURS[retourDe(S, e.id, q.id).k].s} ${esc(RETOURS[retourDe(S, e.id, q.id).k].court)}</b>` : '') : '<i>pas de réponse</i>'}</dd>`).join('')}${
           autresReponses(e).map((x) => `<dt>${esc(x.t)} (${esc(x.k)})</dt><dd>${esc(x.r)}</dd>`).join('')}</dl>
         ${grilleCompetences()}
       </section>`;

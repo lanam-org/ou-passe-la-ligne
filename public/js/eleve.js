@@ -19,7 +19,7 @@ import * as donnees from './donnees.js';
 import { $, esc, typo, messageErreur, validationEnFrancais, icone } from './outils.js';
 import * as J from './jeu.js';
 import * as Rg from './reglages.js';
-import { NOMS_EQUIPES, EMOJIS_EQUIPES, RETOURS, retourDe, rejoindre, cheminSeance, cheminEquipe, normaliserCode, codeValide, expiration, CLE_APERCU } from './seance.js';
+import { NOMS_EQUIPES, EMOJIS_EQUIPES, texteRetour, retourDe, rejoindre, cheminSeance, cheminEquipe, normaliserCode, codeValide, expiration, CLE_APERCU } from './seance.js';
 import { etat, ui, page, appliquerReglages, idx, avisActif, etapesVisibles } from './eleve/etat.js';
 import { ECRANS, gabarit, rendreFin } from './eleve/ecrans.js';
 import { MAX_REPONSE, rattrapage, questionsBravo, reponseManquante } from './eleve/questions.js';
@@ -184,7 +184,7 @@ function rendre() {
   const bravos = e.id === 'debrief' ? questionsBravo() : [];
   const mentions = e.id !== 'debrief' ? '' : `<div class="bloc"><h3>Ce que vous avez fait de bien</h3>
     ${E.mentions.length || bravos.length ? `<div class="mentions">${bravos.map((q) => `<div class="mention mention--ens">
-      <span class="mention-i" aria-hidden="true">✦</span><span><b>${esc(RETOURS[retourDe(etat.S, etat.idEq, q.id)?.k]?.long || 'Bravo')} : votre enseignant·e</b><span>« ${esc(q.eleve)} »</span></span></div>`).join('')}${
+      <span class="mention-i" aria-hidden="true">✦</span><span><b>${esc(texteRetour(retourDe(etat.S, etat.idEq, q.id).k))}</b><span>« ${esc(q.eleve)} »</span></span></div>`).join('')}${
       E.mentions.map((id) => `<div class="mention${ui.nouvelles.includes(id) ? ' mention--neuve' : ''}"
       title="${esc(c.mentions[id].q)}"><span class="mention-i" aria-hidden="true">✦</span>
       <span><b>${esc(c.mentions[id].nom)}</b><span>${esc(c.mentions[id].court)}</span></span></div>`).join('')}</div>`

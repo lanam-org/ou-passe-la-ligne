@@ -18,7 +18,7 @@ rules_version = '2';
 //   · seuls les champs prévus sont acceptés (listes blanches) : personne ne peut
 //     ajouter un champ « prénom » par erreur ;
 //   · la version du jeu de l'enseignant·e (ses réglages) n'est lue et écrite que par elle ou lui ;
-//   · les « bravos » (une réponse saluée : équipe, question, date) vivent dans la séance :
+//   · les retours (« bravo » ou retour précis : équipe, question, lequel, date) vivent dans la séance :
 //     seul·e l'enseignant·e les écrit, puisque seul·e elle ou il modifie la séance ;
 //   · séances, fiches, avis et réponses attendues portent une date d'effacement (expireLe) : la politique
 //     TTL de Firestore les efface après cette date (Loi 25 : conservation limitée).

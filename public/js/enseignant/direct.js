@@ -213,9 +213,9 @@ function vueDetail(e) {
         const bravo = aUnBravo(S, e.id, q.id), ret = retourDe(S, e.id, q.id);
         return `<div class="rep${r ? '' : ' rep--vide'}${bravo ? ' rep--bravo' : ''}"><p class="k">${esc(qid(q))} · ${esc(c.etapes.find((x) => x.id === q.etape).t)}${q.requise ? '' : ' · facultative'}</p>
           <p><b>${esc(q.eleve)}</b></p><p>${r ? esc(r) : 'pas encore de réponse'}</p>
-          ${r ? `<div class="retours" role="group" aria-label="Un retour à l'équipe sur cette réponse">${Object.entries(RETOURS).map(([k, x]) =>
+          ${r ? `<div class="retours" role="group" aria-label="Retour sur ${esc(qid(q))}">${Object.entries(RETOURS).map(([k, x]) =>
             `<button class="btn btn--f btn--s retour-b${x.positif ? '' : ' retour-b--piste'}" data-bravo="${esc(q.id)}" data-pour="${esc(e.id)}"
-              data-k="${k}" aria-pressed="${ret?.k === k}" title="${esc(x.long)} : l'équipe le voit tout de suite">${esc(x.court)}</button>`).join('')}</div>` : ''}
+              data-k="${k}" aria-pressed="${ret?.k === k}" title="${esc(x.long)}"><span aria-hidden="true">${x.s}</span> ${esc(x.court)}</button>`).join('')}</div>` : ''}
           ${q.reponse ? `<details data-k="${esc(e.id)}-${esc(q.id)}" ${ui.ouverts.has(`${e.id}-${q.id}`) ? 'open' : ''}><summary class="hint">Réponse attendue</summary><p class="att">${esc(q.reponse)}</p></details>` : ''}</div>`;
       }).join('')}${autresReponses(e).map((x) => `<div class="rep"><p class="k">${esc(x.k)}</p><p><b>${esc(x.t)}</b></p><p>${esc(x.r)}</p></div>`).join('')}</div>
     </div></section>`;

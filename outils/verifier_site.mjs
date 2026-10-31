@@ -586,6 +586,8 @@ await prof.click('[data-voir1970]');
 await prof.waitForSelector('.cmp-c--1970');
 dit((await prof.textContent('.cmp-g')).includes('Ligne A') && !(await prof.textContent('.cmp-g')).includes('Orignal'),
   'rétroaction : les lignes se comparent sans nom d’équipe, puis la ligne de 1970');
+dit((await prof.textContent('.cmp-c--1970')).includes('100 %') && !(await prof.locator('.cmp-c--1970 .carte').count()),
+  'la ligne de 1970 : les faits du bilan, sans carte qui inventerait un zonage');
 await capture(prof, '12-enseignant-debrief');
 await auditer(prof, 'enseignant · débrief');
 dit(!(await prof.locator('[data-onglet="mesures"]').count()) && await prof.getAttribute('[data-bascule-groupe]', 'aria-expanded') === 'false',

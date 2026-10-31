@@ -133,8 +133,8 @@ export async function reglerRythme(code, rythme) {
  * Les « bravos » de l'enseignant·e : une réponse remarquée, dite à l'équipe tout de suite
  * (inspiré des retours positifs de ClassDojo et du « coup de projecteur » de Nearpod).
  * Ils vivent dans la séance, pas dans la fiche de l'équipe (que l'enseignant·e n'écrit jamais) :
- *   bravos = { [équipe]: { [question]: date } }
- * Une date, pas un point : pas de total, pas de classement. Ils partent avec la séance.
+ *   bravos = { [équipe]: { [question]: { k, t } } } : le retour (RETOURS) et sa date ; une date seule (séances d'avant)
+ *   vaut un « bravo ». Pas de point : pas de total, pas de classement. Ils partent avec la séance.
  */
 export const cleBravo = (qid) => String(qid).replace(/\./g, '_');   // « F2.1 » : un point couperait le chemin du champ
 /**
@@ -143,21 +143,23 @@ export const cleBravo = (qid) => String(qid).replace(/\./g, '_');   // « F2.1 �
  * Gardé dans la séance : { k, t } ; une date seule (séances d'avant) vaut un « bravo ».
  */
 export const RETOURS = {
-  bravo: { court: '✦ Bravo', long: 'Bravo', positif: true },
-  source: { court: '✦ Bien appuyé', long: 'Bien appuyé sur un document', positif: true },
-  points: { court: '✦ Points de vue', long: "Tient compte d'autres points de vue", positif: true },
-  preciser: { court: '↻ À préciser', long: 'À préciser', positif: false },
-  preuve: { court: '↻ Une preuve ?', long: 'Ajoutez une preuve : un document, un chiffre', positif: false }
+  bravo: { s: '✦', court: 'Bravo', long: 'Bravo', positif: true },
+  source: { s: '✦', court: 'Bien appuyé', long: 'Bien appuyé sur un document', positif: true },
+  points: { s: '✦', court: 'Points de vue', long: "Tient compte d'autres points de vue", positif: true },
+  preciser: { s: '↻', court: 'À préciser', long: 'À préciser', positif: false },
+  preuve: { s: '↻', court: 'Une preuve ?', long: 'Ajoutez une preuve (un document, un chiffre)', positif: false }
 };
+/** Ce que lit l'équipe : « De votre enseignant·e : bien appuyé sur un document » (ou le libellé court). */
+export const texteRetour = (k, court = false) => `De votre enseignant·e : ${(court ? RETOURS[k].court : RETOURS[k].long).toLowerCase()}`;
 export function retourDe(s, equipe, qid) {
   const v = s?.bravos?.[equipe]?.[cleBravo(qid)];
   if (!v) return null;
   if (typeof v === 'number') return { k: 'bravo', t: v };
-  return RETOURS[v.k] ? v : null;
+  return Object.hasOwn(RETOURS, v.k) ? v : null;
 }
 export const aUnBravo = (s, equipe, qid) => !!RETOURS[retourDe(s, equipe, qid)?.k]?.positif;
 export async function donnerRetour(code, equipe, qid, k) {
-  await donnees.majPartielle(cheminSeance(code), { [`bravos.${equipe}.${cleBravo(qid)}`]: k && RETOURS[k] ? { k, t: Date.now() } : null });
+  await donnees.majPartielle(cheminSeance(code), { [`bravos.${equipe}.${cleBravo(qid)}`]: k && Object.hasOwn(RETOURS, k) ? { k, t: Date.now() } : null });
 }
 
 export async function effacerMaVersion(uid) {

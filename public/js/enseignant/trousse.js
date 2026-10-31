@@ -2,9 +2,10 @@
 //   · « Démarrer en 5 minutes » : une page pour l'enseignant·e qui découvre le jeu ;
 //   · la grille d'observation : pour la personne qui observe une séance d'essai (playtest),
 //     avec les « À observer » de chaque étape, les fonctions que l'enseignant·e doit trouver
-//     seul·e, et le plan de mesure.
+//     seul·e, et le plan de mesure ;
+//   · « Animer la rétroaction » : cinq temps, les questions orales de la séance, les pièges, deux périodes.
 // Tout vient du contenu et des réglages : une étape, une durée ou un critère qui change
-// change aussi la trousse. Les boutons [data-trousse] sont sur l'accueil et dans « Déroulement ».
+// change aussi la trousse. Les boutons [data-trousse] sont sur l'accueil, dans « Déroulement » et « Rétroaction ».
 
 import * as donnees from '../donnees.js';
 import { mesure } from '../config.js';
@@ -135,7 +136,8 @@ const PIEGES = [
 function guideRetroaction() {
   const c = contenuActuel();
   const debrief = c.etapes.find((x) => x.id === 'debrief');
-  const coupure = c.coupure ? c.etapes.find((x) => x.id === c.coupure) : null;
+  // sans coupure dans la séance : celle du format « Deux périodes », pour qui voudrait couper
+  const coupure = c.etapes.find((x) => x.id === (c.coupure || Rg.FORMATS.deux.coupure));
   return `<h1>Où passe la ligne&nbsp;? · animer la rétroaction</h1>
     <p class="r-note">${debrief.min} minutes à l'étape « ${esc(debrief.t)} ». Onglet « Rétroaction », en plein écran.</p>
     <h2>En cinq temps</h2>
@@ -145,7 +147,7 @@ function guideRetroaction() {
     <h2>Pièges à éviter</h2>
     <ul>${PIEGES.map((x) => `<li>${esc(x)}</li>`).join('')}</ul>
     <h2>En deux périodes</h2>
-    <p>Période 1 : de l'arrivée jusqu'à « ${esc(coupure ? coupure.t : 'Prendre position')} » ; « Avancer ensemble » arrête les équipes à cette étape.
+    <p>Période 1 : de l'arrivée jusqu'à « ${esc(coupure.t)} » (avec « Avancer ensemble », retenez les équipes à cette étape).
       Période 2 : les équipes reprennent sur le même Chromebook, avec le même code (séance rouverte depuis « Historique »),
       puis les points de vue, la décision de 1970 et cette rétroaction.</p>`;
 }

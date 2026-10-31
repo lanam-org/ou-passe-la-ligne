@@ -17,19 +17,23 @@ const APPUIS = { 'F7.1': 'F5.4', 'F7.2': 'F6.1', 'F7.3': 'F5.4', 'F7.4': 'F6.3',
  */
 function vueComparer(c, eq) {
   const choisies = ui.comparer.map((id) => eq.find((e) => e.id === id)).filter(Boolean);
-  // 1970 : tout le territoire dans le parc, aucun village gardé (aujourd'hui, surtout du milieu sauvage)
+  // 1970 : tout le territoire dans le parc, aucun village gardé. Le zonage de l'époque n'est pas dans nos sources :
+  // pas de carte (elle inventerait des zones), les faits du bilan ; le résumé compte les secteurs et les villages.
   const ligne1970 = { zones: Object.fromEntries(c.secteurs.map((s) => [s.id, 'sauvage'])), releves: [], gespeg: false };
+  const faits1970 = `<div class="cmp-1970">${(c.bilan[0]?.paires || []).slice(0, 2).map(([v, k]) =>
+    `<p class="paire"><span class="v">${esc(v)}</span><span class="k">${esc(k)}</span></p>`).join('')}</div>`;
   const resume = (r) => `<ul class="cmp-r"><li><b>${r.dans} / ${r.total}</b> secteurs dans le parc</li>
     <li><b>${r.vides.length}</b> village${r.vides.length > 1 ? 's' : ''} à vider</li><li><b>${r.gardes.length}</b> gardé${r.gardes.length > 1 ? 's' : ''}</li>
     <li>corridor <b>${esc(r.corridor)}</b></li></ul>`;
-  const fiche = (titre, e, cls = '') => `<article class="cmp-c${cls}"><h4>${titre}</h4>${carte(c, e, { cliquable: false, mini: true })}${resume(J.releve(c, e))}</article>`;
+  const fiche = (titre, e, cls = '', vue = carte(c, e, { cliquable: false, mini: true })) =>
+    `<article class="cmp-c${cls}"><h4>${titre}</h4>${vue}${resume(J.releve(c, e))}</article>`;
   return `<section class="p-sect cmp"><div class="p-sect-h"><h3>Comparer les lignes</h3></div>
     ${eq.length ? `<div class="cmp-choix" role="group" aria-label="Lignes à comparer, trois au plus">${eq.map((e) => {
       const oui = ui.comparer.includes(e.id);
       return `<button class="btn btn--f btn--s" type="button" data-cmp="${esc(e.id)}" aria-pressed="${oui}" ${!oui && choisies.length >= 3 ? 'disabled' : ''}>${esc(e.nom)}</button>`;
     }).join('')}</div>` : '<p class="hint">Aucune ligne tracée pour l\'instant.</p>'}
     ${choisies.length || ui.voir1970 ? `<div class="cmp-g">${choisies.map((e, i) => fiche(`Ligne ${'ABC'[i]}`, e)).join('')}
-      ${ui.voir1970 ? fiche('La ligne de 1970', ligne1970, ' cmp-c--1970') : ''}</div>` : ''}
+      ${ui.voir1970 ? fiche('La ligne de 1970', ligne1970, ' cmp-c--1970', faits1970) : ''}</div>` : ''}
     <div class="p-actions"><button class="btn" type="button" data-voir1970 aria-pressed="${ui.voir1970}">${ui.voir1970 ? 'Cacher' : 'Montrer'} la ligne de 1970</button></div>
   </section>`;
 }
@@ -66,7 +70,7 @@ export function vueDebrief() {
         Cette page se projette : les noms d'équipes sont des animaux, aucun prénom.</p>
       <div class="p-actions">
         <button class="btn btn--f" data-attendu="1">${ui.cacheAttendu ? 'Montrer' : 'Cacher'} les réponses attendues</button>
-        <button class="btn btn--f" data-trousse="retroaction">${icone('imprimer')} Guide d'animation</button>
+        <button class="btn btn--f" data-trousse="retroaction">${icone('imprimer')} Animer la rétroaction</button>
         <button class="btn btn--f" data-plein="1" aria-pressed="${ui.projection}">${ui.projection ? 'Quitter le plein écran' : 'Plein écran'}</button>
       </div></div>
     <section class="p-sect"><div class="p-sect-h"><h3>Vos lignes</h3><span class="hint">${n} équipe${n > 1 ? 's ont' : ' a'} tracé une ligne</span></div>

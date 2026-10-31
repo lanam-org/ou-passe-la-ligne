@@ -48,12 +48,13 @@ export function fermerBravo() { clearTimeout(minuterieBravo); const z = $('#brav
 function annoncerBravoEnseignant(items) {
   const z = $('#bravo');
   if (!z) return;
-  const fete = items.some((x) => RETOURS[x.k].positif);
-  z.innerHTML = `<div class="bravo bravo--ens">${FERMER_BRAVO}<p class="bravo-sur">${fete ? '<span aria-hidden="true">✦</span> Bravo de votre enseignant·e'
-    : 'Un retour de votre enseignant·e'}</p>${items.map((x) => `<p class="bravo-l"><span class="bravo-i" aria-hidden="true">${RETOURS[x.k].positif ? '✦' : '↻'}</span>
+  const fete = items.some((x) => RETOURS[x.k].positif), piste = items.some((x) => !RETOURS[x.k].positif);
+  z.innerHTML = `<div class="bravo bravo--ens">${FERMER_BRAVO}<p class="bravo-sur">${piste ? 'De votre enseignant·e'
+    : '<span aria-hidden="true">✦</span> Bravo de votre enseignant·e'}</p>${items.map((x) => `<p class="bravo-l"><span class="bravo-i" aria-hidden="true">${RETOURS[x.k].s}</span>
       <span><b>${esc(RETOURS[x.k].long)}</b><br>Votre réponse à « ${esc(x.q.eleve)} »</span></p>`).join('')}</div>`;
   clearTimeout(minuterieBravo);
-  minuterieBravo = setTimeout(() => { z.innerHTML = ''; }, 7500);
+  // une piste invite à reprendre la réponse : elle reste jusqu'à « Fermer »
+  if (!piste) minuterieBravo = setTimeout(() => { z.innerHTML = ''; }, 7500);
   if (fete) confettis(70);
 }
 

@@ -73,7 +73,7 @@ async function demarrer() {
 function retourAccueil(erreur = '') {
   arrets.forEach((f) => f()); arrets = [];
   Object.assign(etat, { code: null, S: null, reponses: null, EQ: [], AV: [], choisie: null, onglet: 'direct' });
-  ui.ed = null; ui.projProg = false; ui.projection = false;
+  ui.ed = null; ui.projProg = false; ui.projection = false; ui.comparer = []; ui.voir1970 = false;
   if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
   appliquerReglages(null);
   $('#onglets').innerHTML = '';
@@ -81,7 +81,7 @@ function retourAccueil(erreur = '') {
 }
 
 function ouvrir(code) {
-  etat.code = code; etat.reponses = null; ui.ed = null;
+  etat.code = code; etat.reponses = null; ui.ed = null; ui.comparer = []; ui.voir1970 = false;
   seanceGardee.garder(code);
   arrets.forEach((f) => f());
   arrets = [
@@ -145,9 +145,12 @@ function rendre(force = false) {
   // un message en cours d'écriture survit au rafraîchissement (toutes les 5 s, et à chaque geste d'équipe)
   const brouillon = $('#f-signal [name=texte]');
   const garde = brouillon && { v: brouillon.value, focus: document.activeElement === brouillon, a: brouillon.selectionStart, b: brouillon.selectionEnd };
-  const actif = ['data-proj-prog', 'data-rythme', 'data-rythme-suivante', 'data-rythme-precedente'].find((a) => document.activeElement?.hasAttribute?.(a));
+  const fa = document.activeElement;
+  const actif = ['data-proj-prog', 'data-rythme', 'data-rythme-suivante', 'data-rythme-precedente', 'data-cmp', 'data-voir1970']
+    .find((a) => fa?.hasAttribute?.(a));
+  const valeur = actif && fa.getAttribute(actif);
   $('#prof').innerHTML = typo(VUES[onglet]());
-  if (actif) document.querySelector(`[${actif}]`)?.focus();
+  if (actif) document.querySelector(`[${actif}="${CSS.escape(valeur)}"]`)?.focus();
   const neuf = garde && $('#f-signal [name=texte]');
   if (neuf) {
     neuf.value = garde.v;
@@ -323,6 +326,7 @@ document.addEventListener('click', async (ev) => {
   const cm = ev.target.closest('[data-cmp]');
   if (cm) {
     const id = cm.dataset.cmp;
+    ui.comparer = ui.comparer.filter((x) => etat.EQ.some((e) => e.id === x));   // une équipe effacée ne garde pas sa place
     ui.comparer = ui.comparer.includes(id) ? ui.comparer.filter((x) => x !== id) : [...ui.comparer, id].slice(0, 3);
     rendre(); document.querySelector(`[data-cmp="${CSS.escape(id)}"]`)?.focus(); return;
   }

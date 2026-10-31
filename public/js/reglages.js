@@ -63,13 +63,12 @@ export const FORMATS = {
 
 /**
  * Réglages « sur mesure » : `total` minutes réparties comme le standard (mise en route
- * comprise), chaque étape au moins une minute. Les questions partent du standard.
+ * comprise), chaque étape au moins une minute. Les questions : celles du format le plus proche.
  */
 export function reglagesSurMesure(base, total, garder = {}) {
   const r = reglagesDuFormat(base, 'mesure', garder);
   const t = Math.max(15, Math.min(240, Math.round(Number(total) || 50)));
-  // les questions du format le plus proche : la version courte sous 40 min, celle des deux périodes dès 90 min
-  const proche = t < 40 ? 'courte' : t >= 90 ? 'deux' : null;
+  const proche = formatProche(t);
   if (proche) r.questions = reglagesDuFormat(base, proche).questions;
   const etapes = Object.keys(MINUTES_50).filter((k) => k !== 'avis');
   const somme = etapes.reduce((s, k) => s + MINUTES_50[k], 0) + FORMATS.standard.miseEnRoute;
@@ -81,6 +80,12 @@ export function reglagesSurMesure(base, total, garder = {}) {
   r.minutes.debrief = Math.max(1, r.minutes.debrief + ecart);
   return r;
 }
+
+/** Le format le plus proche d'une durée : la version courte sous 40 min, celle des deux périodes dès 90 min. */
+export const formatProche = (t) => (t < 40 ? 'courte' : t >= 90 ? 'deux' : null);
+/** La durée totale de réglages (mise en route comprise, sans le questionnaire). */
+export const totalReglages = (r) => (Number(r?.miseEnRoute) || 0)
+  + Object.entries(r?.minutes || {}).filter(([k]) => k !== 'avis').reduce((s, [, m]) => s + (Number(m) || 0), 0);
 
 /** Le mode d'une question de la banque : 'ecrite', 'orale', 'geste' (F3.1, le tri) ou 'enseignant' (F1.1). */
 export function modeQuestion(q) {
@@ -239,10 +244,8 @@ export function appliquer(base, reglages) {
   ecrites.sort((a, b) => ordre(a) - ordre(b));
   c.q = { ecrites, orales };
   c.reglages = r;
-  // sur mesure, dès 90 minutes : deux périodes, la coupure après le tracé (comme le format « Deux périodes »)
-  const totalSurMesure = r.format === 'mesure'
-    ? (r.miseEnRoute || 0) + Object.entries(r.minutes || {}).filter(([k]) => k !== 'avis').reduce((s, [, m]) => s + (Number(m) || 0), 0) : 0;
-  c.coupure = FORMATS[r.format]?.coupure || (totalSurMesure >= 90 ? FORMATS.deux.coupure : null);
+  // sur mesure, dès 90 minutes (celles appliquées) : deux périodes, la coupure après le tracé, comme « Deux périodes »
+  c.coupure = FORMATS[r.format]?.coupure || (r.format === 'mesure' && c.miseEnRoute.min + totalPrevu(c) >= 90 ? FORMATS.deux.coupure : null);
   return c;
 }
 

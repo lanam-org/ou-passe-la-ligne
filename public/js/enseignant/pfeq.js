@@ -26,7 +26,7 @@ const ARRIMAGE = {
 /** Le tableau étapes × compétences et énoncés (onglet Déroulement, rapport imprimé). */
 export function tableauArrimage(c) {
   const etapes = c.etapes.filter((x) => ARRIMAGE[x.id]);
-  const point = (oui) => (oui ? '<span aria-label="oui">●</span>' : '<span class="cache-visuel">non</span>');
+  const point = (oui) => (oui ? '<span aria-hidden="true">●</span><span class="cache-visuel">oui</span>' : '<span class="cache-visuel">non</span>');
   return `<div class="tab-w"><table class="tab arrimage">
     <thead><tr><th scope="col">Étape</th>${COMPETENCES.map(([id, t], i) => `<th scope="col" title="${esc(t)}">Compétence ${i + 1}</th>`).join('')}
       <th scope="col">Énoncés</th></tr></thead>
@@ -37,7 +37,7 @@ export function tableauArrimage(c) {
       Énoncés du parc naturel : ${ENONCES.map(([n, t]) => `${n}. ${esc(t)}`).join(' · ')}.</p>`;
 }
 
-/** Une grille facultative, par équipe, pour l'évaluation : chaque compétence observée, en partie, ou pas observée. */
-export const grilleCompetences = () => `<table class="r-cd"><thead><tr><th>Compétence (facultatif)</th><th>Observée</th><th>En partie</th>
-  <th>Pas observée</th></tr></thead><tbody>${COMPETENCES.map(([, t], i) => `<tr><td>${i + 1}. ${esc(t)}</td>
-  <td class="t-c">☐</td><td class="t-c">☐</td><td class="t-c">☐</td></tr>`).join('')}</tbody></table>`;
+/** Une grille facultative, par équipe, pour l'évaluation : une case par compétence, à remplir à la main. */
+export const grilleCompetences = () => `<table class="r-cd"><caption>Compétences observées (facultatif)</caption>
+  <thead><tr>${COMPETENCES.map(([, t], i) => `<th scope="col">${i + 1}. ${esc(t)}</th>`).join('')}</tr></thead>
+  <tbody><tr>${COMPETENCES.map(() => '<td></td>').join('')}</tr></tbody></table>`;
