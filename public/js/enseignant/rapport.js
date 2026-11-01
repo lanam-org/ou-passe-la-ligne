@@ -94,6 +94,7 @@ function rapportReglages() {
       <tr><td>Format</td><td>${esc(Rg.FORMATS[r.format]?.nom || '')}</td></tr>
       <tr><td>Minutes prévues</td><td>${c.miseEnRoute.min} de mise en route, puis ${etapesJeu.map((x) => `${esc(x.t)} ${x.min}`).join(' · ')}</td></tr>
       <tr><td>Questions</td><td>${ecrites.length} écrites en équipe (${ecrites.filter((q) => q.requise).length} requises) · ${c.q.orales.length} à l'oral</td></tr>
+      ${r.options?.length ? `<tr><td>Documents en option</td><td>${r.options.map((k) => esc(Rg.OPTIONS[k]?.nom || k)).join(' · ')}</td></tr>` : ''}
     </tbody></table>
     ${r.ajouts.length ? `<h3>Questions ajoutées par l'enseignant·e</h3><ul>${r.ajouts.map((a) => `<li>${esc(a.q)}
       <span class="r-note">(${esc(c.etapes.find((x) => x.id === a.etape)?.t || '')}${a.mode === 'orale' ? ', à l\'oral' : a.requise ? ', requise' : ', facultative'})</span></li>`).join('')}</ul>` : ''}

@@ -114,7 +114,7 @@ export async function afficherAccueil(erreur = '') {
 function reglagesChoisis() {
   const fmt = document.querySelector('input[name=format]:checked')?.value || 'standard';
   const v = ui.maVersion ? Rg.completer(base, ui.maVersion) : null;
-  const garder = { ajouts: v?.ajouts, corrections: v?.corrections };
+  const garder = { ajouts: v?.ajouts, corrections: v?.corrections, options: v?.options };
   if (fmt !== 'mesure') return v && v.format === fmt ? v : Rg.reglagesDuFormat(base, fmt, garder);
   // sur mesure : la durée totale tapée ; les questions de sa version sur mesure, si elle est de la même tranche de durée
   const reglages = Rg.reglagesSurMesure(base, Number($('#duree-mesure')?.value), garder);

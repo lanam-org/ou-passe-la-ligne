@@ -47,7 +47,7 @@
    "dansLeJeu": "Reprise à la rétroaction. Bravo « Deux sources confrontées » si le document est gardé."
   },
   "F3.3": {
-   "reponse": "• Visiteurs : chiffre de 2019, près de 50 ans après la décision. / • Forêt à 95 % : dit QUOI protéger, pas QUI peut habiter. / • Caribous : vrai, mais dans les Chic-Chocs, à plus de 100 km. / • Communiqué touristique : écrit pour attirer des visiteurs, pas pour décider.",
+   "reponse": "• Visiteurs : chiffre de 2019, près de 50 ans après la décision. / • Forêt à 95 % : dit QUOI protéger, pas QUI peut habiter. / • Caribous : vrai, mais dans les Chic-Chocs, à plus de 100 km. / • Communiqué touristique : écrit pour attirer des visiteurs, pas pour décider. / • Homard (document en option) : la mer et la pêche, pas qui peut habiter.",
    "note": "Le verdict de chaque document écarté le dit à l'écran.",
    "dansLeJeu": "Condition du bravo « Tri net » (aucun document hors sujet)."
   },
@@ -69,6 +69,11 @@
    "reponse": "La nature : la forêt couvre 95 % du parc, avec le littoral et les falaises. Un patrimoine humain aussi : les maisons de Grande-Grave, pour lesquelles près de 9,8 M$ ont été annoncés (Parcs Canada, 2023).",
    "note": "",
    "dansLeJeu": "Prépare la question de la rétroaction « protégé de quoi, et pour qui ? »."
+  },
+  "F4.5": {
+   "reponse": "Éléments attendus : oui, si des règles encadrent ce qu'on y fait, comme pour la pêche au homard (relâcher les petits et les femelles qui portent des œufs). Protéger n'est pas toujours interdire : les zones plein air et village laissent des gens travailler.",
+   "note": "Document en option « Le homard, une pêche encadrée » (Nature sauvage, automne 2026).",
+   "dansLeJeu": "Relie un document écarté au tri à la question du zonage."
   },
   "F5.1": {
    "reponse": "Moins bien : une route coupe les passages des animaux. En 2022, le Canada investit 4,3 M$ pour effacer 5,5 km d'un ancien tronçon de la route 132 (asphalte retiré, emprise reboisée) et « restaurer la connectivité écologique de la forêt et des cours d'eau ». Regarder l'état du corridor.",
@@ -102,6 +107,11 @@
    "note": "",
    "dansLeJeu": "Troisième comparaison : aujourd'hui."
   },
+  "F6.4": {
+   "reponse": "Éléments attendus : en 1970, l'État a vidé le territoire sans demander l'avis des familles ni de la Nation. Aujourd'hui, des Premières Nations proposent elles-mêmes des aires protégées et en prennent soin (gardiens du territoire). Qui décide a changé.",
+   "note": "Document en option « Des aires protégées proposées par les Premières Nations » (Nature sauvage, automne 2026). Gesgapegiag est une autre communauté mi'gmaq que Gespeg.",
+   "dansLeJeu": "Comparaison avec 1970, comme Q6.3 pour l'accord de 2024."
+  },
   "F7.1": {
    "reponse": "Éléments attendus : Québec et Ottawa décident ; les familles et les Mi'gmaq non. La loi fédérale interdisait les résidents ; la Nation n'est reconnue qu'en 1973.",
    "dansLeJeu": "Au programme : acteurs, réglementation."
@@ -128,6 +138,11 @@
    "reponse": "Éléments attendus : trois échelles (région, nation, province) ; enjeux : caribou, emplois forestiers, projet pilote annoncé en 2024. À utiliser en deuxième période ou comme situation d'évaluation.",
    "note": "Au cours suivant : transfert à un cas actuel.",
    "dansLeJeu": "Transfert : même question, autre territoire."
+  },
+  "F7.7": {
+   "reponse": "Pistes : non, pas forcément. Les villages d'avant 1970, la pêche encadrée et les gardiens de Gesgapegiag montrent des territoires protégés où des gens vivent ou travaillent.",
+   "note": "Question de synthèse des documents en option.",
+   "dansLeJeu": "Écho à Q1.2 : « Avant 1970, ce territoire était-il vide ? »"
   }
  }
 }

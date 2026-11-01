@@ -21,6 +21,8 @@ préparation est le titre « … · en préparation » ci-dessous : `…/dev/` l
   grille facultative par équipe dans le rapport.
 - **Deux périodes** : un « Sur mesure » de 90 minutes ou plus coupe après le tracé ; sous 40 minutes, il reprend les
   questions de la version courte.
+- **Documents en option** : dans « Réglages avancés », un interrupteur ajoute deux articles de *Nature sauvage*
+  (automne 2026), le homard de Forillon et les aires protégées des Premières Nations, avec trois questions.
 
 ## Playtest 1 — avec les professeurs · 29 octobre 2026
 

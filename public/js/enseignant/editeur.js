@@ -52,7 +52,8 @@ export function resumeReglages(r) {
   const n = (k, mot) => `${k} ${mot}${k > 1 ? 's' : ''}`;
   return [Rg.FORMATS[r.format]?.nom, `${cc.miseEnRoute.min + Rg.totalPrevu(cc)} min en tout`,
     n(cc.q.ecrites.length, 'question écrite') + ` dont ${cc.q.ecrites.filter((q) => q.requise).length} requises`,
-    n(r.ajouts.length, 'question ajoutée'), n(Object.keys(r.corrections).length, 'correction')].join(' · ');
+    n(r.ajouts.length, 'question ajoutée'), n(Object.keys(r.corrections).length, 'correction'),
+    ...(r.options || []).map((k) => Rg.OPTIONS[k]?.nom)].join(' · ');
 }
 
 /** `cible` : 'seance' (la séance ouverte) ou 'version' (la version du jeu de l'enseignant·e). */
@@ -155,7 +156,7 @@ function editeur() {
     <details class="rg-avance" data-k="rg-avance" ${ouvert('rg-avance')}>
       <summary><span class="rg-avance-t">Réglages avancés</span>
         <span class="hint">Les minutes, les questions, vos propres questions, les informations à mettre à jour</span></summary>
-      <nav class="rg-nav" aria-label="Les réglages avancés"><a href="#rg-minutes">Les minutes</a>
+      <nav class="rg-nav" aria-label="Les réglages avancés"><a href="#rg-minutes">Les minutes</a><a href="#rg-options">Documents en option</a>
         <a href="#rg-questions">Questions requises, facultatives ou retirées</a><a href="#f-ajout">Ajouter une question</a>
         <a href="#rg-corriger">Mettre à jour les informations</a><a href="#rg-partager">Partager</a></nav>
 
@@ -168,13 +169,19 @@ function editeur() {
       </div>
     </section>
 
+    <section class="p-sect" id="rg-options"><div class="p-sect-h"><h3>Documents en option</h3></div>
+      ${Object.entries(Rg.OPTIONS).map(([k, o]) => `<label class="bascule"><input type="checkbox" role="switch" data-option="${k}" ${r.options.includes(k) ? 'checked' : ''}>
+        <span class="bascule-p" aria-hidden="true"></span><span>${esc(o.nom)}<br><span class="hint">${esc(o.resume)} ·
+        ${base.documents.filter((d) => d.option === k).length} documents, ${base.banque.filter((x) => x.option === k).length} questions</span></span></label>`).join('')}
+    </section>
+
     <section class="p-sect" id="rg-questions"><div class="p-sect-h"><h3>Les questions : requises, facultatives ou retirées</h3>
         <span class="hint">${cc.q.ecrites.length} écrites, dont ${cc.q.ecrites.filter((x) => x.requise).length} requises · ${cc.q.orales.length} à l'oral</span></div>
       <ul class="legende">${ETATS_ECRITE.map(([k, n]) => `<li><i class="etat-s etat-s--${k}" aria-hidden="true">${SYMBOLE[k]}</i> <b>${n}</b> :
         ${{ requise: 'à répondre pour continuer', facultative: 'peut rester vide', off: 'pas posée, gardée dans la banque' }[k]}</li>`).join('')}</ul>
       <p class="hint">Une question requise ajoutée à une étape déjà passée arrive dans « À rattraper ».</p>
       ${cc.etapes.filter((x) => x.id !== 'avis').map((x) => {
-        const qs = base.banque.filter((q) => Rg.etapeQuestion(base, q) === x.id);
+        const qs = base.banque.filter((q) => Rg.etapeQuestion(base, q) === x.id && (!q.option || r.options.includes(q.option)));
         const aj = r.ajouts.filter((a) => (a.mode === 'orale' ? 'debrief' : a.etape) === x.id);
         return qs.length || aj.length ? `<div class="rg-etape"><h4>${x.n}. ${esc(x.t)}</h4>${qs.map(ligneQuestion).join('')}${aj.map(ligneAjout).join('')}</div>` : '';
       }).join('')}
@@ -276,7 +283,7 @@ function lireReglages(texte) {
   for (const [id, v] of Object.entries(o.minutes || {})) if (etapes.has(id) && Number.isFinite(Number(v))) minutes[id] = Math.max(1, Math.min(90, Math.round(v)));
   return Rg.completer(base, { format: Rg.FORMATS[o.format] ? o.format : 'standard',
     miseEnRoute: Number.isFinite(Number(o.miseEnRoute)) ? Math.max(0, Math.min(60, Math.round(o.miseEnRoute))) : undefined,
-    minutes, questions, ajouts, corrections });
+    minutes, questions, ajouts, corrections, options: o.options });
 }
 
 /** Une question ajoutée, nettoyée : longueurs bornées, identifiant sûr. */
@@ -356,6 +363,13 @@ document.addEventListener('change', async (ev) => {
   if (!ui.ed) return;
   const eq = ev.target.closest('[data-etatq]');
   if (eq) { ui.ed.r.questions[eq.dataset.etatq] = eq.value; modifie(); return; }
+  const op = ev.target.closest('[data-option]');
+  if (op) {
+    Rg.choisirOption(base, ui.ed.r, op.dataset.option, op.checked);
+    ui.ed.modifie = true; ui.ed.msg = '';
+    rendreEditeur(); document.querySelector(`[data-option="${CSS.escape(op.dataset.option)}"]`)?.focus();
+    return;
+  }
   if (ev.target.id === 'importer' && ev.target.files?.[0]) {
     try {
       ui.ed.r = lireReglages(await ev.target.files[0].text());
@@ -392,7 +406,7 @@ document.addEventListener('click', (ev) => {
   if (fm) {
     // « Sur mesure » garde les minutes et les questions déjà choisies ; un format prêt les remplace
     if (fm.dataset.format === 'mesure') ui.ed.r.format = 'mesure';
-    else ui.ed.r = Rg.reglagesDuFormat(base, fm.dataset.format, { ajouts: ui.ed.r.ajouts, corrections: ui.ed.r.corrections });
+    else ui.ed.r = Rg.reglagesDuFormat(base, fm.dataset.format, { ajouts: ui.ed.r.ajouts, corrections: ui.ed.r.corrections, options: ui.ed.r.options });
     ui.ed.modifie = true; ui.ed.msg = '';
     return rendreEditeur();
   }

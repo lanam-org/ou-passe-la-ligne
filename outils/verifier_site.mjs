@@ -312,6 +312,12 @@ dit(await prof.inputValue('[data-min="dossier"]') === '8', 'réglages : la séan
 dit(!(await prof.isVisible('[data-etatq="F1.2"]')) && await prof.isVisible('[data-format="standard"]'),
   'réglages : d’abord la durée ; le reste attend, replié, sous « Réglages avancés »');
 await prof.click('details.rg-avance > summary');
+dit(!(await prof.isVisible('[data-etatq="F4.5"]')), 'documents en option : leurs questions restent cachées tant que l’option n’est pas choisie');
+await prof.check('[data-option="nature-sauvage"]');
+await prof.waitForSelector('[data-etatq="F4.5"][value="facultative"]:checked');
+dit(true, 'documents en option : l’interrupteur ajoute leurs questions, facultatives');
+await prof.uncheck('[data-option="nature-sauvage"]');
+await prof.waitForSelector('[data-etatq="F4.5"]', { state: 'detached' });
 await prof.check('[data-etatq="F1.2"][value="facultative"]');
 await prof.selectOption('#f-ajout select[name=etape]', 'arrivee');
 await prof.fill('#f-ajout textarea[name=q]', 'Quel animal de Forillon choisiriez-vous comme emblème ?');
@@ -918,6 +924,13 @@ if (MODE === 'local') {
   dit(appl(contenu, reglagesSurMesure(contenu, 100)).coupure === 'trace' && !appl(contenu, reglagesSurMesure(contenu, 60)).coupure
     && JSON.stringify(reglagesSurMesure(contenu, 35).questions) === JSON.stringify(reglagesDuFormat(contenu, 'courte').questions),
     'sur mesure : dès 90 min, deux périodes (coupure après le tracé) ; sous 40 min, les questions de la version courte');
+  const { choisirOption } = await import('../public/js/reglages.js');
+  const sans = appl(contenu, reglagesDuFormat(contenu, 'standard'));
+  const avec = appl(contenu, choisirOption(contenu, reglagesDuFormat(contenu, 'standard'), 'nature-sauvage', true));
+  dit(sans.documents.length === 12 && !sans.banque.some((q) => q.option) && avec.documents.length === 14
+    && ['F4.5', 'F6.4'].every((id) => avec.q.ecrites.some((q) => q.id === id && !q.requise)) && avec.q.orales.some((q) => q.id === 'F7.7')
+    && appl(contenu, reglagesSurMesure(contenu, 100, { options: ['nature-sauvage'] })).q.ecrites.some((q) => q.id === 'F6.4'),
+    'documents en option : absents par défaut ; choisis, deux documents de plus et leurs trois questions, même sur mesure');
   dit(c.releves[0].t === 'Titre corrigé' && !('url' in c.releves[0]) && foret(c) === foret(contenu)
     && !c.complications[0].x.includes('<img'),
     'une correction ne touche que les champs prévus : ni lien, ni tracé de la carte, ni HTML actif');

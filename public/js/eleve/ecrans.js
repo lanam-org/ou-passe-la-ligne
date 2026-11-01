@@ -19,6 +19,11 @@ const FORMES = ['▲', '◆', '●', '■'];
 let finFetee = false;
 
 const MOTS = ['aucun', 'un', 'deux', 'trois', 'quatre', 'cinq', 'six'];
+// le nombre de documents du dossier, et de ceux qui ne servent pas : douze et quatre, plus avec les documents en option
+const EN_LETTRES = { 12: 'douze', 13: 'treize', 14: 'quatorze' };
+const lettres = (n) => EN_LETTRES[n] || MOTS[n] || String(n);
+const majuscule = (t) => t.charAt(0).toUpperCase() + t.slice(1);
+const horsSujet = (c) => c.documents.filter((d) => !d.utile).length;
 
 /** Ce que le dernier geste vient de changer : en haut du carnet, à côté de la carte, toujours visible. */
 const blocEffet = () => ({ brut: `<div class="bloc bloc--effet">${effetRecent(etat.c, ui.effet)}</div>` });
@@ -39,7 +44,7 @@ export const ECRANS = {
         Vous êtes <b>une équipe</b>, et vous avez la même question devant vous.</p>
       <div class="paires">
         <div class="paire"><span class="v">7</span><span class="k">secteurs réels à zoner</span></div>
-        <div class="paire"><span class="v">12</span><span class="k">documents, dont quatre qui ne servent pas</span></div>
+        <div class="paire"><span class="v">${etat.c.documents.length}</span><span class="k">documents, dont ${lettres(horsSujet(etat.c))} qui ne servent pas</span></div>
         <div class="paire"><span class="v">1</span><span class="k">ligne à tracer : la vôtre</span></div>
       </div>
       <p class="avert">Le lieu est réel : parc national Forillon, en Gaspésie, créé le 8 juin 1970,
@@ -81,9 +86,9 @@ export const ECRANS = {
     const { c, E, B } = etat;
     return {
       guide: E.juge
-        ? `Regardez le verdict de chaque document. <b>Quatre ne servaient pas à cette question-là.</b>
+        ? `Regardez le verdict de chaque document. <b>${majuscule(lettres(horsSujet(c)))} ne servaient pas à cette question-là.</b>
            Savoir mettre de côté, c'est la moitié du travail.`
-        : `Douze documents. <b>Retenez-en trois</b> : ceux qui aident vraiment à dire qui a le droit
+        : `${majuscule(lettres(c.documents.length))} documents. <b>Retenez-en trois</b> : ceux qui aident vraiment à dire qui a le droit
            d'habiter ici. Certains sont vrais et ne servent à rien. Ce n'est pas un piège.`,
       // Avant le tri : chaque document tient en deux lignes (sa nature, son titre) ; « Lire » ouvre le
       // reste. Après le tri : seulement les verdicts des trois retenus, et la question.

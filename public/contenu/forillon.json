@@ -572,6 +572,43 @@
    ],
    "sert": [],
    "surprise": false
+  },
+  {
+   "id": "d13",
+   "option": "nature-sauvage",
+   "genre": "Article de magazine",
+   "utile": false,
+   "t": "Le homard, une pêche encadrée",
+   "x": "Les eaux froides autour de Forillon conviennent bien au homard d'Amérique. Sa pêche, très encadrée (permis limités, casiers réglementés, saison fixe), compte beaucoup pour l'économie de la Gaspésie : près de 3 800 tonnes débarquées en 2022, un record. Les pêcheurs relâchent les petits homards et les femelles qui portent des œufs.",
+   "s": "Laurent Fey, « Le homard d'Amérique », Nature sauvage, automne 2026, p. 19 à 23",
+   "v": "Vrai, et la pêche fait vivre la région. Mais il parle de la mer, pas de qui a le droit d'habiter le territoire. Gardez-le pour l'étape suivante : protéger, est-ce toujours interdire ?",
+   "copie": [],
+   "sert": [
+    "F4.5"
+   ],
+   "surprise": false
+  },
+  {
+   "id": "d14",
+   "option": "nature-sauvage",
+   "genre": "Article de magazine",
+   "utile": true,
+   "t": "Des aires protégées proposées par les Premières Nations",
+   "x": "Au Québec, 58 % des superficies à l'étude pour de nouvelles aires protégées d'ici 2030 viennent de projets des Premières Nations. Depuis 2021, la loi leur permet de proposer des territoires à protéger. Sur le Gespe'gewa'gi, les Mi'gmaq de Gesgapegiag proposent d'en protéger 748 km², et des gardiens du territoire de la communauté le patrouillent déjà.",
+   "s": "Michel Leboeuf, « Quand les Premières Nations tracent la voie », Nature sauvage, automne 2026, p. 25 à 29",
+   "v": "Utile : une autre façon de protéger, avec les gens du territoire plutôt que sans eux. Comparez avec 1970.",
+   "copie": [
+    {
+     "q": "L'aire protégée n'est pas une cloche de verre, interdite d'accès",
+     "src": "Gary-Luc Martin, coordonnateur du projet de Gesgapegiag, dans Nature sauvage, automne 2026",
+     "url": ""
+    }
+   ],
+   "sert": [
+    "F6.4",
+    "F7.7"
+   ],
+   "surprise": false
   }
  ],
  "complications": [
@@ -850,7 +887,7 @@
   {
    "id": "F3.3",
    "forme": "Ouverte",
-   "q": "Pourquoi écarter les quatre autres documents ?",
+   "q": "Pourquoi écarter les autres documents ?",
    "sources": [
     "Parcs Canada, 2020 · A",
     "Parcs Canada, plan directeur 2022 · A",
@@ -906,6 +943,16 @@
    "sources": [
     "Parcs Canada, plan directeur 2022 · A",
     "Parcs Canada, Grande-Grave, 2023 · A"
+   ],
+   "sort": "reprise"
+  },
+  {
+   "id": "F4.5",
+   "option": "nature-sauvage",
+   "forme": "Ouverte",
+   "q": "Autour de Forillon, on pêche le homard avec des règles : on relâche les petits et les femelles qui portent des œufs. Une zone de votre ligne peut-elle protéger tout en laissant des gens y travailler ?",
+   "sources": [
+    "Nature sauvage, automne 2026 (homard) · B"
    ],
    "sort": "reprise"
   },
@@ -988,6 +1035,16 @@
    "sort": "reprise"
   },
   {
+   "id": "F6.4",
+   "option": "nature-sauvage",
+   "forme": "Ouverte",
+   "q": "Aujourd'hui, des Premières Nations proposent des aires protégées dont la communauté prend soin. Qu'est-ce qui change par rapport à 1970 ?",
+   "sources": [
+    "Nature sauvage, automne 2026 (Premières Nations) · B"
+   ],
+   "sort": "reprise"
+  },
+  {
    "id": "F7.1",
    "forme": "Ouverte",
    "q": "Qui décidait en 1970 ? Qui ne décidait pas, et pourquoi ?",
@@ -1060,6 +1117,19 @@
     "Radio-Canada, 17 décembre 2024 · B"
    ],
    "sort": "reprise"
+  },
+  {
+   "id": "F7.7",
+   "option": "nature-sauvage",
+   "forme": "Ouverte",
+   "q": "Une aire protégée doit-elle être vide ?",
+   "sources": [
+    "Nature sauvage, automne 2026 · B"
+   ],
+   "sort": "posee",
+   "etape": "debrief",
+   "eleve": "Une aire protégée doit-elle être vide ?",
+   "ecrit": false
   }
  ],
  "programme": {
@@ -1139,7 +1209,7 @@
   },
   "dossier": {
    "t": "Trier vaut mieux que calculer",
-   "p": "Douze documents, quatre qui ne servent pas à cette question-là. On ne demande pas de calculer : on demande lesquels servent, et pourquoi. La consigne est simple ; le travail ne l'est pas.",
+   "p": "Douze documents, quatre qui ne servent pas à cette question-là (quatorze et cinq avec les documents en option). On ne demande pas de calculer : on demande lesquels servent, et pourquoi. La consigne est simple ; le travail ne l'est pas.",
    "l": [
     "Les documents inutiles ne sont pas des pièges : ils sont vrais, et chacun porte sa source. Deux d'entre eux servent même à une autre question du jeu.",
     "Un document contient deux nombres qui semblent se contredire. Les deux sources ont raison : elles ne comptent pas la même chose. C'est voulu."
@@ -1572,7 +1642,10 @@
    "F6.2": "dec",
    "F7.1": "dec",
    "F7.4": "dec",
-   "F3.2": "cpt"
+   "F3.2": "cpt",
+   "F4.5": "pro",
+   "F6.4": "dec",
+   "F7.7": "pro"
   }
  }
 }

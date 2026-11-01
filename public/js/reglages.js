@@ -4,6 +4,7 @@
 //     étape à la minute près, avant ou pendant la séance ;
 //   · les QUESTIONS : chacune des 28 questions de la banque se pose (requise ou
 //     facultative) ou non, et l'enseignant·e peut en ajouter ;
+//   · les OPTIONS : des documents en plus (un article de magazine), avec leurs questions ;
 //   · les CORRECTIONS : un fait, un texte ou une source qui change avec le temps
 //     se corrige ici, avec sa raison, sans effacer l'original ;
 //   · le CHRONO de la classe : démarrer, mettre en pause, reprendre.
@@ -69,7 +70,7 @@ export function reglagesSurMesure(base, total, garder = {}) {
   const r = reglagesDuFormat(base, 'mesure', garder);
   const t = Math.max(15, Math.min(240, Math.round(Number(total) || 50)));
   const proche = formatProche(t);
-  if (proche) r.questions = reglagesDuFormat(base, proche).questions;
+  if (proche) r.questions = reglagesDuFormat(base, proche, garder).questions;
   const etapes = Object.keys(MINUTES_50).filter((k) => k !== 'avis');
   const somme = etapes.reduce((s, k) => s + MINUTES_50[k], 0) + FORMATS.standard.miseEnRoute;
   r.miseEnRoute = Math.max(1, Math.round(FORMATS.standard.miseEnRoute * t / somme));
@@ -98,6 +99,23 @@ export function modeQuestion(q) {
 /** L'étape d'une question de la banque : F2.x → l'exploration, etc. */
 export const etapeQuestion = (c, q) => q.etape || c.etapes[Number(q.id[1]) - 1]?.id;
 
+// Des documents en plus, au choix de l'enseignant·e : ils entrent dans le dossier (étape 3) avec leurs questions.
+// Un document ou une question de la banque qui porte `option` n'existe dans la séance que si l'option est choisie.
+export const OPTIONS = {
+  'nature-sauvage': { nom: 'Nature sauvage, automne 2026', resume: 'Le homard de Forillon ; les aires protégées des Premières Nations' }
+};
+const optionsConnues = (l) => (Array.isArray(l) ? l.filter((k) => Object.hasOwn(OPTIONS, k)) : []);
+// une question en option se pose dès que son option est choisie : facultative à l'écrit, posée à l'oral
+const etatOption = (q) => (modeQuestion(q) === 'orale' ? 'on' : 'facultative');
+
+/** Choisit ou retire une option ; ses questions suivent (posées, ou retirées). */
+export function choisirOption(base, r, cle, oui) {
+  if (!Object.hasOwn(OPTIONS, cle)) return r;
+  r.options = oui ? [...new Set([...optionsConnues(r.options), cle])] : optionsConnues(r.options).filter((k) => k !== cle);
+  for (const q of base.banque) if (q.option === cle) r.questions[q.id] = oui ? etatOption(q) : 'off';
+  return r;
+}
+
 /** L'état d'une question dans le socle commun, quand un format ne la précise pas. */
 function etatStandard(q) {
   const m = modeQuestion(q);
@@ -110,14 +128,15 @@ function etatStandard(q) {
 export function reglagesDuFormat(base, format = 'standard', garder = {}) {
   // hasOwn : un format « __proto__ » venu d'un fichier importé ne tombe pas sur Object.prototype
   const f = Object.hasOwn(FORMATS, format) ? FORMATS[format] : FORMATS.standard;
+  const options = optionsConnues(garder.options);
   const questions = {};
   for (const q of base.banque) {
     if (etatStandard(q) === 'fixe') continue;
-    questions[q.id] = f.questions[q.id] || etatStandard(q);
+    questions[q.id] = q.option ? (options.includes(q.option) ? etatOption(q) : 'off') : f.questions[q.id] || etatStandard(q);
   }
   return {
     format, miseEnRoute: f.miseEnRoute, minutes: { ...f.minutes }, questions,
-    ajouts: garder.ajouts || [], corrections: garder.corrections || {}
+    ajouts: garder.ajouts || [], corrections: garder.corrections || {}, options
   };
 }
 
@@ -131,7 +150,8 @@ export function completer(base, r) {
     minutes: { ...d.minutes, ...(r.minutes || {}) },
     questions: { ...d.questions, ...(r.questions || {}) },
     ajouts: Array.isArray(r.ajouts) ? r.ajouts : [],
-    corrections: r.corrections || {}
+    corrections: r.corrections || {},
+    options: optionsConnues(r.options)
   };
 }
 
@@ -220,6 +240,11 @@ export function appliquer(base, reglages) {
     cible[champ] = BRUTS.has(`${groupe}.${champ}`) ? esc(corr.valeur) : corr.valeur;
     if (groupe === 'banque' && champ === 'eleve') cible.q = corr.valeur;
   }
+  // les documents et les questions en option : seulement si l'enseignant·e les a choisis
+  const choisies = new Set(r.options);
+  const garde = (x) => !x.option || choisies.has(x.option);
+  c.documents = c.documents.filter(garde);
+  c.banque = c.banque.filter(garde);
   // minutes
   c.etapes = c.etapes.map((x) => ({ ...x, min: Math.max(1, Math.min(90, Number(r.minutes[x.id]) || x.min)) }));
   c.miseEnRoute = { ...c.miseEnRoute, min: r.miseEnRoute };
