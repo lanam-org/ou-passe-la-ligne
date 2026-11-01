@@ -931,6 +931,11 @@ if (MODE === 'local') {
     && ['F4.5', 'F6.4'].every((id) => avec.q.ecrites.some((q) => q.id === id && !q.requise)) && avec.q.orales.some((q) => q.id === 'F7.7')
     && appl(contenu, reglagesSurMesure(contenu, 100, { options: ['nature-sauvage'] })).q.ecrites.some((q) => q.id === 'F6.4'),
     'documents en option : absents par défaut ; choisis, deux documents de plus et leurs trois questions, même sur mesure');
+  const { completer: compl } = await import('../public/js/reglages.js');
+  const { docParId } = await import('../public/js/jeu.js');
+  dit(docParId(sans, 'd14')?.utile === true && !sans.documents.some((d) => d.id === 'd14')
+    && compl(contenu, { format: 'standard', options: ['nature-sauvage'] }).questions['F4.5'] === 'facultative',
+    'option éteinte en pleine séance : un document déjà retenu reste lisible ; l’option seule amène ses questions');
   dit(c.releves[0].t === 'Titre corrigé' && !('url' in c.releves[0]) && foret(c) === foret(contenu)
     && !c.complications[0].x.includes('<img'),
     'une correction ne touche que les champs prévus : ni lien, ni tracé de la carte, ni HTML actif');

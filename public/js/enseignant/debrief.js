@@ -9,7 +9,7 @@ import { etat, ui, qid } from './etat.js';
 
 const attendu = (q) => String(q?.reponse || '').replace(/^Éléments attendus\s*:\s*/, '');
 // La question écrite en équipe qui prépare chaque question orale
-const APPUIS = { 'F7.1': 'F5.4', 'F7.2': 'F6.1', 'F7.3': 'F5.4', 'F7.4': 'F6.3', 'F7.5': 'F5.1' };
+const APPUIS = { 'F7.1': 'F5.4', 'F7.2': 'F6.1', 'F7.3': 'F5.4', 'F7.4': 'F6.3', 'F7.5': 'F5.1', 'F7.7': 'F6.4' };
 
 /**
  * Comparer les lignes : l'enseignant·e choisit deux ou trois équipes (leurs noms ne s'affichent pas en projection), leurs

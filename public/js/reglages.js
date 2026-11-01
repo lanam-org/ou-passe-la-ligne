@@ -142,7 +142,7 @@ export function reglagesDuFormat(base, format = 'standard', garder = {}) {
 
 /** Complète des réglages partiels (anciens, ou venus d'un import) avec les valeurs du format. */
 export function completer(base, r) {
-  const d = reglagesDuFormat(base, r?.format);
+  const d = reglagesDuFormat(base, r?.format, { options: r?.options });
   if (!r) return d;
   return {
     format: r.format || d.format,
@@ -242,9 +242,10 @@ export function appliquer(base, reglages) {
   }
   // les documents et les questions en option : seulement si l'enseignant·e les a choisis
   const choisies = new Set(r.options);
+  // (gardés à part, tous : un document déjà retenu, une réponse déjà écrite restent lisibles si l'option s'éteint)
   const garde = (x) => !x.option || choisies.has(x.option);
-  c.documents = c.documents.filter(garde);
-  c.banque = c.banque.filter(garde);
+  c.documentsTous = c.documents; c.documents = c.documents.filter(garde);
+  c.banqueTous = c.banque; c.banque = c.banque.filter(garde);
   // minutes
   c.etapes = c.etapes.map((x) => ({ ...x, min: Math.max(1, Math.min(90, Number(r.minutes[x.id]) || x.min)) }));
   c.miseEnRoute = { ...c.miseEnRoute, min: r.miseEnRoute };

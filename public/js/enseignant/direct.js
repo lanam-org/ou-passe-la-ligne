@@ -44,7 +44,7 @@ function segments(e) {
 function puces(e) {
   const { c, ecrites } = etat;
   const r = J.releve(c, e);
-  const utiles = e.docs.filter((id) => c.documents.find((d) => d.id === id)?.utile).length;
+  const utiles = e.docs.filter((id) => J.docParId(c, id)?.utile).length;
   const p = [`relevés ${e.releves.length}/${c.releves.length}`];
   if (e.juge) p.push(`docs utiles ${utiles}/3`);
   if (e.atteinte >= 3) p.push(`villages vidés ${r.vides.length}/${J.nbVillages(c)}`, `corridor ${r.corridor}`);
@@ -206,8 +206,8 @@ function vueDetail(e) {
     <div class="detail-g">
       <div>${carte(c, e, { cliquable: false })}<div style="margin-top:12px">${blocReleve(c, e, true)}</div>
         ${e.juge ? `<p class="sur" style="margin-top:14px">Documents retenus</p><ul class="docs-r">${e.docs.map((id) => {
-          const d = c.documents.find((x) => x.id === id);
-          return `<li class="${d.utile ? 'ok' : 'hs'}"><span aria-hidden="true">${d.utile ? '✓' : '—'}</span> ${esc(d.t)}${d.utile ? '' : ' <small>(hors sujet)</small>'}</li>`; }).join('')}</ul>` : ''}</div>
+          const d = J.docParId(c, id);
+          return !d ? '' : `<li class="${d.utile ? 'ok' : 'hs'}"><span aria-hidden="true">${d.utile ? '✓' : '—'}</span> ${esc(d.t)}${d.utile ? '' : ' <small>(hors sujet)</small>'}</li>`; }).join('')}</ul>` : ''}</div>
       <div class="rep-l">${ecrites.map((q) => {
         const r = String(e.reponses?.[q.id] || '').trim();
         const bravo = aUnBravo(S, e.id, q.id), ret = retourDe(S, e.id, q.id);

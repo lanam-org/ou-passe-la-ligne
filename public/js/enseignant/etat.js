@@ -45,7 +45,7 @@ export function appliquerReglages(config) {
   empreinte = k;
   const c = Rg.appliquer(base, config || null);
   etat.c = c;
-  etat.B = Object.fromEntries(c.banque.map((q) => [q.id, q]));
+  etat.B = Object.fromEntries((c.banqueTous || c.banque).map((q) => [q.id, q]));
   etat.ecrites = J.questionsEcrites(c);
   etat.etapesJeu = c.etapes.filter((x) => x.id !== 'avis');
   return true;

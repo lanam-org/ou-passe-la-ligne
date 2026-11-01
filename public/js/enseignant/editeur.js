@@ -155,7 +155,7 @@ function editeur() {
 
     <details class="rg-avance" data-k="rg-avance" ${ouvert('rg-avance')}>
       <summary><span class="rg-avance-t">Réglages avancés</span>
-        <span class="hint">Les minutes, les questions, vos propres questions, les informations à mettre à jour</span></summary>
+        <span class="hint">Les minutes, des documents en option, les questions, vos propres questions, les informations à mettre à jour</span></summary>
       <nav class="rg-nav" aria-label="Les réglages avancés"><a href="#rg-minutes">Les minutes</a><a href="#rg-options">Documents en option</a>
         <a href="#rg-questions">Questions requises, facultatives ou retirées</a><a href="#f-ajout">Ajouter une question</a>
         <a href="#rg-corriger">Mettre à jour les informations</a><a href="#rg-partager">Partager</a></nav>
@@ -170,8 +170,9 @@ function editeur() {
     </section>
 
     <section class="p-sect" id="rg-options"><div class="p-sect-h"><h3>Documents en option</h3></div>
-      ${Object.entries(Rg.OPTIONS).map(([k, o]) => `<label class="bascule"><input type="checkbox" role="switch" data-option="${k}" ${r.options.includes(k) ? 'checked' : ''}>
-        <span class="bascule-p" aria-hidden="true"></span><span>${esc(o.nom)}<br><span class="hint">${esc(o.resume)} ·
+      ${Object.entries(Rg.OPTIONS).map(([k, o]) => `<label class="bascule"><input type="checkbox" role="switch" data-option="${k}" ${r.options.includes(k) ? 'checked' : ''}
+          aria-labelledby="opt-${k}-n" aria-describedby="opt-${k}-d">
+        <span class="bascule-p" aria-hidden="true"></span><span><span id="opt-${k}-n">${esc(o.nom)}</span><br><span class="hint" id="opt-${k}-d">${esc(o.resume)} ·
         ${base.documents.filter((d) => d.option === k).length} documents, ${base.banque.filter((x) => x.option === k).length} questions</span></span></label>`).join('')}
     </section>
 
@@ -256,7 +257,7 @@ function exporterReglages() {
   const nomEtape = (id) => base.etapes.find((x) => x.id === id)?.t || id;
   const sortie = {
     jeu: 'Où passe la ligne ? · Forillon', versionContenu: base.version || '', exporteLe: new Date().toISOString(),
-    format: r.format, miseEnRoute: r.miseEnRoute, minutes: r.minutes, questions: r.questions,
+    format: r.format, miseEnRoute: r.miseEnRoute, minutes: r.minutes, questions: r.questions, options: r.options,
     ajouts: r.ajouts.map((a) => ({ ...a, etapeNom: nomEtape(a.etape) })),
     corrections: Object.entries(r.corrections).map(([cle, x]) => ({ cle, element: champs.get(cle)?.it.titre || '',
       champ: champs.get(cle)?.ch.label || '', original: champs.get(cle)?.ch.origine || '', corrige: x.valeur,

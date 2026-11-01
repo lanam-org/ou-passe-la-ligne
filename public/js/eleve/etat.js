@@ -35,7 +35,7 @@ export function appliquerReglages(config) {
   if (k === empreinte) return false;
   empreinte = k;
   etat.c = Rg.appliquer(base, config || null);
-  etat.B = Object.fromEntries(etat.c.banque.map((q) => [q.id, q]));
+  etat.B = Object.fromEntries((etat.c.banqueTous || etat.c.banque).map((q) => [q.id, q]));
   return true;
 }
 appliquerReglages(null);

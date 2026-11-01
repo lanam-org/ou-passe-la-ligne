@@ -71,8 +71,8 @@ export function rapportHTML() {
           <p><span class="r-k">Villages à vider :</span> ${r.vides.length} / ${J.nbVillages(c)}${r.vides.length ? ` (${r.vides.map(esc).join(', ')})` : ''}</p>
           <p><span class="r-k">Villages gardés :</span> ${r.gardes.length}${r.gardes.length ? ` (${r.gardes.map(esc).join(', ')})` : ''}</p>
           <p><span class="r-k">Corridor :</span> ${r.corridor} · <span class="r-k">Zones :</span> ${new Set(Object.values(e.zones).filter(Boolean)).size}</p>
-          ${e.juge ? `<p><span class="r-k">Documents retenus :</span> ${e.docs.map((id) => { const d = c.documents.find((x) => x.id === id);
-            return `${d.utile ? '✓' : '—'} ${esc(d.t)}`; }).join(' · ')}</p>` : ''}
+          ${e.juge ? `<p><span class="r-k">Documents retenus :</span> ${e.docs.map((id) => { const d = J.docParId(c, id);
+            return d ? `${d.utile ? '✓' : '—'} ${esc(d.t)}` : ''; }).filter(Boolean).join(' · ')}</p>` : ''}
           ${e.mentions.length ? `<p><span class="r-k">Gestes reconnus :</span> ${e.mentions.map((id) => esc(c.mentions[id].nom)).join(', ')}</p>` : ''}
         </div></div>
         <dl class="r-rep">${ecrites.map((q) => `<dt>${esc(qid(q))} · ${esc(q.eleve)}${q.requise ? '' : ' (facultative)'}</dt>

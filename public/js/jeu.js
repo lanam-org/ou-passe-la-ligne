@@ -117,10 +117,13 @@ export function basculerDoc(e, id) {
 }
 
 /** Soumet le tri : chaque document retenu reçoit son verdict. */
+/** Un document par son identifiant, même retiré de la séance depuis (une option éteinte). */
+export const docParId = (c, id) => (c.documentsTous || c.documents).find((d) => d.id === id);
+
 export function juger(c, e) {
   const nouvelles = [];
   e.juge = true;
-  const pris = e.docs.map((id) => c.documents.find((d) => d.id === id));
+  const pris = e.docs.map((id) => docParId(c, id)).filter(Boolean);
   if (pris.length === 3 && pris.every((d) => d.utile)) ajouterMention(e, 'tri', nouvelles);
   if (e.docs.includes('d5')) ajouterMention(e, 'sources', nouvelles);
   if (e.docs.includes('d3')) ajouterMention(e, 'temoin', nouvelles);
@@ -171,7 +174,7 @@ export function tempsEtape(c, e, id, maintenant = Date.now()) {
 export function indicateurs(c, e, maintenant = Date.now()) {
   const r = releve(c, e);
   const idx = (id) => c.etapes.findIndex((x) => x.id === id);
-  const utiles = e.docs.filter((id) => c.documents.find((d) => d.id === id)?.utile).length;
+  const utiles = e.docs.filter((id) => docParId(c, id)?.utile).length;
   const zones = new Set(Object.values(e.zones).filter(Boolean)).size;
   const k = e.compteurs || {};
   const apresComp = k.apresComp || [0, 0, 0, 0];

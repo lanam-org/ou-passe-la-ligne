@@ -579,9 +579,9 @@
    "genre": "Article de magazine",
    "utile": false,
    "t": "Le homard, une pêche encadrée",
-   "x": "Les eaux froides autour de Forillon conviennent bien au homard d'Amérique. Sa pêche, très encadrée (permis limités, casiers réglementés, saison fixe), compte beaucoup pour l'économie de la Gaspésie : près de 3 800 tonnes débarquées en 2022, un record. Les pêcheurs relâchent les petits homards et les femelles qui portent des œufs.",
+   "x": "Le homard vit dans les eaux de Forillon. En Gaspésie, sa pêche suit des règles : on relâche les petits et les femelles qui portent des œufs. Selon l'évaluation de 2022, les prises ont battu un record : près de 3 800 tonnes.",
    "s": "Laurent Fey, « Le homard d'Amérique », Nature sauvage, automne 2026, p. 19 à 23",
-   "v": "Vrai, et la pêche fait vivre la région. Mais il parle de la mer, pas de qui a le droit d'habiter le territoire. Gardez-le pour l'étape suivante : protéger, est-ce toujours interdire ?",
+   "v": "Vrai, et la pêche fait vivre la région. Mais il parle de la mer, pas de qui a le droit d'habiter le territoire.",
    "copie": [],
    "sert": [
     "F4.5"
@@ -594,9 +594,9 @@
    "genre": "Article de magazine",
    "utile": true,
    "t": "Des aires protégées proposées par les Premières Nations",
-   "x": "Au Québec, 58 % des superficies à l'étude pour de nouvelles aires protégées d'ici 2030 viennent de projets des Premières Nations. Depuis 2021, la loi leur permet de proposer des territoires à protéger. Sur le Gespe'gewa'gi, les Mi'gmaq de Gesgapegiag proposent d'en protéger 748 km², et des gardiens du territoire de la communauté le patrouillent déjà.",
+   "x": "Au Québec, plus de la moitié des territoires étudiés pour de futures aires protégées viennent de projets des Premières Nations. Dans la baie des Chaleurs, la communauté mi'gmaq de Gesgapegiag propose d'en protéger 748 km², avec ses propres gardiens du territoire.",
    "s": "Michel Leboeuf, « Quand les Premières Nations tracent la voie », Nature sauvage, automne 2026, p. 25 à 29",
-   "v": "Utile : une autre façon de protéger, avec les gens du territoire plutôt que sans eux. Comparez avec 1970.",
+   "v": "Utile, même s'il parle d'ailleurs en Gaspésie : une aire protégée peut garder ses gens au lieu de les faire partir. Comparez avec 1970.",
    "copie": [
     {
      "q": "L'aire protégée n'est pas une cloche de verre, interdite d'accès",
@@ -950,7 +950,7 @@
    "id": "F4.5",
    "option": "nature-sauvage",
    "forme": "Ouverte",
-   "q": "Autour de Forillon, on pêche le homard avec des règles : on relâche les petits et les femelles qui portent des œufs. Une zone de votre ligne peut-elle protéger tout en laissant des gens y travailler ?",
+   "q": "En Gaspésie, on pêche le homard avec des règles. Une zone de votre ligne peut-elle protéger tout en laissant des gens y travailler ?",
    "sources": [
     "Nature sauvage, automne 2026 (homard) · B"
    ],
@@ -1038,7 +1038,7 @@
    "id": "F6.4",
    "option": "nature-sauvage",
    "forme": "Ouverte",
-   "q": "Aujourd'hui, des Premières Nations proposent des aires protégées dont la communauté prend soin. Qu'est-ce qui change par rapport à 1970 ?",
+   "q": "Des Premières Nations proposent aujourd'hui des aires protégées dont elles prennent soin. Qu'est-ce qui change depuis 1970 ?",
    "sources": [
     "Nature sauvage, automne 2026 (Premières Nations) · B"
    ],

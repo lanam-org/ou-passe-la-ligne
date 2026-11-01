@@ -44,7 +44,7 @@ export function exporterCSV() {
   const lignes = eq.map((e, i) => {
     const r = J.releve(c, e);
     const o = { seance: code, equipe: i + 1, etape_atteinte: e.atteinte + 1, fini: e.fini ? 1 : 0,
-      docs: e.docs.join(' '), docs_utiles: e.docs.filter((id) => c.documents.find((d) => d.id === id)?.utile).length,
+      docs: e.docs.join(' '), docs_utiles: e.docs.filter((id) => J.docParId(c, id)?.utile).length,
       zones: new Set(Object.values(e.zones).filter(Boolean)).size, villages_vides: r.vides.length,
       villages_gardes: r.gardes.length, corridor: r.corridor, complications: e.comps,
       apres_comp: (e.compteurs?.apresComp || []).join('|'), premier_geste_s: e.compteurs?.premierGeste != null ? Math.round(e.compteurs.premierGeste / 1000) : '',

@@ -93,8 +93,8 @@ export const ECRANS = {
       // Avant le tri : chaque document tient en deux lignes (sa nature, son titre) ; « Lire » ouvre le
       // reste. Après le tri : seulement les verdicts des trois retenus, et la question.
       h: E.juge ? `<div class="verdicts">${E.docs.map((id) => {
-          const d = c.documents.find((x) => x.id === id);
-          return `<div class="verdict verdict--${d.utile ? 'util' : 'hors'}"><i aria-hidden="true">${d.utile ? '✓' : '—'}</i>
+          const d = J.docParId(c, id);
+          return !d ? '' : `<div class="verdict verdict--${d.utile ? 'util' : 'hors'}"><i aria-hidden="true">${d.utile ? '✓' : '—'}</i>
             <span><b>${esc(d.t)}</b>${esc(d.v)}${lienSource(d)}</span></div>`;
         }).join('')}</div>${blocQuestions('dossier')}`
         : `<div class="docs">${c.documents.map((d) => `<div class="doc-c">
@@ -103,7 +103,7 @@ export const ECRANS = {
             <details class="doc-plus" data-lire="${d.id}" ${ui.lus.has(d.id) ? 'open' : ''}><summary>Lire</summary>
               <p class="doc-x">${esc(d.x)}</p><p class="doc-s">${esc(d.s)}</p></details></div>`).join('')}</div>`,
       carnet: E.juge ? [] : [{ t: 'Retenus', h: E.docs.length
-        ? `<ol class="carnet-l">${E.docs.map((id) => `<li>${esc(c.documents.find((x) => x.id === id).t)}</li>`).join('')}</ol>`
+        ? `<ol class="carnet-l">${E.docs.map((id) => `<li>${esc(J.docParId(c, id)?.t || '')}</li>`).join('')}</ol>`
         : '<p class="hint">Aucun pour l\'instant. Trois au plus.</p>' },
       { t: 'La consigne', h: `<p class="serif" style="font-size:15px;line-height:1.6">${esc(B['F3.1'].eleve)}</p>` }],
       btn: E.juge ? 'Tracer la ligne' : 'Soumettre les trois',
