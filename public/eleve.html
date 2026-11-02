@@ -34,10 +34,10 @@
 <main class="page" id="app"><p class="hint" data-chargement>Chargement…</p></main>
 <div class="bravo-zone" id="bravo" role="status" aria-live="polite"></div>
 <p class="cache-visuel" id="annonce" role="status" aria-live="polite"></p>
-<dialog class="d-quitter" id="d-quitter" aria-labelledby="d-quitter-t">
+<dialog class="d-quitter" id="d-quitter" aria-labelledby="d-quitter-t" aria-describedby="d-quitter-d">
   <form method="dialog">
     <p id="d-quitter-t"><b>Quitter la séance ?</b></p>
-    <p class="hint">Pour revenir : le même code, le même nom d'équipe.</p>
+    <p class="hint" id="d-quitter-d">Pour revenir : même code, même nom.</p>
     <div class="p-actions"><button class="btn btn--f" value="non">Annuler</button><button class="btn btn--f danger" value="oui">Quitter</button></div>
   </form>
 </dialog>

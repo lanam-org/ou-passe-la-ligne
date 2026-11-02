@@ -21,9 +21,12 @@ export const etat = {
 };
 
 /** Ce qui ne vit qu'à l'écran. lus : les documents ouverts avec « Lire ». */
-export const ui = { outil: 'preservation', effet: null, nouvelles: [], avis: {}, avisEnvoye: false,
-  signalFerme: 0, rendue: -1, erreur: '', lus: new Set(),
-  compVu: 0, compNeuf: false, bravoVu: 0, bravos: '{}', releveVu: null };
+const uiDepart = () => ({ outil: 'preservation', effet: null, nouvelles: [], avis: {}, avisEnvoye: false,
+  rendue: -1, erreur: '', lus: new Set(), compVu: 0, compNeuf: false, bravos: '{}', releveVu: null,
+  rythme: undefined, attend: undefined, finFetee: false });
+export const ui = { ...uiDepart(), signalFerme: 0, bravoVu: 0 };
+/** Une autre équipe va jouer sur cet appareil : rien de l'écran de la précédente ne passe chez elle. */
+export const remettreUi = () => Object.assign(ui, uiDepart());
 
 /** Redessiner l'écran, mettre à jour la barre du bas : eleve.js les branche au démarrage. */
 export const page = { rendre: () => {}, majPied: () => {} };

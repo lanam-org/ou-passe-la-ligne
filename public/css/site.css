@@ -985,7 +985,7 @@ body[data-espace="prof"] .aide-b:focus-visible{outline-color:var(--prof-txt)}
 /* espace enseignant·e : l'en-tête de la séance — le code et le chrono, alignés */
 .retour{margin:0 0 10px -10px}
 .lien[data-retour]{margin-left:-10px}   /* « ← Vos séances » au-dessus d'un titre : le texte sur son bord */
-.barre-d > .lien:first-child{margin-left:-10px}   /* « ← Accueil », passé seul à la ligne sur un téléphone */
+.barre-d > .lien:first-child,.barre-d > [hidden]:first-child + .lien{margin-left:-10px}   /* « ← Accueil » (ou « Quitter la séance »), seul à la ligne sur un téléphone */
 .p-sect-h > .lien:last-child{margin-right:-10px}   /* « Fermer », au bord droit de la carte */
 .tete-g{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;align-items:stretch}
 .tete-g .p-sect{margin:0}

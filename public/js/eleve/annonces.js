@@ -93,6 +93,7 @@ export function rendreSignal() {
     z.hidden = false;
     z.innerHTML = `<p><b>La séance est terminée.</b> Votre enseignant·e l'a fermée.</p>
       <button class="btn btn--f" type="button" data-quitter>Rejoindre une autre séance</button>`;
+    $('#quitter').hidden = true;   // le message porte déjà la sortie
     document.body.classList.add('avec-signal');
     return;
   }

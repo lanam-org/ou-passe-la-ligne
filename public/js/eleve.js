@@ -20,11 +20,11 @@ import { $, esc, typo, messageErreur, validationEnFrancais, icone } from './outi
 import * as J from './jeu.js';
 import * as Rg from './reglages.js';
 import { NOMS_EQUIPES, EMOJIS_EQUIPES, texteRetour, retourDe, rejoindre, cheminSeance, cheminEquipe, normaliserCode, codeValide, expiration, CLE_APERCU } from './seance.js';
-import { etat, ui, page, appliquerReglages, idx, avisActif, etapesVisibles } from './eleve/etat.js';
+import { etat, ui, page, appliquerReglages, idx, avisActif, etapesVisibles, remettreUi } from './eleve/etat.js';
 import { ECRANS, gabarit, rendreFin } from './eleve/ecrans.js';
 import { MAX_REPONSE, rattrapage, questionsBravo, reponseManquante } from './eleve/questions.js';
 import { signalLu, relireAnnonces, dire, direEffet, sansBalises, fermerBravo, annoncer, bravosRecus, rendreSignal } from './eleve/annonces.js';
-import { sauver, sauverTout } from './eleve/envoi.js';
+import { sauver, sauverTout, remettreEnvoi } from './eleve/envoi.js';
 import { carteEntree, carteEtape, sautiller } from './eleve/anime.js';
 
 validationEnFrancais();
@@ -135,6 +135,8 @@ async function quitter() {
   arretSeance(); arretSeance = () => {};
   try { const moi = await donnees.attendreUtilisateur(); if (moi) localStorage.removeItem(`${CLE}:${moi.uid}`); } catch { /* vide */ }
   Object.assign(etat, { code: null, idEq: null, E: null, S: null });
+  remettreUi(); remettreEnvoi();
+  history.replaceState(null, '', location.pathname);   // ?code= de l'ancienne séance : le rechargement ne doit plus y mener
   $('#etat-envoi').hidden = true; $('#equipe').textContent = ''; $('#prog').innerHTML = '';
   const z = $('#signal'); z.hidden = true; z.innerHTML = ''; document.body.classList.remove('avec-signal');
   fermerBravo();
@@ -142,7 +144,7 @@ async function quitter() {
   $('#code')?.focus();
 }
 document.addEventListener('click', (ev) => {
-  if (ev.target.closest('#quitter')) return $('#d-quitter').showModal();
+  if (ev.target.closest('#quitter')) { const d = $('#d-quitter'); d.returnValue = ''; return d.showModal(); }
   if (ev.target.closest('[data-quitter]')) return quitter();
 });
 $('#d-quitter').addEventListener('close', (ev) => { if (ev.target.returnValue === 'oui') quitter(); });

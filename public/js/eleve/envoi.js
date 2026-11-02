@@ -32,6 +32,12 @@ function etatEnvoi(e) {
 }
 
 let reessai = null;
+/** Le voyant d'envoi comme au chargement de la page, et plus de nouvel essai pour l'équipe précédente. */
+export function remettreEnvoi() {
+  clearTimeout(reessai); reessai = null;
+  const z = $('#etat-envoi');
+  if (z) { z.removeAttribute('data-ok'); z.textContent = 'Enregistrement automatique'; z.title = 'Vert : les réponses sont enregistrées'; }
+}
 async function envoyer() {
   const { E, code, idEq } = etat;
   if (!E || etat.apercu) return;   // l'aperçu de l'enseignant·e n'enregistre rien

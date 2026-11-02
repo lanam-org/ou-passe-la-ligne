@@ -1024,6 +1024,7 @@ if (MODE === 'local') {
   await hl.click('#quitter');
   await hl.click('#d-quitter button[value="oui"]');
   await hl.waitForSelector('#f-rejoindre');
+  dit(!new URL(hl.url()).search, 'en quittant, l’adresse oublie le code de l’ancienne séance');
   await hl.goto(`${B2}/eleve.html`);
   await hl.waitForSelector('#f-rejoindre');
   dit(true, 'côté équipe, « Quitter la séance » (confirmé) libère l’appareil : il ne reprend plus la séance');

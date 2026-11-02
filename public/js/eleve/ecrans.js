@@ -16,7 +16,6 @@ import { confettis } from './anime.js';
 
 // les quatre degrés de l'échelle : une couleur ET une forme chacun (comme les tuiles de Kahoot)
 const FORMES = ['▲', '◆', '●', '■'];
-let finFetee = false;
 
 const MOTS = ['aucun', 'un', 'deux', 'trois', 'quatre', 'cinq', 'six'];
 // le nombre de documents du dossier, et de ceux qui ne servent pas : douze et quatre, plus avec les documents en option
@@ -253,7 +252,7 @@ export function rendreFin() {
   $('#prog').innerHTML = '';
   const ecrites = J.questionsEcrites(c).filter((q) => R(q.id));
   const bravos = questionsBravo();
-  if (!finFetee) { finFetee = true; confettis(90); }   // la fin de la partie se fête une fois
+  if (!ui.finFetee) { ui.finFetee = true; confettis(90); }   // la fin de la partie se fête une fois
   $('#app').innerHTML = typo(`<section class="scene fin"><div class="scene-c merci">
     <p class="merci-e" aria-hidden="true">${EMOJIS_EQUIPES[E.nom] || ''}</p>
     <p class="merci-t">Partie terminée</p>
