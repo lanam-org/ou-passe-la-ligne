@@ -46,7 +46,9 @@ async function demarrer() {
   try { if (moi) garde = JSON.parse(localStorage.getItem(`${CLE}:${moi.uid}`) || 'null'); } catch { /* vide */ }
   if (garde && (!codeUrl || codeUrl === garde.code)) {
     try {
-      const fiche = await donnees.lire(cheminEquipe(garde.code, garde.id));
+      // une séance fermée ou effacée ne se reprend pas : l'appareil peut rejoindre la suivante
+      const s = await donnees.lire(cheminSeance(garde.code));
+      const fiche = s?.etat === 'ouverte' ? await donnees.lire(cheminEquipe(garde.code, garde.id)) : null;
       if (fiche && fiche.appareil === moi.uid) return entrer(garde.code, garde.id, fiche);
     } catch { /* on repasse par l'accueil */ }
   }
@@ -56,6 +58,7 @@ async function demarrer() {
 function accueil(prerempli = '', erreur = '', nomChoisi = '') {   // le nom choisi reste coché après une erreur
   document.body.dataset.ecran = 'accueil';
   $('#retour-accueil').hidden = false;   // une erreur de porte ? on revient à l'accueil du site
+  $('#quitter').hidden = true;
   $('#app').innerHTML = typo(`<section class="rejoindre scene">
     <div class="scene-c">
       <h2>Rejoindre la séance</h2>
@@ -104,7 +107,8 @@ function entrer(cd, id, fiche) {
   E.compteurs ||= J.nouvelEtat(etat.c, E.nom, E.appareil).compteurs;
   relireAnnonces();
   $('#etat-envoi').hidden = false;
-  $('#retour-accueil').hidden = true;    // en jeu, pas de sortie par erreur (le nom du site reste un lien)
+  $('#retour-accueil').hidden = true;    // en jeu, pas de sortie par erreur : « Quitter la séance » demande confirmation
+  $('#quitter').hidden = false;
   document.body.dataset.ecran = 'jeu';
   $('#app').innerHTML = gabarit();
   $('#equipe').textContent = `Équipe ${E.nom} · séance ${cd}`;
@@ -121,6 +125,27 @@ function entrer(cd, id, fiche) {
   });
   rendre();
 }
+
+/**
+ * Quitter la séance sur cet appareil (une autre séance commence, une séance terminée) : l'équipe reste dans la séance,
+ * ses réponses aussi ; le même code et le même nom la retrouvent (rejoindre, seance.js).
+ */
+async function quitter() {
+  sauverTout();
+  arretSeance(); arretSeance = () => {};
+  try { const moi = await donnees.attendreUtilisateur(); if (moi) localStorage.removeItem(`${CLE}:${moi.uid}`); } catch { /* vide */ }
+  Object.assign(etat, { code: null, idEq: null, E: null, S: null });
+  $('#etat-envoi').hidden = true; $('#equipe').textContent = ''; $('#prog').innerHTML = '';
+  const z = $('#signal'); z.hidden = true; z.innerHTML = ''; document.body.classList.remove('avec-signal');
+  fermerBravo();
+  accueil();
+  $('#code')?.focus();
+}
+document.addEventListener('click', (ev) => {
+  if (ev.target.closest('#quitter')) return $('#d-quitter').showModal();
+  if (ev.target.closest('[data-quitter]')) return quitter();
+});
+$('#d-quitter').addEventListener('close', (ev) => { if (ev.target.returnValue === 'oui') quitter(); });
 
 /**
  * L'aperçu de l'enseignant·e (eleve.html?apercu=1, ouvert depuis l'espace enseignant) : le jeu tel qu'une équipe le

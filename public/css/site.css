@@ -1526,6 +1526,12 @@ body:has(.prog-proj) .page{padding:0}
 .btn--f.danger{border-color:var(--action)}
 .btn--f.danger:hover{background:color-mix(in srgb,var(--action) 10%,var(--surface))}
 .lien.danger:hover{background:color-mix(in srgb,var(--action) 10%,transparent)}
+/* quitter la séance, côté équipe : une confirmation, en fenêtre */
+.d-quitter{max-width:min(380px,calc(100vw - 32px));padding:20px 22px;border:1px solid var(--bord);border-radius:var(--r);
+  background:var(--surface);color:var(--encre);box-shadow:0 12px 40px rgb(0 0 0 / .25)}
+.d-quitter::backdrop{background:rgb(0 0 0 / .45)}
+.d-quitter p{margin:0 0 8px}
+.d-quitter .p-actions{margin-top:14px}
 
 /* =============================================================================
    Recommandations de l'analyse concurrentielle (30 octobre 2026)

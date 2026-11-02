@@ -26,6 +26,8 @@ préparation est le titre « … · en préparation » ci-dessous : `…/dev/` l
 - **Démarrage rapide** : à l'accueil, une séance Standard en un clic, son code affiché en grand.
 - **Une adresse par onglet** : `…/enseignant/preparer/deroulement/`, `…/enseignant/animer/en-direct/`, etc., à garder en
   favori ; l'adresse suit l'onglet ouvert et rouvre la séance en cours sur cet onglet.
+- **Quitter la séance, côté équipe** : un bouton (avec confirmation) libère l'appareil pour une autre séance ; même
+  code et même nom pour revenir. Une séance fermée ne se reprend plus au démarrage.
 
 ## Playtest 1 — avec les professeurs · 29 octobre 2026
 

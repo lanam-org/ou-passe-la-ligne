@@ -23,6 +23,7 @@
     <div class="marque"><h1><a class="marque-l" href="index.html">Où passe la ligne&nbsp;?</a></h1><small id="equipe"></small></div>
     <div class="barre-d">
       <a class="lien retour-site" href="index.html" id="retour-accueil">← Accueil</a>
+      <button class="lien retour-site danger" type="button" id="quitter" hidden>Quitter la séance</button>
       <span class="envoi" id="etat-envoi" role="status" hidden title="Vert : les réponses sont enregistrées">Enregistrement automatique</span>
       <span data-theme-ici></span>
     </div>
@@ -33,6 +34,13 @@
 <main class="page" id="app"><p class="hint" data-chargement>Chargement…</p></main>
 <div class="bravo-zone" id="bravo" role="status" aria-live="polite"></div>
 <p class="cache-visuel" id="annonce" role="status" aria-live="polite"></p>
+<dialog class="d-quitter" id="d-quitter" aria-labelledby="d-quitter-t">
+  <form method="dialog">
+    <p id="d-quitter-t"><b>Quitter la séance ?</b></p>
+    <p class="hint">Pour revenir : le même code, le même nom d'équipe.</p>
+    <div class="p-actions"><button class="btn btn--f" value="non">Annuler</button><button class="btn btn--f danger" value="oui">Quitter</button></div>
+  </form>
+</dialog>
 <footer class="pied-site"><a href="confidentialite.html">Confidentialité et à propos</a><span class="version" data-version></span></footer>
 <script type="module" src="js/eleve.js"></script>
 </body>

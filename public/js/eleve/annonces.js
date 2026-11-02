@@ -91,7 +91,8 @@ export function rendreSignal() {
   if (!z) return;
   if (S === null || S?.etat === 'fermee') {
     z.hidden = false;
-    z.innerHTML = `<p><b>La séance est terminée.</b> Votre enseignant·e l'a fermée.</p>`;
+    z.innerHTML = `<p><b>La séance est terminée.</b> Votre enseignant·e l'a fermée.</p>
+      <button class="btn btn--f" type="button" data-quitter>Rejoindre une autre séance</button>`;
     document.body.classList.add('avec-signal');
     return;
   }

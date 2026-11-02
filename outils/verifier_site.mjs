@@ -700,6 +700,9 @@ await auditer(prof, 'enseignant · accueil « Vos séances »');
 }
 await autre.waitForSelector('#signal:not([hidden])', { timeout: 5000 });
 dit((await autre.textContent('#signal')).includes('terminée'), 'les équipes encore en jeu voient « séance terminée »');
+await autre.click('[data-quitter]');
+await autre.waitForSelector('#f-rejoindre');
+dit(true, 'séance terminée : « Rejoindre une autre séance » ramène au formulaire');
 if (MODE === 'firebase') dit(fauxFb.etat().documents === fauxFb.lireCollection('enseignants').length,
   'plus aucune donnée de séance dans la base (reste la version du jeu de l’enseignant·e)');
 await prof.waitForSelector('#creer');
@@ -1017,6 +1020,18 @@ if (MODE === 'local') {
   const [pied, bande] = await Promise.all(['.pied', '.horsligne'].map((x) => hl.locator(x).boundingBox()));
   dit(pied && bande && pied.y + pied.height <= bande.y + 1, 'le bandeau ne cache pas la barre « Suivant »');
   await capture(hl, '17b-hors-ligne-jeu');
+  // quitter la séance, côté équipe : une confirmation ; l'appareil ne reprend plus la séance ; même code, même nom = retour
+  await hl.click('#quitter');
+  await hl.click('#d-quitter button[value="oui"]');
+  await hl.waitForSelector('#f-rejoindre');
+  await hl.goto(`${B2}/eleve.html`);
+  await hl.waitForSelector('#f-rejoindre');
+  dit(true, 'côté équipe, « Quitter la séance » (confirmé) libère l’appareil : il ne reprend plus la séance');
+  await hl.fill('#code', codeHL);
+  await hl.check('input[name=nom][value="Castor"]');
+  await hl.click('button[type=submit]');
+  await hl.waitForSelector('#titre', { timeout: 8000 });
+  dit((await hl.textContent('#titre')).includes('Arriver'), 'même code, même nom : l’équipe retrouve sa partie');
   await hl.goto(`${B2}/enseignant/preparer/deroulement/`);
   await hl.waitForSelector('[data-onglet="deroulement"][aria-current="page"]', { timeout: 8000 });
   dit(true, 'hors ligne, une adresse d’onglet se recharge : la séance revient sur cet onglet');
