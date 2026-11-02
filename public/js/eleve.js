@@ -131,7 +131,7 @@ function entrer(cd, id, fiche) {
  * ses réponses aussi ; le même code et le même nom la retrouvent (rejoindre, seance.js).
  */
 async function quitter() {
-  sauverTout();
+  if (etat.S?.etat === 'ouverte') sauverTout();   // une séance fermée ou effacée ne reçoit plus rien
   arretSeance(); arretSeance = () => {};
   try { const moi = await donnees.attendreUtilisateur(); if (moi) localStorage.removeItem(`${CLE}:${moi.uid}`); } catch { /* vide */ }
   Object.assign(etat, { code: null, idEq: null, E: null, S: null });
