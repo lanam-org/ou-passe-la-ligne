@@ -1017,6 +1017,9 @@ if (MODE === 'local') {
   const [pied, bande] = await Promise.all(['.pied', '.horsligne'].map((x) => hl.locator(x).boundingBox()));
   dit(pied && bande && pied.y + pied.height <= bande.y + 1, 'le bandeau ne cache pas la barre « Suivant »');
   await capture(hl, '17b-hors-ligne-jeu');
+  await hl.goto(`${B2}/enseignant/preparer/deroulement/`);
+  await hl.waitForSelector('[data-onglet="deroulement"][aria-current="page"]', { timeout: 8000 });
+  dit(true, 'hors ligne, une adresse d’onglet se recharge : la séance revient sur cet onglet');
   await ctxHL.setOffline(false);
   await hl.waitForFunction(() => document.querySelector('.horsligne')?.hidden === true);
   dit(true, 'le réseau revient : le bandeau disparaît');

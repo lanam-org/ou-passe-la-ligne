@@ -51,16 +51,19 @@ const ONGLETS = [
 // js/relais.js) ramène ici avec ?onglet= ; l'adresse affichée suit ensuite l'onglet ouvert (<base> garde la racine).
 const SLUGS = { direct: 'en-direct', debrief: 'retroaction', mesures: 'donnees' };
 const slug = (id) => SLUGS[id] || id;
-const ongletDemande = ONGLETS.flatMap((g) => g.l).find((x) => slug(x.id) === new URLSearchParams(location.search).get('onglet'))?.id;
+// l'onglet demandé par l'adresse : pour la séance rouverte, ou à défaut la prochaine séance ouverte
+let ongletDemande = ONGLETS.flatMap((g) => g.l).find((x) => slug(x.id) === new URLSearchParams(location.search).get('onglet'))?.id;
 function afficherAdresse() {
   const g = etat.code && ONGLETS.find((x) => x.l.some((y) => y.id === etat.onglet));
   const u = new URL(g ? `enseignant/${g.s}/${slug(etat.onglet)}/` : 'enseignant/', document.baseURI).href;
   if (u !== location.href) history.replaceState(history.state, '', u);
 }
-// Avec <base>, un lien « #ancre » viserait l'accueil du site : on reste sur la page et on y va.
+// Avec <base>, un lien « #ancre » viserait l'accueil du site : on reste sur la page et on y va. Les ancres de
+// l'éditeur portent l'adresse affichée (ancre(), pour un nouvel onglet) ; au clic, elles aussi restent sur la page.
 document.addEventListener('click', (ev) => {
-  const a = ev.target.closest('a[href^="#"]');
-  const cible = a && document.getElementById(decodeURIComponent(a.getAttribute('href').slice(1)));
+  const a = ev.target.closest('a[href*="#"]');
+  const ici = a && (a.getAttribute('href').startsWith('#') || (a.pathname === location.pathname && a.origin === location.origin));
+  const cible = ici && document.getElementById(decodeURIComponent(a.hash.slice(1)));
   if (!cible) return;
   ev.preventDefault();
   if (!cible.matches('a, button, input, select, textarea, [tabindex]')) cible.setAttribute('tabindex', '-1');
@@ -83,10 +86,7 @@ async function demarrer() {
   if (garde && etat.MOI) {
     try {
       const s = await donnees.lire(cheminSeance(garde));
-      if (s && s.etat === 'ouverte' && (donnees.mode === 'local' || s.enseignantId === etat.MOI.uid)) {
-        if (ongletDemande) etat.onglet = ongletDemande;   // l'onglet de l'adresse rouverte
-        return ouvrir(garde);
-      }
+      if (s && s.etat === 'ouverte' && (donnees.mode === 'local' || s.enseignantId === etat.MOI.uid)) return ouvrir(garde);
     } catch { /* on revient à la liste */ }
   }
   retourAccueil();
@@ -105,6 +105,7 @@ function retourAccueil(erreur = '') {
 }
 
 function ouvrir(code) {
+  if (ongletDemande) { etat.onglet = ongletDemande; ongletDemande = null; }
   etat.code = code; etat.reponses = null; ui.ed = null; ui.comparer = []; ui.voir1970 = false;
   seanceGardee.garder(code);
   arrets.forEach((f) => f());

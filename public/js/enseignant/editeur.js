@@ -89,6 +89,9 @@ export function rendreEditeur() {
   page.rendre(true);
 }
 
+// une ancre à l'adresse affichée (…/enseignant/preparer/reglages/#rg-minutes) : <base> l'enverrait sinon à l'accueil du site
+const ancre = (id) => `${location.pathname}#${id}`;
+
 function editeur() {
   const ed = ui.ed, r = ed.r;
   const cc = Rg.appliquer(base, r);
@@ -156,9 +159,9 @@ function editeur() {
     <details class="rg-avance" data-k="rg-avance" ${ouvert('rg-avance')}>
       <summary><span class="rg-avance-t">Réglages avancés</span>
         <span class="hint">Les minutes, des documents en option, les questions, vos propres questions, les informations à mettre à jour</span></summary>
-      <nav class="rg-nav" aria-label="Les réglages avancés"><a href="#rg-minutes">Les minutes</a><a href="#rg-options">Documents en option</a>
-        <a href="#rg-questions">Questions requises, facultatives ou retirées</a><a href="#f-ajout">Ajouter une question</a>
-        <a href="#rg-corriger">Mettre à jour les informations</a><a href="#rg-partager">Partager</a></nav>
+      <nav class="rg-nav" aria-label="Les réglages avancés"><a href="${ancre('rg-minutes')}">Les minutes</a><a href="${ancre('rg-options')}">Documents en option</a>
+        <a href="${ancre('rg-questions')}">Questions requises, facultatives ou retirées</a><a href="${ancre('f-ajout')}">Ajouter une question</a>
+        <a href="${ancre('rg-corriger')}">Mettre à jour les informations</a><a href="${ancre('rg-partager')}">Partager</a></nav>
 
     <section class="p-sect" id="rg-minutes"><div class="p-sect-h"><h3>Les minutes, étape par étape</h3></div>
       <div class="minutes-g">

@@ -51,7 +51,7 @@ export async function afficherAccueil(erreur = '') {
     <div class="accueil-g">
     <div class="accueil-m">
     <section class="p-sect creer"><div class="p-sect-h"><h3>Nouvelle séance</h3>
-        <button class="btn btn--f" type="button" id="demarrage-rapide" title="Standard, 50 min ; le code s'affiche en grand">${icone('jouer')} Démarrage rapide</button></div>
+        <button class="btn btn--f" type="button" id="demarrage-rapide" title="Une séance Standard en un clic ; le code s'affiche en grand">${icone('jouer')} Démarrage rapide</button></div>
       <fieldset class="formats" id="formats"><legend>${icone('horloge')} La durée</legend>
         ${Object.entries(Rg.FORMATS).filter(([k]) => k === 'standard' || k === 'mesure' || k === fmt).map(([k, f]) => `<label class="case-l"><input type="radio" name="format" value="${k}" ${k === fmt ? 'checked' : ''}>
           <span>${esc(f.nom)}${k === 'mesure' ? ` <input type="number" id="duree-mesure" class="duree-mesure" min="15" max="240" step="1"
@@ -142,10 +142,10 @@ async function demarrageRapide() {
   const v = ui.maVersion ? Rg.completer(base, ui.maVersion) : null;
   const reglages = v?.format === 'standard' ? v
     : Rg.reglagesDuFormat(base, 'standard', { ajouts: v?.ajouts, corrections: v?.corrections, options: v?.options });
-  const cd = await creerSeance({ questionnaire: false, reglages });
+  const cd = await creerSeance({ questionnaire: !!$('#opt-avis')?.checked, reglages });
   etat.MOI = await donnees.attendreUtilisateur();
   page.ouvrir(cd);
-  ui.qrGrand = true; page.rendre(true); window.scrollTo({ top: 0 });
+  etat.onglet = 'direct'; ui.qrGrand = true; page.rendre(true); window.scrollTo({ top: 0 });
 }
 
 // taper une durée « sur mesure » choisit ce format

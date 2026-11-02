@@ -72,8 +72,8 @@ self.addEventListener('fetch', (ev) => {
   if (r.method !== 'GET') return;
   const u = new URL(r.url);
   if (u.origin === self.location.origin) {
-    // eleve.html?code=K7P2M et eleve.html : une seule copie
-    ev.respondWith(reseauDabord(ev, CACHE, new Request(u.origin + u.pathname)));
+    // eleve.html?code=K7P2M et eleve.html : une seule copie ; …/enseignant/animer/ : celle de son index.html
+    ev.respondWith(reseauDabord(ev, CACHE, new Request(u.origin + u.pathname + (u.pathname.endsWith('/') ? 'index.html' : ''))));
   } else if (IMMUABLE.test(r.url)) {
     ev.respondWith(gardeDabord(r));
   }
