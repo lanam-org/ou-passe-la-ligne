@@ -751,8 +751,33 @@ dit((await prof.textContent('#prof')).includes('50 min en tout'), '« Votre vers
 
 // ---------------------------------------------------------------- la séance de démonstration (mode local)
 if (MODE === 'local') {
+  // démarrage rapide : une séance Standard en un clic, son code en grand
+  await prof.click('#demarrage-rapide');
+  await prof.waitForSelector('[data-qr][aria-pressed="true"]');
+  await prof.click('[data-onglet="reglages"]');
+  await prof.waitForSelector('.rg-barre');
+  dit(await prof.inputValue('[data-min="dossier"]') === '8', 'démarrage rapide : une séance Standard en un clic, son code en grand');
+  await prof.click('[data-onglet="direct"]');
+  await prof.click('[data-effacer="demander"]');
+  await prof.click('[data-effacer="oui"]');
+  await prof.waitForSelector('#creer', { timeout: 8000 });
+  dit(new URL(prof.url()).pathname === '/enseignant/', 'à l’accueil, l’adresse est …/enseignant/');
   await prof.click('[data-demo]');
   await prof.waitForSelector('#code-seance');
+  // une adresse par onglet : rouvrir …/enseignant/preparer/deroulement/ ramène la séance, sur cet onglet
+  await prof.goto(`${BASE}/enseignant/preparer/deroulement/`);
+  await prof.waitForSelector('[data-onglet="deroulement"][aria-current="page"]');
+  dit(new URL(prof.url()).pathname === '/enseignant/preparer/deroulement/'
+    && await prof.evaluate(() => new URL('contenu/forillon.json', document.baseURI).pathname === '/contenu/forillon.json'),
+    'une adresse par onglet : …/enseignant/preparer/deroulement/ rouvre la séance sur le Déroulement');
+  await prof.focus('.evitement');
+  await prof.keyboard.press('Enter');
+  dit(new URL(prof.url()).pathname === '/enseignant/preparer/deroulement/', '« Aller au contenu » reste sur la page malgré la base fixe');
+  await prof.click('[data-onglet="direct"]');
+  await prof.waitForSelector('#code-seance');
+  dit(new URL(prof.url()).pathname === '/enseignant/animer/en-direct/'
+    && (await prof.getAttribute('a[href*="eleve.html?code="]', 'href') || '').startsWith(`${BASE}/eleve.html`),
+    'l’adresse suit l’onglet ; le lien des équipes reste à la racine du site');
   await prof.waitForFunction(() => document.querySelectorAll('[data-equipe]').length === 4, null, { timeout: 8000 });
   const codeDemo = (await prof.textContent('#code-seance')).trim();
   const ligne = (id) => prof.textContent(`[data-equipe="${id}"]`);

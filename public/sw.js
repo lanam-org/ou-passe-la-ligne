@@ -25,6 +25,7 @@ const DELAI = 3000;
 // figurer ici : le test (outils/verifier_site.mjs) le vérifie. Une exception :
 // contenu/guide.json (les réponses attendues). Gardé d'avance, il serait sur
 // chaque Chromebook ; il n'est gardé que là où l'espace enseignant l'a ouvert.
+// En fin de liste : les pages relais, une adresse par onglet de l'espace enseignant.
 const COQUILLE = [
   './', 'index.html', 'eleve.html', 'enseignant.html', 'dossier.html', 'confidentialite.html', 'ecoles.html', '404.html',
   'css/site.css', 'contenu/forillon.json', 'images/temporaire.png',
@@ -37,7 +38,11 @@ const COQUILLE = [
   'js/enseignant/editeur.js', 'js/enseignant/etat.js', 'js/enseignant/pfeq.js', 'js/enseignant/preparer.js', 'js/enseignant/rapport.js',
   'js/enseignant/trousse.js',
   'js/eleve/anime.js', 'js/eleve/annonces.js', 'js/eleve/ecrans.js', 'js/eleve/envoi.js', 'js/eleve/etat.js', 'js/eleve/questions.js',
-  'js/vendor/uqr.js'
+  'js/vendor/uqr.js', 'js/relais.js',
+  'enseignant/index.html', 'enseignant/preparer/index.html', 'enseignant/preparer/reglages/index.html',
+  'enseignant/preparer/questions/index.html', 'enseignant/preparer/dossier/index.html', 'enseignant/preparer/deroulement/index.html',
+  'enseignant/animer/index.html', 'enseignant/animer/en-direct/index.html', 'enseignant/animer/retroaction/index.html',
+  'enseignant/recherche/index.html', 'enseignant/recherche/donnees/index.html', 'enseignant/recherche/questionnaire/index.html'
 ];
 
 const IMMUABLE = /^https:\/\/www\.gstatic\.com\/firebasejs\//;

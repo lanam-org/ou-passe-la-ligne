@@ -39,14 +39,34 @@ validationEnFrancais();
 // en verbes plutôt qu'en « avant / pendant / après » (experte UI/UX), sans gras et suivi d'un deux-points : un titre,
 // pas un bouton. « Rétroaction » plutôt que « Débrief », qui sonnait comme « après » (retours d'essai).
 const ONGLETS = [
-  { g: 'Préparer', titre: 'Préparer la séance', l: [{ id: 'reglages', t: 'Réglages' }, { id: 'questions', t: 'Questions' },
+  { g: 'Préparer', s: 'preparer', titre: 'Préparer la séance', l: [{ id: 'reglages', t: 'Réglages' }, { id: 'questions', t: 'Questions' },
     { id: 'dossier', t: 'Dossier' }, { id: 'deroulement', t: 'Déroulement' }] },
-  { g: 'Animer', titre: 'Animer la séance', l: [{ id: 'direct', t: 'En direct' }, { id: 'debrief', t: 'Rétroaction' }] },
-  { g: 'Pour la recherche', titre: 'Pour la recherche', replie: true,
+  { g: 'Animer', s: 'animer', titre: 'Animer la séance', l: [{ id: 'direct', t: 'En direct' }, { id: 'debrief', t: 'Rétroaction' }] },
+  { g: 'Pour la recherche', s: 'recherche', titre: 'Pour la recherche', replie: true,
     l: [{ id: 'mesures', t: 'Données' }, { id: 'questionnaire', t: 'Questionnaire' }] }
 ];
 // « less is more » : un groupe replié (la recherche) ne montre que son titre, un bouton qui l'ouvre ; il s'ouvre seul
 // quand on y est déjà. Le menu des fenêtres étroites, lui, garde tous les onglets.
+// Une adresse par onglet : …/enseignant/<groupe>/<onglet>/, à garder en favori. Une page relais (enseignant/…/index.html,
+// js/relais.js) ramène ici avec ?onglet= ; l'adresse affichée suit ensuite l'onglet ouvert (<base> garde la racine).
+const SLUGS = { direct: 'en-direct', debrief: 'retroaction', mesures: 'donnees' };
+const slug = (id) => SLUGS[id] || id;
+const ongletDemande = ONGLETS.flatMap((g) => g.l).find((x) => slug(x.id) === new URLSearchParams(location.search).get('onglet'))?.id;
+function afficherAdresse() {
+  const g = etat.code && ONGLETS.find((x) => x.l.some((y) => y.id === etat.onglet));
+  const u = new URL(g ? `enseignant/${g.s}/${slug(etat.onglet)}/` : 'enseignant/', document.baseURI).href;
+  if (u !== location.href) history.replaceState(history.state, '', u);
+}
+// Avec <base>, un lien « #ancre » viserait l'accueil du site : on reste sur la page et on y va.
+document.addEventListener('click', (ev) => {
+  const a = ev.target.closest('a[href^="#"]');
+  const cible = a && document.getElementById(decodeURIComponent(a.getAttribute('href').slice(1)));
+  if (!cible) return;
+  ev.preventDefault();
+  if (!cible.matches('a, button, input, select, textarea, [tabindex]')) cible.setAttribute('tabindex', '-1');
+  cible.focus({ preventScroll: true });
+  cible.scrollIntoView({ block: 'start' });
+});
 const groupeOuvert = (g) => !g.replie || ui.rechercheOuverte || g.l.some((x) => x.id === etat.onglet);
 const VUES = { direct: vueDirect, debrief: vueDebrief, reglages: vueReglages, questions: vueQuestions, dossier: vueDossier,
   deroulement: vueDeroulement, mesures: vueMesures, questionnaire: vueQuestionnaire };
@@ -63,7 +83,10 @@ async function demarrer() {
   if (garde && etat.MOI) {
     try {
       const s = await donnees.lire(cheminSeance(garde));
-      if (s && s.etat === 'ouverte' && (donnees.mode === 'local' || s.enseignantId === etat.MOI.uid)) return ouvrir(garde);
+      if (s && s.etat === 'ouverte' && (donnees.mode === 'local' || s.enseignantId === etat.MOI.uid)) {
+        if (ongletDemande) etat.onglet = ongletDemande;   // l'onglet de l'adresse rouverte
+        return ouvrir(garde);
+      }
     } catch { /* on revient à la liste */ }
   }
   retourAccueil();
@@ -73,7 +96,8 @@ async function demarrer() {
 function retourAccueil(erreur = '') {
   arrets.forEach((f) => f()); arrets = [];
   Object.assign(etat, { code: null, S: null, reponses: null, EQ: [], AV: [], choisie: null, onglet: 'direct' });
-  ui.ed = null; ui.projProg = false; ui.projection = false; ui.comparer = []; ui.voir1970 = false;
+  ui.ed = null; ui.projProg = false; ui.projection = false; ui.comparer = []; ui.voir1970 = false; ui.qrGrand = false;
+  afficherAdresse();
   if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
   appliquerReglages(null);
   $('#onglets').innerHTML = '';
@@ -124,6 +148,7 @@ function lancerChrono() {
 
 function rendre(force = false) {
   if (!etat.code) return;
+  afficherAdresse();
   const { onglet } = etat;
   // L'éditeur ne se redessine pas sous les doigts à chaque geste d'une équipe.
   // Il se recale seulement si la séance a changé ailleurs et qu'aucun changement n'attend.

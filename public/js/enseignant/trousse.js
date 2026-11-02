@@ -15,7 +15,7 @@ import { JOURS_CONSERVATION } from '../seance.js';
 import { base, etat, ui, qid } from './etat.js';
 import { imprimer } from './rapport.js';
 
-const adresse = (page) => new URL(page, location.href).href;
+const adresse = (page) => new URL(page, document.baseURI).href;
 /** Le contenu de la séance ouverte ; sans séance, celui de la version du jeu de l'enseignant·e. */
 const contenuActuel = () => (etat.code ? etat.c : Rg.appliquer(base, ui.maVersion));
 

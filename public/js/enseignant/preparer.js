@@ -70,7 +70,7 @@ export function vueQuestions() {
 /* ------------------------------------------------------------ dossier documentaire */
 
 export function vueDossier() {
-  const lien = new URL(`dossier.html?code=${etat.code}`, location.href).href;
+  const lien = new URL(`dossier.html?code=${etat.code}`, document.baseURI).href;
   return `<div class="p-tete"><h2>Le dossier documentaire</h2>
       <p>Chaque source, sa phrase exacte et sa date.</p>
       <div class="p-actions">

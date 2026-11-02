@@ -50,7 +50,8 @@ export async function afficherAccueil(erreur = '') {
     ${erreur ? `<p class="erreur" role="alert">${esc(erreur)}</p>` : ''}
     <div class="accueil-g">
     <div class="accueil-m">
-    <section class="p-sect creer"><div class="p-sect-h"><h3>Nouvelle séance</h3></div>
+    <section class="p-sect creer"><div class="p-sect-h"><h3>Nouvelle séance</h3>
+        <button class="btn btn--f" type="button" id="demarrage-rapide" title="Standard, 50 min ; le code s'affiche en grand">${icone('jouer')} Démarrage rapide</button></div>
       <fieldset class="formats" id="formats"><legend>${icone('horloge')} La durée</legend>
         ${Object.entries(Rg.FORMATS).filter(([k]) => k === 'standard' || k === 'mesure' || k === fmt).map(([k, f]) => `<label class="case-l"><input type="radio" name="format" value="${k}" ${k === fmt ? 'checked' : ''}>
           <span>${esc(f.nom)}${k === 'mesure' ? ` <input type="number" id="duree-mesure" class="duree-mesure" min="15" max="240" step="1"
@@ -136,6 +137,17 @@ async function creer() {
   }
 }
 
+/** Démarrage rapide : une séance Standard en un clic (avec les questions et corrections de sa version), le code en grand. */
+async function demarrageRapide() {
+  const v = ui.maVersion ? Rg.completer(base, ui.maVersion) : null;
+  const reglages = v?.format === 'standard' ? v
+    : Rg.reglagesDuFormat(base, 'standard', { ajouts: v?.ajouts, corrections: v?.corrections, options: v?.options });
+  const cd = await creerSeance({ questionnaire: false, reglages });
+  etat.MOI = await donnees.attendreUtilisateur();
+  page.ouvrir(cd);
+  ui.qrGrand = true; page.rendre(true); window.scrollTo({ top: 0 });
+}
+
 // taper une durée « sur mesure » choisit ce format
 document.addEventListener('input', (ev) => {
   if (ev.target.id === 'duree-mesure') { const r = document.querySelector('input[name=format][value="mesure"]'); if (r) r.checked = true; }
@@ -144,6 +156,11 @@ document.addEventListener('input', (ev) => {
 document.addEventListener('click', async (ev) => {
   // l'aperçu élève, avec la durée choisie ci-dessus, sans créer de séance
   if (ev.target.closest('[data-apercu="choix"]')) return ouvrirApercu(reglagesChoisis());
+  if (ev.target.closest('#demarrage-rapide')) {
+    ev.target.closest('#demarrage-rapide').disabled = true;
+    try { return await demarrageRapide(); }
+    catch (e) { return page.accueil(messageErreur(e, 'Impossible de créer la séance pour le moment. Réessayez.')); }
+  }
   if (ev.target.closest('#creer')) {
     ev.target.closest('#creer').disabled = true;
     try { return await creer(); }

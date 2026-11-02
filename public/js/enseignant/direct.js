@@ -9,7 +9,7 @@ import { SIGNAUX, texteSignal, MAX_MESSAGE, aUnBravo, retourDe, RETOURS, EMOJIS_
 import { encode } from '../vendor/uqr.js';
 import { etat, ui, qid, etapeDe, chronoDe, chronoTexte, autresReponses } from './etat.js';
 
-const lienEleve = () => new URL(`eleve.html?code=${etat.code}`, location.href).href;
+const lienEleve = () => new URL(`eleve.html?code=${etat.code}`, document.baseURI).href;
 
 /**
  * Le code QR du lien direct, dessiné dans la page (aucun service extérieur). Noir sur blanc dans
