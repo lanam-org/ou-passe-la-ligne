@@ -61,7 +61,7 @@ mène à chaque section ; les onglets Questions et Dossier y mènent aussi, ouve
   attendent votre signal ; chez elles, la barre du bas le dit en grand.
 - Le détail d'une équipe (En direct, toucher son nom) commence par « Où en est l'équipe » : son étape, ce qu'elle a à
   faire, ce qui lui manque pour continuer, la question en cours avec la réponse attendue, des phrases pour relancer
-  sans donner la réponse, et « Voir cette étape comme l'équipe » (l'aperçu ouvert sur cette étape).
+  sans donner la réponse, et « Ouvrir cette étape en aperçu (sans ses réponses) ».
 - Les messages à la classe : « 5 minutes restantes », « 2 minutes restantes », « Pause », « Bloqués ?
   Levez la main », « Au retour en classe », ou un message écrit (140 caractères, affiché tel quel).
 

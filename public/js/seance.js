@@ -217,7 +217,7 @@ export async function effacerSeance(code) {
 export const CLE_APERCU = 'forillon:apercu';
 export function ouvrirApercu(reglages, etape = null) {
   try { localStorage.setItem(CLE_APERCU, JSON.stringify({ config: reglages || null, t: Date.now() })); } catch { /* vide */ }
-  // `etape` : l'aperçu s'ouvre sur cette étape (« Voir cette étape comme l'équipe », depuis le détail d'une équipe)
+  // `etape` : l'aperçu s'ouvre sur cette étape (« Ouvrir cette étape en aperçu », depuis le détail d'une équipe)
   window.open(`eleve.html?apercu=1${Number.isInteger(etape) ? `&etape=${etape}` : ''}`, '_blank', 'noopener');
 }
 

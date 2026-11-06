@@ -58,7 +58,7 @@ préparation est le titre « … · en préparation » ci-dessous : `…/dev/` l
   - côté enseignant·e : « Avancer ensemble » part de l'étape de l'équipe la plus avancée, dit combien d'équipes
     attendent et combien arrivent ; une équipe en attente le voit en grand. Le détail d'une équipe commence par « Où
     en est l'équipe » : l'étape, ce qu'elle a à faire, ce qui lui manque, la question en cours avec la réponse attendue,
-    des phrases pour relancer, et « Voir cette étape comme l'équipe ». Le dossier complet ajoute le verdict de chaque
+    des phrases pour relancer, et « Ouvrir cette étape en aperçu (sans ses réponses) ». Le dossier complet ajoute le verdict de chaque
     document et la décision de 1970 jusqu'en 1975 : il ne ressemble plus au dossier élève ;
   - « un seul Chromebook par équipe, les autres restent fermés » dans la mise en route.
 
