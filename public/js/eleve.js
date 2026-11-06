@@ -373,14 +373,22 @@ document.addEventListener('click', async (ev) => {
     const premier = !J.decide(E, ui.secteur);
     const r = J.peindre(c, E, ui.secteur, zone.dataset.zone);
     if (r) { ui.effet = r.effet; direEffet(r.effet); }
-    // au tracé, un secteur tout juste décidé : on passe au suivant à décider
-    if (r && premier && c.etapes[E.etape].id === 'trace') ui.secteur = J.aDecider(c, E)[0]?.id || ui.secteur;
+    // au tracé, un secteur tout juste décidé : on passe au suivant à décider (et on le dit)
+    const suivant = r && premier && c.etapes[E.etape].id === 'trace' ? J.aDecider(c, E)[0] : null;
+    if (suivant) ui.secteur = suivant.id;
     apres(r ? r.nouvelles : []);
-    document.querySelector('.choix-z[aria-pressed="true"]')?.focus({ preventScroll: true });
+    if (suivant) setTimeout(() => dire(`Secteur suivant à décider : ${suivant.nom}.`), 900);
+    (document.querySelector('.choix-z[aria-pressed="true"]') || document.querySelector('.choix-z'))?.focus({ preventScroll: true });
     return;
   }
   const pov = ev.target.closest('[data-pov]');
-  if (pov) { ui.povVoir = Number(pov.dataset.pov); ui.compNeuf = false; return rendre(); }
+  if (pov) {
+    ui.povVoir = Number(pov.dataset.pov); ui.compNeuf = false; rendre();
+    const x = c.complications[ui.povVoir];
+    if (x) dire(`Point de vue ${ui.povVoir + 1} : ${x.t}. ${sansBalises(x.x)}`);
+    document.querySelector(`.pov-b[data-pov="${ui.povVoir}"]`)?.focus({ preventScroll: true });
+    return;
+  }
   if (ev.target.closest('.carte')) { E.compteurs.clicsVides += 1; sauver(); return; }
 
   if (ev.target.closest('#retour')) {
@@ -390,7 +398,11 @@ document.addEventListener('click', async (ev) => {
 
   if (ev.target.closest('#suivant')) {
     const e = c.etapes[E.etape];
-    if (e.id === 'arrivee' && ECRANS.arrivee().titre) { ui.questionLue = true; return rendre(); }   // « La question du jeu » lue
+    if (e.id === 'arrivee' && ECRANS.arrivee().titre) {   // « La question du jeu » lue : l'arrivée, comme une nouvelle étape
+      ui.questionLue = true; rendre();
+      window.scrollTo({ top: 0 }); $('#titre').focus({ preventScroll: true });
+      return;
+    }
     if (!ECRANS[e.id]().peut || retenue()) return;
     if (e.id === 'dossier' && !E.juge) return apres(J.juger(c, E));
     if (e.id === 'trace' && J.releve(c, E).corridor === 'continu') ui.nouvelles.push(...J.mentionner(E, 'corridor'));

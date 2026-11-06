@@ -55,9 +55,9 @@ function etatVillage(c, e, s, neutre) {
 function maison(x, y, etatV) {
   // une maison : un toit et un mur ; barrée d'une croix si le village est vidé
   const corps = '<path d="M-7,1 L0,-6 L7,1 L7,8 L-7,8 Z"/>';
-  if (etatV === 'vide') return `<g class="maison maison--vide" transform="translate(${x} ${y})" aria-hidden="true">${corps}
+  if (etatV === 'vide') return `<g class="maison maison--vide" transform="translate(${x} ${y})" aria-hidden="true" pointer-events="none">${corps}
     <path class="maison-x" d="M-9,-7 L9,10 M9,-7 L-9,10"/></g>`;
-  return `<g class="maison${etatV === 'decider' ? ' maison--decider' : ''}" transform="translate(${x} ${y})" aria-hidden="true">${corps}</g>`;
+  return `<g class="maison${etatV === 'decider' ? ' maison--decider' : ''}" transform="translate(${x} ${y})" aria-hidden="true" pointer-events="none">${corps}</g>`;
 }
 
 /**
@@ -194,7 +194,7 @@ export function panneauSecteur(c, e, id) {
   }).join('')}</div>`;
   if (!s) {
     const reste = aDecider(c, e).length;
-    return `<div class="panneau-s" aria-live="polite">
+    return `<div class="panneau-s">
       <p class="choix-sur">Votre choix</p>
       <p class="choix-vide">Touchez un secteur sur la carte${reste ? ` (encore ${reste} à décider)` : ''}.</p>
       ${liste}</div>`;
@@ -210,7 +210,7 @@ export function panneauSecteur(c, e, id) {
       <span><b>${esc(nom)}</b><small>${esc(REGLES[z])}</small></span>
       ${suite ? `<em class="choix-suite${suite.includes('vidé') ? ' choix-suite--vide' : ''}">${suite}</em>` : ''}</button>`;
   }).join('');
-  return `<div class="panneau-s" aria-live="polite">
+  return `<div class="panneau-s">
     <p class="choix-sur">Secteur choisi</p>
     <h3 class="choix-t">${esc(s.nom)}</h3>
     <p class="choix-h">${s.habite ? 'Un village habité en 1970.' : 'La forêt, sans village.'} ${zActuelle ? `Votre choix : <b>${esc(nomZone(c, e.zones[s.id]))}</b>.` : 'Pas encore décidé.'}</p>

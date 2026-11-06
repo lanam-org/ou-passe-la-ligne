@@ -385,7 +385,8 @@ document.addEventListener('click', async (ev) => {
   if (ry) {
     // on part de l'étape de l'équipe la plus avancée : personne n'attend une étape déjà faite, les autres la rejoignent
     const enJeu = EQ.filter((e) => !e.fini);
-    const depart = enJeu.length ? Math.max(...enJeu.map((e) => e.etape)) : 0;
+    const fin = c.etapes.findIndex((x) => x.id === 'debrief');
+    const depart = Math.min(fin, enJeu.length ? Math.max(...enJeu.map((e) => e.atteinte ?? e.etape)) : 0);
     return reglerRythme(code, ry.checked ? { etape: Math.max(0, depart) } : null)
       .catch((e) => { console.warn('Rythme non enregistré', e); rendre(); });
   }

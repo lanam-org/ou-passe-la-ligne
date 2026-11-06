@@ -48,7 +48,7 @@ préparation est le titre « … · en préparation » ci-dessous : `…/dev/` l
     nommés, les douze documents à relire avec leur verdict ; le vert réservé aux bons choix et aux bravos (la mission
     de la garde-parc en noir gras) ; plus de sources ni de liens à l'écran des équipes (ils restent dans le dossier) ;
   - la garde-parc sans portrait : sa vignette ne disait rien de ce qu'il faut faire ; sa consigne devient la mission ;
-  - la décision de 1970 : votre ligne et celle de 1970 côte à côte, sur la même carte ; 1970 mois par mois (accord du
+  - la décision de 1970 : votre ligne et celle de 1970 côte à côte, sur la même carte ; de 1970 à 1975 (accord du
     8 juin, loi du 17 juillet, plan d'expropriation et 18 mois du 22 juillet, indemnités d'août, bâtiments brûlés,
     jugements de 1973 et de 1975), cités dans le dossier complet ; le corridor rappelé ;
   - « Mi'gmaq » pour le peuple ; « Nation Micmac de Gespeg » reste le nom officiel, dans les sources (note dans le
@@ -59,7 +59,7 @@ préparation est le titre « … · en préparation » ci-dessous : `…/dev/` l
     attendent et combien arrivent ; une équipe en attente le voit en grand. Le détail d'une équipe commence par « Où
     en est l'équipe » : l'étape, ce qu'elle a à faire, ce qui lui manque, la question en cours avec la réponse attendue,
     des phrases pour relancer, et « Voir cette étape comme l'équipe ». Le dossier complet ajoute le verdict de chaque
-    document et 1970 mois par mois : il ne ressemble plus au dossier élève ;
+    document et la décision de 1970 jusqu'en 1975 : il ne ressemble plus au dossier élève ;
   - « un seul Chromebook par équipe, les autres restent fermés » dans la mise en route.
 
 ## Playtest 1 — avec les professeurs · 29 octobre 2026

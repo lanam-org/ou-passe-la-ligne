@@ -29,10 +29,11 @@ export const nomZone = (c, z) => (z ? c.zones[z].nom : 'hors de la ligne');
 export const nbVillages = (c) => c.secteurs.filter((s) => s.habite).length;
 
 /**
- * Un secteur est décidé dès que l'équipe lui a donné une zone, même celle qu'il avait déjà (« hors de la ligne »
- * au départ). L'historique de ses zones le garde : aucun nouveau champ dans la fiche de l'équipe.
+ * Un secteur est décidé dès qu'il a une zone, ou que l'équipe lui a donné « hors de la ligne » (la zone qu'il a au
+ * départ : son historique le garde). Aucun nouveau champ dans la fiche de l'équipe ; une fiche d'avant le Playtest 2
+ * (tout en préservation au départ) reste décidée.
  */
-export const decide = (e, id) => (e.historique?.[id] || []).length > 0;
+export const decide = (e, id) => e.zones?.[id] != null || (e.historique?.[id] || []).length > 0;
 /** Les secteurs encore à décider, dans l'ordre de la carte. */
 export const aDecider = (c, e) => c.secteurs.filter((s) => !decide(e, s.id));
 
@@ -45,7 +46,7 @@ export function manqueLigne(c, e) {
   const reste = aDecider(c, e);
   const manque = [];
   if (reste.length) manque.push(`${reste.length === 1 ? 'Un secteur reste' : `${reste.length} secteurs restent`} à décider : ${reste.map((s) => s.nom).join(', ')}`);
-  if (!c.secteurs.some((s) => decide(e, s.id) && e.zones[s.id] === 'preservation')) manque.push('Aucun secteur en préservation : votre ligne doit protéger quelque chose');
+  if (!c.secteurs.some((s) => e.zones[s.id] === 'preservation')) manque.push('Aucun secteur en préservation : la ligne doit en protéger au moins un');
   return manque;
 }
 
@@ -90,6 +91,9 @@ export function peindre(c, e, idSecteur, outil, maintenant = Date.now()) {
   const avant = releve(c, e);
   const avantZone = e.zones[idSecteur];
   e.zones[idSecteur] = cible;
+  // l'historique d'abord : un secteur tout juste décidé compte comme décidé dans le relevé d'après
+  const hist = ((e.historique ||= {})[idSecteur] ||= []);
+  for (const z of premier ? [cible || 'hors'] : [avantZone || 'hors', cible || 'hors']) if (!hist.includes(z)) hist.push(z);
   const apres = releve(c, e);
   const nouvelles = [];
 
@@ -106,8 +110,6 @@ export function peindre(c, e, idSecteur, outil, maintenant = Date.now()) {
   }
 
   // ce que le geste révèle
-  const hist = ((e.historique ||= {})[idSecteur] ||= []);
-  for (const z of premier ? [cible || 'hors'] : [avantZone || 'hors', cible || 'hors']) if (!hist.includes(z)) hist.push(z);
   if (e.comps > 0) ajouterMention(e, 'rouverte', nouvelles);
   if (new Set(Object.values(e.zones).filter(Boolean)).size >= 3) ajouterMention(e, 'zonage', nouvelles);
   if (sec.habite && ['preservation', 'sauvage', 'plein'].some((z) => hist.includes(z)) && hist.includes('village'))

@@ -50,10 +50,10 @@ const carteEtChoix = (c, E, effet) => `<div class="trace-g">
 /** Ce qu'il faut avant d'arrêter la ligne, coché au fur et à mesure (le minimum demandé par les enseignant·es). */
 function minimum(c, E) {
   const reste = J.aDecider(c, E).length, n = c.secteurs.length;
-  const pres = c.secteurs.some((s) => J.decide(E, s.id) && E.zones[s.id] === 'preservation');
+  const pres = c.secteurs.some((s) => E.zones[s.id] === 'preservation');
   const lignes = [[reste === 0, `Les ${n} secteurs ont une zone`, `${n - reste} sur ${n}`],
     [pres, 'Au moins un secteur en préservation', ''],
-    ...Rg.questionsVisibles(c, E, 'trace').filter((q) => q.requise).map((q) => [R(q.id), 'La question est répondue', ''])];
+    ...Rg.questionsVisibles(c, E, 'trace').filter((q) => q.requise).map((q) => [R(q.id), 'Vous avez répondu à la question', ''])];
   return `<ul class="minimum">${lignes.map(([fait, t, k]) => `<li class="${fait ? 'fait' : ''}"><span class="minimum-i" aria-hidden="true">${fait ? '✓' : '○'}</span>
     <span>${esc(t)}${k ? ` <small>(${esc(k)})</small>` : ''}<span class="cache-visuel">${fait ? ' : fait' : ' : à faire'}</span></span></li>`).join('')}</ul>`;
 }
@@ -175,10 +175,10 @@ export const ECRANS = {
     const { c, E } = etat;
     const manque = J.manqueLigne(c, E);
     const reste = J.aDecider(c, E).length;
-    const pres = c.secteurs.some((s) => J.decide(E, s.id) && E.zones[s.id] === 'preservation');
+    const pres = c.secteurs.some((s) => E.zones[s.id] === 'preservation');
     return {
       guide: `Votre mission : <b>tracer la limite du parc.</b> Touchez un secteur, puis choisissez sa zone.
-        Pas de bonne réponse unique, <b>mais chaque secteur décidé, et au moins un en préservation.</b>`,
+        Il n'y a pas de bonne réponse. <b>Mais chaque secteur doit avoir une zone, et au moins un doit être en préservation.</b>`,
       h: carteEtChoix(c, E, effetRecent(c, ui.effet)),
       // à droite, sans défiler : ce qu'il faut pour arrêter la ligne, puis la question
       carnet: [{ t: 'Avant d\'arrêter votre ligne', h: minimum(c, E) },
@@ -206,6 +206,7 @@ export const ECRANS = {
     const ailleurs = qs.filter((q) => !ici.includes(q));
     // « Ce que ça vient de changer » : seulement un geste fait après le point de vue affiché ; sinon, la consigne.
     const effet = ui.effet && ui.effet.etape === 'comp' && ui.effet.comps === E.comps ? ui.effet : null;
+    const sansProtection = !c.secteurs.some((s) => E.zones[s.id] === 'preservation');
     return {
       guide: !neuf ? 'Votre ligne est arrêtée. <b>Maintenant, quatre autres points de vue.</b> Après chacun, regardez votre carte : vous pouvez la changer.'
         : (E.comps < n ? '' : 'Voilà les quatre. ') + neuf.quoi,
@@ -222,8 +223,10 @@ export const ECRANS = {
           ${ici.map((q) => blocQuestion(q, { court: true })).join('')}</div>` }] : []),
         { t: 'Votre ligne', h: blocReleve(c, E, true) }],
       btn: E.comps === 0 ? 'Entendre le premier point de vue' : E.comps < n ? 'Point de vue suivant' : suivante(),
-      peut: !bloque,
-      hint: bloque ? PAS_FINI : ''
+      // la ligne redessinée garde le minimum du tracé : au moins un secteur en préservation
+      peut: !bloque && !sansProtection,
+      hint: sansProtection ? 'Gardez au moins un secteur en préservation.' : bloque ? PAS_FINI : '',
+      lien: !sansProtection
     };
   },
 
@@ -247,7 +250,7 @@ export const ECRANS = {
             <p class="serif texte">Les sept secteurs entrent dans le parc. Les six villages sont vidés : 225 familles partent.
               Le corridor reste continu, puisque tout est protégé.</p></figure>
         </div>
-        <h3 class="sous">1970, mois par mois</h3>
+        <h3 class="sous">De 1970 à 1975</h3>
         <ol class="chrono">${(b0.chrono || []).map((x) => `<li><span class="chrono-d">${esc(x.d)}</span><span>${esc(x.t)}</span></li>`).join('')}</ol>
         <h3 class="sous">${esc(b0.t)}</h3>${paires(b0.paires)}<p class="serif texte">${esc(b0.texte)}</p>
         ${blocQuestions('bilan')}
@@ -343,7 +346,7 @@ export function rendreFin() {
       ? 'Votre ligne et vos réponses sont gardées dans ce navigateur.'
       : 'Votre ligne et vos réponses sont envoyées à votre enseignant·e.'}</p>
     ${etat.apercu ? '' : `<div class="rappel-fin" role="note"><p><b>Dernière chose : quittez la séance.</b> L'ordinateur sera libre pour la
-      prochaine équipe. Vos réponses restent chez votre enseignant·e.</p>
+      prochaine équipe. ${donnees.mode === 'local' ? 'Votre partie reste gardée.' : 'Vos réponses restent chez votre enseignant·e.'}</p>
       <button class="btn" type="button" data-quitter-demander>Quitter la séance</button></div>`}
     <div class="p-actions fin-actions"><button class="btn btn--f" type="button" data-imprimer-fin>Imprimer ou enregistrer en PDF</button></div>
     </div></section>

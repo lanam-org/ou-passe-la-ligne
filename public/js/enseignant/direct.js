@@ -96,7 +96,7 @@ function vueRythme() {
       : '<span>Toutes les étapes sont ouvertes</span>'}
   </div>
   <p class="hint rythme-d" id="rythme-d">${!r ? 'Allumé : aucune équipe ne dépasse l\'étape que vous ouvrez. Elle termine son étape, puis attend votre signal.'
-    : ouverte ? `${arrivees} équipe${arrivees > 1 ? 's' : ''} à cette étape (elles attendent votre signal pour la suite) · ${enRoute} encore en route.`
+    : ouverte ? `${arrivees === 1 ? '1 équipe à cette étape (elle attendra votre signal pour la suite)' : `${arrivees} équipes à cette étape (elles attendront votre signal pour la suite)`} · ${enRoute} encore en route.`
       : 'Chaque équipe avance à son rythme jusqu\'à la fin.'}</p>`;
 }
 
@@ -188,7 +188,7 @@ export function vueDirect() {
       ${eq.length ? '<p class="hint eq-aide">Touchez une équipe pour lire ses réponses, et saluer une bonne réponse d\'un <b>✦ Bravo</b> : l\'équipe le voit tout de suite.</p>' : ''}
       ${eq.length ? `<div class="equipes">${eq.map((e) => {
         const t = etatTemps(e), x = etapeDe(e);
-        const attend = S?.rythme && !e.fini && e.etape >= S.rythme.etape;
+        const attend = S?.rythme && !e.fini && e.etape >= S.rythme.etape && !manque(e, false).length;
         return `<button class="eq" data-equipe="${esc(e.id)}" aria-pressed="${e.id === choisie}">
           <span class="eq-h"><b>${esc(e.nom)}</b><span class="eq-t ${t.cls}">${t.txt}</span></span>
           <span class="eq-e">${e.fini ? 'Partie terminée' : `Étape ${x.n} · ${esc(x.t)}`}${attend ? ' <span class="badge badge--attend">attend votre signal</span>' : ''}</span>
@@ -222,7 +222,7 @@ const MISSIONS = {
 };
 
 /** Ce qui manque à l'équipe pour continuer : les mêmes conditions que le bouton du bas, chez elle. */
-function manque(e) {
+function manque(e, avecRythme = true) {
   const { c, S } = etat;
   const x = etapeDe(e);
   const m = [];
@@ -232,7 +232,7 @@ function manque(e) {
   if (x.id === 'trace') m.push(...J.manqueLigne(c, e).map((t) => `${t}.`));
   if (x.id === 'comp' && e.comps < c.complications.length) m.push(`Point de vue ${e.comps} sur ${c.complications.length}.`);
   for (const q of [...Rg.aRattraper(c, e), ...Rg.questionsVisibles(c, e, x.id)]) if (q.requise && !J.repondu(e, q.id)) m.push(`Répondre à ${qid(q)} : « ${q.eleve} »`);
-  if (!m.length && S?.rythme && e.etape >= S.rythme.etape && !e.fini) m.push('Rien : elle attend que vous ouvriez l\'étape suivante (Avancer ensemble).');
+  if (avecRythme && !m.length && S?.rythme && e.etape >= S.rythme.etape && !e.fini) m.push('Rien : elle attend que vous ouvriez l\'étape suivante (Avancer ensemble).');
   return m;
 }
 
@@ -246,7 +246,7 @@ function ouEnEst(e) {
   const m = manque(e);
   return `<div class="ou-en-est">
     <div class="ou-h"><p class="sur">Où en est l'équipe</p>
-      <button class="lien" type="button" data-apercu-etape="${e.etape}">${icone('oeil')} Voir cette étape comme l'équipe</button></div>
+      <button class="lien" type="button" data-apercu-etape="${e.etape}">${icone('oeil')} Ouvrir cette étape en aperçu (sans ses réponses)</button></div>
     <p class="ou-etape">Étape ${esc(x.n)} · <b>${esc(x.t)}</b> <span class="eq-t ${t.cls}">${t.txt}</span></p>
     <dl class="ou-l">
       <dt>À faire</dt><dd>${esc(mission)}</dd>
