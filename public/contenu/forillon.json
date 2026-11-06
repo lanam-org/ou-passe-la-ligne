@@ -1,11 +1,11 @@
 {
- "version": "allégée — 5 octobre 2026 (étapes renommées, dossier documentaire)",
+ "version": "Playtest 2 — 6 novembre 2026 (questions en phrases courtes, carte décidée secteur par secteur)",
  "question": "Qui a réellement le droit d'habiter sur un territoire protégé, et qui doit partir ?",
  "miseEnRoute": {
   "min": 8,
   "etapes": [
    "Projeter la question du jeu et la carte du Québec : situer Forillon (Q1.1).",
-   "Former les équipes de 2 ou 3 élèves, un Chromebook par équipe.",
+   "Former les équipes de 2 ou 3 élèves : un seul Chromebook par équipe, les autres restent fermés.",
    "Afficher le code de la séance ; chaque équipe l'entre et choisit son nom.",
    "Dire la règle : une seule équipe, un seul camp. Personne ne joue contre personne."
   ]
@@ -415,9 +415,9 @@
    "genre": "Deux sources",
    "utile": true,
    "t": "225 familles, et 983 ou 1 800 personnes",
-   "x": "Le Journal Le Soir compte 983 personnes. Radio-Canada écrit que « 1800 personnes céderont leur terrain ». Deux nombres, deux sources sérieuses.",
+   "x": "Le Journal Le Soir parle de 983 personnes. Radio-Canada écrit que « 1800 personnes céderont leur terrain ». Deux nombres, deux sources sérieuses.",
    "s": "Journal Le Soir, 2020 · Radio-Canada, 2020",
-   "v": "À garder pour l'écart lui-même. Les deux ont raison, car elles ne comptent pas la même chose : les gens qui habitaient là, et ceux qui y possédaient un terrain. Avant de comparer deux nombres, il faut savoir ce que chacun compte.",
+   "v": "Les deux sources ont raison : elles ne parlent pas des mêmes personnes. 983, ce sont les gens qui habitaient là. 1 800, ce sont les gens qui avaient un terrain là. Avant de comparer deux nombres, demandez-vous de qui ils parlent.",
    "copie": [
     {
      "q": "s'applique à 225 familles, 983 personnes",
@@ -496,7 +496,7 @@
    "genre": "Document officiel",
    "utile": true,
    "t": "Accord de réconciliation et de reconnaissance des droits, 2024",
-   "x": "Le Canada et la Nation Micmac de Gespeg signent un cadre de gouvernance partagée du parc : conservation, pratiques traditionnelles, patrimoine culturel, retombées économiques.",
+   "x": "Le Canada et la nation mi'gmaq de Gespeg (son nom officiel : Nation Micmac de Gespeg) signent un cadre de gouvernance partagée du parc : conservation, pratiques traditionnelles, patrimoine culturel, retombées économiques.",
    "s": "Parcs Canada · Relations Couronne-Autochtones, 2024",
    "v": "Décisif, et il renverse la question. Cinquante-quatre ans après avoir vidé le territoire, l'État en partage la gouvernance avec la nation qui y était avant tout le monde.",
    "copie": [
@@ -618,7 +618,7 @@
    "t": "La route 132 traverse le parc",
    "x": "C'est la route qui fait le tour de la Gaspésie ; elle relie les villages de la côte. Or une route coupe les passages des animaux. En 2022, le Canada investit 4,3 M$ pour effacer 5,5 km d'un ancien tronçon de la route 132 dans le parc (asphalte retiré, emprise reboisée) afin de « restaurer la connectivité écologique de la forêt et des cours d'eau ».",
    "s": "Parcs Canada, communiqué du 25 août 2022",
-   "quoi": "Une aire coupée par une route est-elle encore protégée ? <b>Regardez votre corridor.</b> S'il est rompu, la question n'est plus « combien de secteurs » mais « reliés comment ».",
+   "quoi": "Une aire coupée par une route est-elle encore protégée ? <b>Regardez le trait du corridor sur votre carte.</b> S'il est rompu, la question n'est plus « combien de secteurs », mais « reliés comment ».",
    "qui": "la forêt",
    "copie": [
     {
@@ -668,7 +668,7 @@
    "t": "225 familles vivent dans ces villages",
    "x": "Pas des chiffres : des familles installées depuis des générations, certaines depuis deux siècles, aux racines jersiaises, guernesiaises, irlandaises et loyalistes. En 1970, le plan d'expropriation leur a laissé dix-huit mois.",
    "s": "Journal Le Soir, 2020 · M. Mimeault, Encyclobec",
-   "quoi": "<b>Votre ligne, telle qu'elle est tracée maintenant, vide un certain nombre de villages.</b> Le relevé à droite les nomme. Vous pouvez la redessiner, ou l'assumer.",
+   "quoi": "<b>Regardez votre carte : chaque maison barrée est un village que votre ligne vide.</b> Vous pouvez redessiner votre ligne, ou la garder et dire pourquoi.",
    "qui": "les familles",
    "copie": [
     {
@@ -684,12 +684,12 @@
   },
   {
    "id": "gespeg",
-   "sur": "D'autres points de vue · 4 sur 4 · la Nation Micmac de Gespeg",
+   "sur": "D'autres points de vue · 4 sur 4 · la nation mi'gmaq de Gespeg",
    "t": "Le territoire porte déjà un nom",
-   "x": "Ce que vous découpez s'appelle <b>Gespe'gewa'gi</b>. Les Mi'gmaq l'occupent depuis des temps immémoriaux. En 1970, la Nation Micmac de Gespeg n'était pas encore reconnue (elle le sera en 1973), et les Mi'gmaq ont perdu le libre accès à leur territoire. La nation compte aujourd'hui plus de 2 000 membres et <b>ne possède aucune terre de réserve</b>. Depuis 2024, elle cogère le parc avec le Canada.",
+   "x": "Ce que vous découpez s'appelle <b>Gespe'gewa'gi</b>. Les Mi'gmaq l'occupent depuis des temps immémoriaux. En 1970, la nation mi'gmaq de Gespeg n'était pas encore reconnue (elle le sera en 1973), et les Mi'gmaq ont perdu le libre accès à leur territoire. La nation compte aujourd'hui plus de 2 000 membres et <b>ne possède aucune terre de réserve</b>. Depuis 2024, elle cogère le parc avec le Canada.",
    "s": "Parcs Canada · Nation Micmac de Gespeg et Canada, 2024",
    "quoi": "Ce n'est pas un obstacle de plus sur votre carte : <b>c'est votre question qui était mal posée.</b> « Qui a le droit d'habiter ici » supposait que la réponse commençait en 1970.",
-   "qui": "la Nation Micmac de Gespeg",
+   "qui": "la nation mi'gmaq de Gespeg",
    "copie": [
     {
      "q": "Les Mi'gmaq ont perdu le libre accès à leur territoire.",
@@ -727,7 +727,7 @@
   "sources": {
    "nom": "Deux sources confrontées",
    "court": "Deux sources, deux nombres : c'est là qu'il faut regarder.",
-   "q": "Vous avez gardé le document où deux sources sérieuses donnent deux nombres. Elles ne comptent pas la même chose : c'est exactement là qu'il faut aller voir."
+   "q": "Vous avez gardé le document où deux sources sérieuses donnent deux nombres. Elles ne parlent pas des mêmes personnes : c'est exactement là qu'il faut aller voir."
   },
   "temoin": {
    "nom": "Une voix, pas qu'un chiffre",
@@ -778,29 +778,31 @@
   {
    "id": "F1.2",
    "forme": "Hypothèse",
-   "q": "Avant 1970, ce territoire était-il vide ? Notez votre hypothèse.",
+   "q": "Avant 1970, des gens vivaient-ils sur ce territoire ? Écrivez votre hypothèse.",
    "sources": [
     "Journal Le Soir, 2020 · B",
     "Encyclopédie du patrimoine culturel · B"
    ],
    "sort": "posee",
    "etape": "arrivee",
-   "eleve": "Avant 1970, ce territoire était-il vide ? Notez votre hypothèse.",
-   "ecrit": true
+   "eleve": "Avant 1970, des gens vivaient-ils sur ce territoire ? Écrivez votre hypothèse.",
+   "ecrit": true,
+   "attendu": "Répondez par oui ou par non. Donnez une raison. Vous vérifierez ensuite."
   },
   {
    "id": "F2.1",
    "forme": "Carte · point 1",
-   "q": "Quel nom portait ce territoire avant d'être un parc ? Qui l'occupe ?",
+   "q": "Avant le parc, quel était le nom de ce territoire ? Quel peuple l'occupe ?",
    "sources": [
     "Parcs Canada, plan directeur 2022 · A",
     "Site d'interprétation micmac de Gespeg · A"
    ],
    "sort": "posee",
    "etape": "marche",
-   "eleve": "Quel nom portait ce territoire avant d'être un parc ? Qui l'occupe ?",
+   "eleve": "Avant le parc, quel était le nom de ce territoire ? Quel peuple l'occupe ?",
    "ecrit": true,
-   "apres": 0
+   "apres": 0,
+   "attendu": "Écrivez le nom du territoire. Nommez le peuple."
   },
   {
    "id": "F2.2",
@@ -826,16 +828,17 @@
   {
    "id": "F2.4",
    "forme": "Carte · point 4",
-   "q": "Qu'y avait-il à l'intérieur de la limite du parc en 1970 ?",
+   "q": "En 1970, qu'est-ce qu'il y avait à l'intérieur de la limite du parc ?",
    "sources": [
     "Journal Le Soir, 2020 · B",
     "Canadian Geographic, 2023 · B"
    ],
    "sort": "posee",
    "etape": "marche",
-   "eleve": "Qu'y avait-il à l'intérieur de la limite du parc en 1970 ?",
+   "eleve": "En 1970, qu'est-ce qu'il y avait à l'intérieur de la limite du parc ?",
    "ecrit": true,
-   "apres": 3
+   "apres": 3,
+   "attendu": "Nommez au moins trois choses. Ajoutez les nombres."
   },
   {
    "id": "F2.5",
@@ -872,7 +875,7 @@
   {
    "id": "F3.2",
    "forme": "Ouverte",
-   "q": "Deux sources sérieuses donnent 983 et 1 800 personnes. Laquelle a raison ?",
+   "q": "Un document dit 983 personnes. Un autre dit 1 800 personnes. Pourquoi les deux nombres sont-ils différents ?",
    "sources": [
     "Journal Le Soir, 2020 · B",
     "TVA CIMT, 2020 · B",
@@ -881,8 +884,9 @@
    ],
    "sort": "posee",
    "etape": "dossier",
-   "eleve": "Deux sources sérieuses donnent 983 et 1 800 personnes. Laquelle a raison ?",
-   "ecrit": true
+   "eleve": "Un document dit 983 personnes. Un autre dit 1 800 personnes. Pourquoi les deux nombres sont-ils différents ?",
+   "ecrit": true,
+   "attendu": "Lisez de qui parle chaque document. Expliquez la différence en une ou deux phrases."
   },
   {
    "id": "F3.3",
@@ -933,8 +937,9 @@
    ],
    "sort": "posee",
    "etape": "trace",
-   "eleve": "Votre ligne vide quels villages ? Le corridor tient-il ? Dites en une phrase pourquoi vous la gardez.",
-   "ecrit": true
+   "eleve": "Quels villages votre ligne vide-t-elle ? Le corridor tient-il ? Pourquoi gardez-vous cette ligne ?",
+   "ecrit": true,
+   "attendu": "Nommez les villages vidés, ou dites qu'aucun ne l'est. Dites si le corridor est continu. Donnez une raison."
   },
   {
    "id": "F4.4",
@@ -959,16 +964,17 @@
   {
    "id": "F5.1",
    "forme": "Carte · ouverte",
-   "q": "La route 132 traverse le parc. Une aire coupée par une route est-elle encore bien protégée ?",
+   "q": "La route 132 traverse le parc. Le parc est-il encore bien protégé ? Pourquoi ?",
    "sources": [
     "Parcs Canada, 2022 (route 132) · A",
     "Ministère de l'Environnement du Québec · A"
    ],
    "sort": "posee",
    "etape": "comp",
-   "eleve": "La route 132 traverse le parc. Une aire coupée par une route est-elle encore bien protégée ?",
+   "eleve": "La route 132 traverse le parc. Le parc est-il encore bien protégé ? Pourquoi ?",
    "ecrit": true,
-   "apres": 1
+   "apres": 1,
+   "attendu": "Répondez par oui ou par non. Regardez le corridor sur votre carte. Donnez une raison."
   },
   {
    "id": "F5.2",
@@ -992,16 +998,17 @@
   {
    "id": "F5.4",
    "forme": "Ouverte",
-   "q": "Le territoire porte déjà un nom. Qui l'occupe depuis le plus longtemps ? Qui décidait en 1970 ?",
+   "q": "Ce territoire a déjà un nom. Qui l'occupe depuis le plus longtemps ?",
    "sources": [
     "Nation Micmac de Gespeg et Canada, 2024 · A",
     "Parcs Canada, contexte de création · A"
    ],
    "sort": "posee",
    "etape": "comp",
-   "eleve": "Le territoire porte déjà un nom. Qui l'occupe depuis le plus longtemps ?",
+   "eleve": "Ce territoire a déjà un nom. Qui l'occupe depuis le plus longtemps ?",
    "ecrit": true,
-   "apres": 4
+   "apres": 4,
+   "attendu": "Nommez le peuple. Dites depuis quand, avec les mots du point de vue."
   },
   {
    "id": "F6.1",
@@ -1012,8 +1019,9 @@
    ],
    "sort": "posee",
    "etape": "bilan",
-   "eleve": "Qu'a décidé le gouvernement en 1970 ? En quoi votre ligne est-elle différente ?",
-   "ecrit": true
+   "eleve": "Qu'a décidé le gouvernement en 1970 ? Nommez une différence avec votre ligne.",
+   "ecrit": true,
+   "attendu": "Une phrase sur la décision de 1970. Une phrase sur votre ligne."
   },
   {
    "id": "F6.2",
@@ -1047,7 +1055,7 @@
   {
    "id": "F7.1",
    "forme": "Ouverte",
-   "q": "Qui décidait en 1970 ? Qui ne décidait pas, et pourquoi ?",
+   "q": "Qui a décidé en 1970 ? Qui n'a pas pu décider ? Pourquoi ?",
    "sources": [
     "Journal Le Soir, 2020 · B",
     "TVA CIMT, 2020 · B",
@@ -1055,13 +1063,13 @@
    ],
    "sort": "posee",
    "etape": "debrief",
-   "eleve": "Qui décidait en 1970 ? Qui ne décidait pas, et pourquoi ?",
+   "eleve": "Qui a décidé en 1970 ? Qui n'a pas pu décider ? Pourquoi ?",
    "ecrit": false
   },
   {
    "id": "F7.2",
    "forme": "Ouverte",
-   "q": "« Protégé » : protégé de quoi, et pour qui ? En 1970, on promettait des emplois et des visiteurs. Qui en a profité, et qui a payé ?",
+   "q": "« Protégé » : protégé de quoi ? Pour qui ? En 1970, on promettait des emplois et des visiteurs. Qui a gagné ? Qui a perdu ?",
    "sources": [
     "Parcs Canada, plan directeur 2022 · A",
     "Parcs Canada, 2020 · A",
@@ -1070,7 +1078,7 @@
    ],
    "sort": "posee",
    "etape": "debrief",
-   "eleve": "« Protégé » : protégé de quoi, et pour qui ? En 1970, on promettait des emplois et des visiteurs. Qui en a profité, et qui a payé ?",
+   "eleve": "« Protégé » : protégé de quoi ? Pour qui ? En 1970, on promettait des emplois et des visiteurs. Qui a gagné ? Qui a perdu ?",
    "ecrit": false
   },
   {
@@ -1099,13 +1107,13 @@
   {
    "id": "F7.5",
    "forme": "Ouverte",
-   "q": "Votre ligne aurait-elle été la même avec les quatre points de vue dès le début ?",
+   "q": "Votre ligne serait-elle la même si vous aviez entendu les quatre points de vue dès le début ?",
    "sources": [
     "Aucune donnée à vérifier : question de réflexion."
    ],
    "sort": "posee",
    "etape": "debrief",
-   "eleve": "Votre ligne aurait-elle été la même avec les quatre points de vue dès le début ?",
+   "eleve": "Votre ligne serait-elle la même si vous aviez entendu les quatre points de vue dès le début ?",
    "ecrit": false
   },
   {
@@ -1122,13 +1130,13 @@
    "id": "F7.7",
    "option": "nature-sauvage",
    "forme": "Ouverte",
-   "q": "Une aire protégée doit-elle être vide ?",
+   "q": "Une aire protégée doit-elle être vide ? Pourquoi ?",
    "sources": [
     "Nature sauvage, automne 2026 · B"
    ],
    "sort": "posee",
    "etape": "debrief",
-   "eleve": "Une aire protégée doit-elle être vide ?",
+   "eleve": "Une aire protégée doit-elle être vide ? Pourquoi ?",
    "ecrit": false
   }
  ],
@@ -1222,7 +1230,8 @@
     "« Nommer différentes zones du parc » est un apprentissage attendu de la Progression des apprentissages : le zonage n'est pas un ajout ludique, c'est le contenu.",
     "Protection, fréquentation et habitation tirent dans des sens opposés, et la carte le montre elle-même.",
     "Les zones se lisent à la couleur ET au motif : jamais la couleur seule.",
-    "Les six secteurs habités sont les principaux secteurs expropriés que nomme Parcs Canada. Aucune source publique ne donne de chiffres par village : le jeu n'en invente pas, il nomme les villages."
+    "Les six secteurs habités sont les principaux secteurs expropriés que nomme Parcs Canada. Aucune source publique ne donne de chiffres par village : le jeu n'en invente pas, il nomme les villages.",
+    "Au tracé, l'équipe touche un secteur, puis choisit sa zone. Il n'y a pas de bonne réponse, mais un minimum : chaque secteur reçoit une décision, et la ligne garde au moins un secteur en préservation (retours des enseignant·es, Playtest 2)."
    ]
   },
   "comp": {
@@ -1270,7 +1279,7 @@
    "Quelqu'un défend-il un document écarté ?"
   ],
   "trace": [
-   "Hésitent-ils sur la palette avant le premier geste ?",
+   "Hésitent-ils avant de toucher un premier secteur ?",
    "Parlent-ils des villages par leur nom ?"
   ],
   "comp": [
@@ -1385,7 +1394,7 @@
   {
    "g": "Apprentissage",
    "c": "Lire deux nombres",
-   "test": "À la rétroaction, l'équipe explique ce que comptent 983 et 1 800.",
+   "test": "À la rétroaction, l'équipe explique de qui parlent 983 et 1 800.",
    "src": "observation"
   },
   {
@@ -1470,7 +1479,7 @@
      "avant que les expropriés entrent gratuitement"
     ]
    ],
-   "texte": "Deux nombres circulent : 983 personnes et 1 800 personnes. Les deux sources ont raison. La première compte les gens des 225 familles ; la seconde, les personnes qui ont cédé un terrain. Avant de comparer deux nombres, il faut savoir ce que chacun compte.",
+   "texte": "Deux nombres circulent : 983 personnes et 1 800 personnes. Les deux sources ont raison. La première parle des gens des 225 familles. La seconde parle des personnes qui ont cédé un terrain. Avant de comparer deux nombres, demandez-vous de qui ils parlent.",
    "src": "Parc créé le 8 juin 1970 · plan d'expropriation annoncé le 22 juillet 1970 · 214 résidences, 78 chalets, 15 commerces, 3 églises, 2 écoles · principaux secteurs expropriés : Cap-des-Rosiers, L'Anse-au-Griffon, Ship Head, Grande-Grave, Rivière-Morris et Penouille (Parcs Canada ; Journal Le Soir, 18 août 2020 ; Radio-Canada, 2020).",
    "copie": [
     {
@@ -1482,7 +1491,73 @@
    "sert": [
     "F6.1"
    ],
-   "surprise": true
+   "surprise": true,
+   "chrono": [
+    {
+     "d": "8 juin 1970",
+     "t": "Québec et Ottawa signent l'accord qui crée le parc national Forillon.",
+     "copie": {
+      "q": "Le 8 juin, il signe un accord avec le fédéral créant le parc national Forillon.",
+      "src": "Journal Le Soir, 18 août 2020",
+      "url": "https://journallesoir.ca/2020/08/18/la-creation-du-parc-national-forillon-a-necessite-lexpulsion-de-225-familles/"
+     }
+    },
+    {
+     "d": "17 juillet 1970",
+     "t": "Une loi donne au gouvernement le pouvoir d'exproprier.",
+     "copie": {
+      "q": "Le 17 juillet, la Loi sur le parc Forillon accorde des pouvoirs d’expropriation au ministère des Travaux publics.",
+      "src": "Journal Le Soir, 18 août 2020",
+      "url": "https://journallesoir.ca/2020/08/18/la-creation-du-parc-national-forillon-a-necessite-lexpulsion-de-225-familles/"
+     }
+    },
+    {
+     "d": "22 juillet 1970",
+     "t": "Le plan d'expropriation est rendu public. Les propriétaires ont 18 mois pour partir.",
+     "copie": {
+      "q": "Le 22 juillet, on rend public un plan d’expropriation accordant 18 mois aux propriétaires de maisons et de terrains",
+      "src": "Journal Le Soir, 18 août 2020",
+      "url": "https://journallesoir.ca/2020/08/18/la-creation-du-parc-national-forillon-a-necessite-lexpulsion-de-225-familles/"
+     }
+    },
+    {
+     "d": "Août 1970",
+     "t": "On offre aux familles moins d'argent qu'elles l'espéraient.",
+     "copie": {
+      "q": "En août 1970, on propose aux expropriés des indemnités inférieures à leur attente",
+      "src": "Journal Le Soir, 18 août 2020",
+      "url": "https://journallesoir.ca/2020/08/18/la-creation-du-parc-national-forillon-a-necessite-lexpulsion-de-225-familles/"
+     }
+    },
+    {
+     "d": "Après le départ",
+     "t": "Le gouvernement brûle presque tous les bâtiments.",
+     "copie": {
+      "q": "Not long after they left, the government burned down almost all of the buildings and other structures",
+      "trad": "Peu après leur départ, le gouvernement a incendié presque tous les bâtiments et autres structures",
+      "src": "Canadian Geographic, 2023",
+      "url": "https://canadiangeographic.ca/articles/acknowledging-forillon-national-parks-controversial-beginnings/"
+     }
+    },
+    {
+     "d": "Mars 1973",
+     "t": "Des expropriés contestent devant un juge. Le juge leur donne raison.",
+     "copie": {
+      "q": "En mars 1973, le juge Dorion donne raison à Me Bernier sur toute la ligne.",
+      "src": "Journal Le Soir, 18 août 2020",
+      "url": "https://journallesoir.ca/2020/08/18/la-creation-du-parc-national-forillon-a-necessite-lexpulsion-de-225-familles/"
+     }
+    },
+    {
+     "d": "Avril 1975",
+     "t": "La Cour d'appel reconnaît qu'il faut aussi payer pour le « déracinement social ».",
+     "copie": {
+      "q": "Dans sa décision, la Cour d’appel reconnaît le principe du dédommagement pour le déracinement social.",
+      "src": "Journal Le Soir, 18 août 2020",
+      "url": "https://journallesoir.ca/2020/08/18/la-creation-du-parc-national-forillon-a-necessite-lexpulsion-de-225-familles/"
+     }
+    }
+   ]
   },
   {
    "t": "Le vrai zonage de Forillon, aujourd'hui",
@@ -1543,7 +1618,7 @@
     ],
     [
      "2 000+",
-     "membres de la Nation Micmac de Gespeg"
+     "membres de la nation mi'gmaq de Gespeg"
     ],
     [
      "0",

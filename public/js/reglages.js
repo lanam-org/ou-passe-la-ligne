@@ -136,7 +136,9 @@ export function reglagesDuFormat(base, format = 'standard', garder = {}) {
   }
   return {
     format, miseEnRoute: f.miseEnRoute, minutes: { ...f.minutes }, questions,
-    ajouts: garder.ajouts || [], corrections: garder.corrections || {}, options
+    ajouts: garder.ajouts || [], corrections: garder.corrections || {}, options,
+    // le temps qui reste, à l'écran des équipes : éteint par défaut (stressant, retours des enseignant·es)
+    tempsEquipes: garder.tempsEquipes === true
   };
 }
 
@@ -151,7 +153,8 @@ export function completer(base, r) {
     questions: { ...d.questions, ...(r.questions || {}) },
     ajouts: Array.isArray(r.ajouts) ? r.ajouts : [],
     corrections: r.corrections || {},
-    options: optionsConnues(r.options)
+    options: optionsConnues(r.options),
+    tempsEquipes: r.tempsEquipes === true
   };
 }
 
@@ -171,7 +174,7 @@ const CHAMPS = {
   complications: [['t', 'Titre'], ['x', 'Texte', 1], ['s', 'Source'], ['quoi', 'Consigne', 1]],
   secteurs: [['fait', 'Fait affiché', 1], ['src', 'Source']],
   bilan: [['texte', 'Texte', 1], ['src', 'Source', 1]],
-  banque: [['eleve', 'Question posée aux élèves', 1], ['reponse', 'Réponse attendue', 1]]
+  banque: [['eleve', 'Question posée aux élèves', 1], ['attendu', 'Ce qu\'on attend (sous la question, chez les équipes)', 1], ['reponse', 'Réponse attendue', 1]]
 };
 const corrigeable = (groupe, champ) => Object.hasOwn(CHAMPS, groupe) && CHAMPS[groupe].some(([k]) => k === champ);
 
@@ -257,7 +260,7 @@ export function appliquer(base, reglages) {
     const e = r.questions[q.id];
     q.eleve ||= q.q;
     if (m === 'ecrite' && (e === 'requise' || e === 'facultative'))
-      ecrites.push({ id: q.id, etape, eleve: q.eleve, reponse: q.reponse, sources: q.sources, requise: e === 'requise' });
+      ecrites.push({ id: q.id, etape, eleve: q.eleve, attendu: q.attendu, reponse: q.reponse, sources: q.sources, requise: e === 'requise' });
     if (m === 'orale' && e === 'on') orales.push({ id: q.id, eleve: q.eleve, reponse: q.reponse, sources: q.sources });
   }
   for (const a of r.ajouts || []) {
@@ -270,6 +273,7 @@ export function appliquer(base, reglages) {
   ecrites.sort((a, b) => ordre(a) - ordre(b));
   c.q = { ecrites, orales };
   c.reglages = r;
+  c.tempsEquipes = r.tempsEquipes === true;
   // sur mesure, dès 90 minutes (celles appliquées) : deux périodes, la coupure après le tracé, comme « Deux périodes »
   c.coupure = FORMATS[r.format]?.coupure || (r.format === 'mesure' && c.miseEnRoute.min + totalPrevu(c) >= 90 ? FORMATS.deux.coupure : null);
   return c;

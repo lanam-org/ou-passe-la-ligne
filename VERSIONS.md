@@ -28,6 +28,39 @@ préparation est le titre « … · en préparation » ci-dessous : `…/dev/` l
   favori ; l'adresse suit l'onglet ouvert et rouvre la séance en cours sur cet onglet.
 - **Quitter la séance, côté équipe** : un bouton (avec confirmation) libère l'appareil pour une autre séance ; même
   code et même nom pour revenir. Une séance fermée ne se reprend plus au démarrage.
+- **Retours des enseignant·es (notes de l'essai du 6 novembre 2026)** :
+  - la question du jeu d'abord : un écran « La question du jeu », à lire à voix haute, avant l'arrivée ; puis rappelée
+    sur la carte de chaque étape, en haut de chaque écran et au retour sur la démarche ;
+  - plus de compte à rebours chez les équipes (stressant) : « Montrer le temps qui reste aux équipes », éteint par
+    défaut, dans Réglages ; « En pause » s'affiche toujours ;
+  - des questions en phrases courtes (sujet, verbe, complément) ; sous chacune, « Ce qu'on attend » et « Où chercher »
+    (le relevé, le point de vue ou le document qui sert) ; Q3.2 réécrite sans le verbe « compter » ;
+  - on lit avant de répondre : à l'étape 2, la question d'un relevé vient sous ce relevé ; à l'étape 5, sous son point
+    de vue ; les points de vue déjà lus se relisent (1, 2, 3, 4) ;
+  - la carte dessinée revient, et change à chaque choix : un secteur à décider est hachuré, un village vidé est une
+    maison barrée, le corridor est un trait (continu, affaibli, rompu) ; c'est un schéma dessiné pour le jeu, pas une
+    image à faire autoriser (`images` ne la touche plus) ;
+  - au tracé, on touche un secteur, puis on choisit sa zone dans le panneau à côté (plus de rangée d'outils) ; chaque
+    choix dit ce que devient le village ; carte, choix, conséquence et question se voient ensemble ;
+  - pas de bonne réponse, mais un minimum avant d'arrêter la ligne : les sept secteurs décidés et au moins un en
+    préservation (rien n'est zoné d'avance) ; la réponse attendue de Q4.3 le dit ;
+  - étape 3 : un verdict net (« ✓ Bon choix » ou « ✗ Pas utile pour cette question »), les bons documents manqués
+    nommés, les douze documents à relire avec leur verdict ; le vert réservé aux bons choix et aux bravos (la mission
+    de la garde-parc en noir gras) ; plus de sources ni de liens à l'écran des équipes (ils restent dans le dossier) ;
+  - la garde-parc sans portrait : sa vignette ne disait rien de ce qu'il faut faire ; sa consigne devient la mission ;
+  - la décision de 1970 : votre ligne et celle de 1970 côte à côte, sur la même carte ; 1970 mois par mois (accord du
+    8 juin, loi du 17 juillet, plan d'expropriation et 18 mois du 22 juillet, indemnités d'août, bâtiments brûlés,
+    jugements de 1973 et de 1975), cités dans le dossier complet ; le corridor rappelé ;
+  - « Mi'gmaq » pour le peuple ; « Nation Micmac de Gespeg » reste le nom officiel, dans les sources (note dans le
+    guide) ;
+  - la fin rappelle de quitter la séance, pour libérer l'ordinateur ;
+  - les boutons du bas nomment l'étape suivante (« Suivant : Se questionner ») ; « Voir le verdict » au dossier ;
+  - côté enseignant·e : « Avancer ensemble » part de l'étape de l'équipe la plus avancée, dit combien d'équipes
+    attendent et combien arrivent ; une équipe en attente le voit en grand. Le détail d'une équipe commence par « Où
+    en est l'équipe » : l'étape, ce qu'elle a à faire, ce qui lui manque, la question en cours avec la réponse attendue,
+    des phrases pour relancer, et « Voir cette étape comme l'équipe ». Le dossier complet ajoute le verdict de chaque
+    document et 1970 mois par mois : il ne ressemble plus au dossier élève ;
+  - « un seul Chromebook par équipe, les autres restent fermés » dans la mise en route.
 
 ## Playtest 1 — avec les professeurs · 29 octobre 2026
 

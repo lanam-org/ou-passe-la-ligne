@@ -43,8 +43,9 @@
    "dansLeJeu": "Valide le dossier et ouvre le tracé. Bravos possibles : Tri net, Deux sources confrontées, Une voix pas qu'un chiffre."
   },
   "F3.2": {
-   "reponse": "Les deux : elles ne comptent pas la même chose. Trois sources de 2020 donnent 983 habitants dans les 225 familles ; Radio-Canada écrit que « 1800 personnes céderont leur terrain ». Parcs Canada compte aussi près de 1 200 propriétaires qui ont perdu un lot à bois. Avant de comparer deux nombres, il faut savoir ce que chacun compte.",
-   "dansLeJeu": "Reprise à la rétroaction. Bravo « Deux sources confrontées » si le document est gardé."
+   "reponse": "Les deux : elles ne parlent pas des mêmes personnes. Trois sources de 2020 donnent 983 habitants dans les 225 familles ; Radio-Canada écrit que « 1800 personnes céderont leur terrain ». Parcs Canada parle aussi de près de 1 200 propriétaires qui ont perdu un lot à bois. Avant de comparer deux nombres, il faut savoir de qui chacun parle.",
+   "dansLeJeu": "Reprise à la rétroaction. Bravo « Deux sources confrontées » si le document est gardé.",
+   "note": "Avec les élèves, éviter « ce que compte un nombre » : « compter » a deux sens (dénombrer, inclure). Dire plutôt « de qui parle ce nombre »."
   },
   "F3.3": {
    "reponse": "• Visiteurs : chiffre de 2019, près de 50 ans après la décision. / • Forêt à 95 % : dit QUOI protéger, pas QUI peut habiter. / • Caribous : vrai, mais dans les Chic-Chocs, à plus de 100 km. / • Communiqué touristique : écrit pour attirer des visiteurs, pas pour décider. / • Homard (document en option) : la mer et la pêche, pas qui peut habiter.",
@@ -53,8 +54,8 @@
   },
   "F4.1": {
    "reponse": "Cinq : I Préservation spéciale, II Milieu sauvage, III Milieu naturel, IV Loisirs de plein air, V Services du parc. Le jeu en garde quatre (II et III réunies). À Forillon, la zone II couvre 96,3 % du parc.",
-   "note": "La palette de zonage et sa légende la donnent.",
-   "dansLeJeu": "Donne la palette de zonage. Répond à l'attendu du programme « nommer différentes zones du parc »."
+   "note": "Les choix de zone, à côté de la carte, la donnent.",
+   "dansLeJeu": "Donne les choix de zone, à côté de la carte. Répond à l'attendu du programme « nommer différentes zones du parc »."
   },
   "F4.2": {
    "reponse": "Oui, dans certains. La zone V vise « les agglomérations comme Banff et Jasper ». À Banff, on peut y habiter si on y travaille, si on y tient un commerce, si on y étudie, ou si on y a travaillé cinq ans avant la retraite. À Forillon, la zone V ne contient aucun village : seulement le centre opérationnel du parc et des équipements de télécommunication.",
@@ -62,7 +63,7 @@
    "dansLeJeu": "Rend possible la zone « Village » sur la carte : des villages restent."
   },
   "F4.3": {
-   "reponse": "Pas de bonne réponse unique. Le jeu nomme les villages à vider ou gardés et l'état du corridor, avec un fait réel sur chaque secteur touché. Les six secteurs habités sont les principaux secteurs expropriés nommés par Parcs Canada : Cap-des-Rosiers, L'Anse-au-Griffon, Ship Head, Grande-Grave, Rivière-Morris et Penouille. En 1970, la vraie ligne les a tous pris : 244,8 km², 225 familles.",
+   "reponse": "Pas de bonne réponse unique, mais un minimum, que le jeu exige avant d'arrêter la ligne : chaque secteur reçoit une zone, et au moins un secteur est en préservation. La phrase attendue nomme les villages vidés (ou dit qu'aucun ne l'est), dit si le corridor est continu et donne une raison. Les six secteurs habités sont les principaux secteurs expropriés nommés par Parcs Canada : Cap-des-Rosiers, L'Anse-au-Griffon, Ship Head, Grande-Grave, Rivière-Morris et Penouille. En 1970, la vraie ligne les a tous pris : 244,8 km², 225 familles.",
    "dansLeJeu": "Bravos possibles : Parc zoné, Protéger ou habiter, Corridor rétabli, Corridor tenu."
   },
   "F4.4": {
@@ -91,7 +92,8 @@
   },
   "F5.4": {
    "reponse": "Les Mi'gmaq, sur Gespe'gewa'gi. En 1970, les gouvernements du Québec et du Canada décident. La Nation Micmac de Gespeg n'est reconnue qu'en 1973 ; les Mi'gmaq ont perdu le libre accès à leur territoire.",
-   "dansLeJeu": "Ne se règle pas sur la carte : c'est la question qui change. Ouvre le bilan."
+   "dansLeJeu": "Ne se règle pas sur la carte : c'est la question qui change. Ouvre le bilan.",
+   "note": "Orthographe : le peuple s'écrit Mi'gmaq, la graphie qu'emploie la Nation elle-même. « Nation Micmac de Gespeg » est son nom officiel ; le jeu écrit « la nation mi'gmaq de Gespeg » et garde le nom officiel dans les sources."
   },
   "F6.1": {
    "reponse": "Tout le territoire : 244,8 km², six municipalités, 225 familles expropriées, 18 mois pour partir. Accord de 1968 : Ottawa investit 12 M$ si le territoire lui est cédé. Entente de 1969 : cession pour 99 ans ; le Québec peut le reprendre après 60 ans s'il rembourse les investissements fédéraux.",

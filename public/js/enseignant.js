@@ -261,6 +261,8 @@ document.addEventListener('click', async (ev) => {
   if (ev.target.closest('[data-bascule-groupe]')) { ui.rechercheOuverte = !ui.rechercheOuverte; rendre(true); $('[data-bascule-groupe]')?.focus(); return; }
   // l'aperçu élève, avec les réglages de la séance (réponses attendues comprises : elles restent sur cet appareil)
   if (ev.target.closest('[data-apercu="seance"]')) return ouvrirApercu(configSeance());
+  const ae = ev.target.closest('[data-apercu-etape]');
+  if (ae) return ouvrirApercu(configSeance(), Number(ae.dataset.apercuEtape));
   const ong = ev.target.closest('[data-onglet]');
   if (ong) {
     if (!allerA(ong.dataset.onglet, !!ong.dataset.confirme)) {
@@ -381,8 +383,10 @@ document.addEventListener('click', async (ev) => {
   // avancer ensemble : l'interrupteur, puis « Ouvrir l'étape suivante »
   const ry = ev.target.closest('input[data-rythme]');
   if (ry) {
-    const classe = Rg.etapeDeLaClasse(c, EQ);
-    return reglerRythme(code, ry.checked ? { etape: Math.max(0, classe ? c.etapes.indexOf(classe) : 0) } : null)
+    // on part de l'étape de l'équipe la plus avancée : personne n'attend une étape déjà faite, les autres la rejoignent
+    const enJeu = EQ.filter((e) => !e.fini);
+    const depart = enJeu.length ? Math.max(...enJeu.map((e) => e.etape)) : 0;
+    return reglerRythme(code, ry.checked ? { etape: Math.max(0, depart) } : null)
       .catch((e) => { console.warn('Rythme non enregistré', e); rendre(); });
   }
   // une étape ouverte par erreur : on revient d'une étape (une équipe déjà plus loin n'est pas renvoyée en arrière)

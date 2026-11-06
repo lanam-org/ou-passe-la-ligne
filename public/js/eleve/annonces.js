@@ -33,9 +33,9 @@ export function dire(texte) {
 export function direEffet(effet) {
   const nz = (z) => J.nomZone(etat.c, z);
   const n = (k, un, plus) => (k ? `${k > 0 ? plus : 'moins'} ${Math.abs(k)} ${un}` : '');
-  dire([`${effet.secteur} : ${nz(effet.de)}, devient ${nz(effet.a)}.`,
-    n(effet.dans, 'secteur protégé', 'plus'), n(effet.vides, 'village à vider', 'plus'), n(effet.gardes, 'village gardé', 'plus'),
-    effet.corridorChange ? `Corridor ${effet.corridor}.` : ''].filter(Boolean).join(' '));
+  dire([effet.premier ? `${effet.secteur} : ${nz(effet.a)}.` : `${effet.secteur} : ${nz(effet.de)}, devient ${nz(effet.a)}.`,
+    n(effet.dans, 'secteur dans le parc', 'plus'), n(effet.vides, 'village vidé', 'plus'), n(effet.gardes, 'village gardé', 'plus'),
+    effet.corridorChange && effet.corridor !== 'à décider' ? `Corridor ${effet.corridor}.` : ''].filter(Boolean).join(' '));
 }
 
 /* ------------------------------------------------------------ les « bravos » */

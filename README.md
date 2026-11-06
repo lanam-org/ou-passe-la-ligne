@@ -53,7 +53,15 @@ mène à chaque section ; les onglets Questions et Dossier y mènent aussi, ouve
   texte ; « Corriger ce texte », sous chaque document de l'onglet Dossier et chaque question, mène au bon champ.
 - Le chrono. Il démarre avec la première équipe et avance à la seconde ; Pause, Reprendre, Remettre à
   zéro ; « Le détail, étape par étape » donne les minutes et le nombre de questions de chaque étape.
-  Chaque équipe voit le temps qui reste à son étape (en ocre une fois dépassé, sans jamais bloquer).
+  Les équipes ne voient pas de compte à rebours (stressant, retours du Playtest 2) ; « Montrer le temps qui reste aux
+  équipes » (Réglages, sous la durée) l'allume : chaque équipe voit alors le temps qui reste à son étape (en ocre une
+  fois dépassé, sans jamais bloquer). « En pause » s'affiche toujours.
+- Avancer ensemble (En direct). Allumé, aucune équipe ne dépasse l'étape ouverte : on part de celle de l'équipe la plus
+  avancée, les autres la rejoignent, puis « Ouvrir l'étape suivante ». La ligne dessous dit combien d'équipes
+  attendent votre signal ; chez elles, la barre du bas le dit en grand.
+- Le détail d'une équipe (En direct, toucher son nom) commence par « Où en est l'équipe » : son étape, ce qu'elle a à
+  faire, ce qui lui manque pour continuer, la question en cours avec la réponse attendue, des phrases pour relancer
+  sans donner la réponse, et « Voir cette étape comme l'équipe » (l'aperçu ouvert sur cette étape).
 - Les messages à la classe : « 5 minutes restantes », « 2 minutes restantes », « Pause », « Bloqués ?
   Levez la main », « Au retour en classe », ou un message écrit (140 caractères, affiché tel quel).
 
@@ -63,12 +71,14 @@ aucune donnée d'élève, pour les intégrer ensuite à `forillon.json`.
 
 ## Les images : à venir
 
-`images = false` dans `public/js/config.js` : la carte dessinée et la garde-parc attendent leurs vraies images
-(prévalidation du contenu). À leur place, toujours la même image, `public/images/temporaire.png` (« TEMPORAIRE ») :
-dans le cadre « Carte à venir », sous les boutons, à la largeur du cadre ; à la place du portrait de la garde-parc,
-assez grande pour se lire. Mise à l'échelle de sa place, jamais rognée ni déformée (le test le vérifie). La carte
-reste jouable : les relevés et les sept secteurs deviennent de simples boutons, avec les mêmes gestes et les mêmes
-mesures. `images = true` ramène les dessins. Test : `node outils/verifier_site.mjs images`.
+`images = false` dans `public/js/config.js` : la grande image de l'arrivée attend sa vraie image (prévalidation du
+contenu). À sa place, toujours la même image, `public/images/temporaire.png` (« TEMPORAIRE »), mise à l'échelle de sa
+place, jamais rognée ni déformée. `images = true` la retire. Test : `node outils/verifier_site.mjs images`.
+
+La carte n'en dépend plus (Playtest 2) : c'est un schéma dessiné pour le jeu (`public/js/carte.js`), toujours affiché,
+qui change à chaque choix. Un secteur à décider est hachuré ; chaque zone a sa couleur ET son motif ; chaque village
+est une maison, barrée s'il est vidé ; le corridor écologique est un trait (continu, affaibli, rompu) ; Gespe'gewa'gi
+entoure les sept secteurs. La garde-parc n'a plus de portrait : sa consigne (« Votre mission ») suffit.
 
 ## L'affichage : clair, sombre, contraste élevé
 
@@ -177,19 +187,26 @@ Les essais avec des enseignant·es (18 fonctions à trouver seul·e, la liste de
 
 Règle de mise en page côté équipe : **ce qu'il y a à faire maintenant se voit sans défiler**, sur un
 Chromebook (1366 × 768). La carte reste à gauche, toujours au même endroit ; ce qui arrive (un relevé, un
-point de vue, la conséquence d'un geste) s'affiche à droite, dans le carnet ; les questions viennent sous la
-carte, et la phrase sous « Continuer » mène à la réponse qui manque. Les textes longs s'ouvrent à la demande
-(« Lire » sur chaque document, les trois derniers blocs de la décision de 1970). Les gestes reconnus
-s'annoncent d'un « Bravo » en jouant ; leur liste attend le retour sur la démarche. Sans images
-(`images = false`), l'image temporaire de la carte vient sous les boutons : les gestes restent en haut. Le test
+point de vue) s'affiche à droite, dans le carnet, **avec la question qui s'en sert, dessous** : on lit d'abord, on
+répond ensuite. Chaque question dit « Ce qu'on attend » et « Où chercher ». Au tracé, on touche un secteur, puis on
+choisit sa zone dans le panneau à côté de la carte ; la conséquence vient sous la carte, la question à droite : tout
+se voit d'un seul regard (la page remonte la carte sous la barre du haut au premier geste). La phrase sous
+« Continuer » dit ce qui manque, et mène à la réponse quand c'est elle. Les textes longs s'ouvrent à la demande
+(« Lire » sur chaque document, les douze documents après le verdict, les trois derniers blocs de la décision de 1970).
+Les gestes reconnus s'annoncent d'un « Bravo » en jouant ; leur liste attend le retour sur la démarche. Ni compte à
+rebours (sauf si l'enseignant·e l'allume, dans Réglages), ni source, ni lien externe à l'écran des équipes. Le test
 vérifie la règle à chaque étape.
+
+La question du jeu passe avant tout : un écran « La question du jeu » à l'entrée, à lire à voix haute, puis rappelée
+en haut de chaque écran et sur la carte de chaque étape. Il n'y a pas de bonne réponse au tracé, mais un minimum :
+les sept secteurs décidés et au moins un en préservation.
 
 ## Les bulles d'aide, la première fois
 
 La première fois qu'un élément important apparaît à l'écran, une petite bulle l'explique en une phrase
 (`public/js/aide.js`). Une seule à la fois, sans voile ni blocage : on peut jouer sans la lire. Un clic
 n'importe où, « OK » ou Échap la ferme ; « Arrêter l'aide » les coupe toutes ; le bouton « ? » en haut de la
-page les ramène. Seulement ce qui ne se devine pas (5 bulles côté équipe, 7 côté enseignant·e),
+page les ramène. Seulement ce qui ne se devine pas (5 bulles côté équipe, 7 côté enseignant·e ; au tracé : « Un secteur sur la carte, puis sa zone ici »),
 et rien qui gâche un geste à découvrir. Retenu dans ce navigateur seulement ; rien n'est envoyé.
 Pour changer un texte : la liste `BULLES` en haut de `aide.js`.
 
@@ -431,12 +448,14 @@ Une fois : installe Node.js, puis dans ce dossier `npm install` et `npx playwrig
 
 ```
 node outils/verifier_site.mjs                  mode local
-node outils/verifier_site.mjs images           mode local, avec les dessins
+node outils/verifier_site.mjs images           mode local, avec les vraies images (la grande image de l'arrivée)
 node outils/verifier_site.mjs firebase         double de Firestore, deux navigateurs
 node outils/verifier_site.mjs firebase mesure  idem, collecte allumée
 python3 outils/verifier_contrastes.py          contrastes des trois affichages
 npm run verifier:tout                          tout, comme GitHub avant chaque mise en ligne
 npm run relecture                              le dossier de relecture pour Gespeg, à jour du contenu
+node outils/tour.mjs                           une partie entière en captures d'écran (Chromebook, 1366 × 768),
+                                               pour relire l'interface ; dans outils/captures/tour/
 ```
 
 Le test crée une séance, fait jouer une équipe de bout en bout, vérifie le suivi en

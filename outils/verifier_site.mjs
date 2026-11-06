@@ -168,7 +168,15 @@ await auditer(eleve, 'équipe · rejoindre');
 await eleve.check('input[name=nom][value="Orignal"]');
 await eleve.click('button[type=submit]');
 await eleve.waitForSelector('#titre');
-dit((await eleve.textContent('#titre')).includes('Arriver'), "l'équipe Orignal entre à l'étape 1 : Arriver");
+dit((await eleve.textContent('#titre')).includes('La question du jeu') && (await eleve.textContent('.grande-q')).includes('droit d') && await eleve.isHidden('#bandeau-q'),
+  "l'équipe Orignal entre sur la question du jeu, en grand, avant l'arrivée (Playtest 2)");
+await capture(eleve, '02b-question');
+await auditer(eleve, 'équipe · la question du jeu');
+await eleve.click('#suivant');
+await eleve.waitForFunction(() => document.querySelector('#titre')?.textContent.includes('Arriver'));
+dit(await eleve.isVisible('#bandeau-q'), "« Nous avons lu la question » ouvre l'arrivée ; la question reste rappelée en haut");
+dit((await eleve.textContent('#minutes')) === '' && await eleve.isHidden('.temps-barre'), 'par défaut, aucun compte à rebours chez les équipes (stressant)');
+dit(!(await eleve.locator('.guide img, .guide svg').count()), 'la mission de l’étape, sans portrait à côté');
 
 await prof.waitForSelector('[data-equipe="orignal"]', { timeout: 5000 });
 dit(true, "l'enseignant·e voit l'équipe apparaître en direct");
@@ -185,6 +193,8 @@ await auditer(autre, 'équipe · rejoindre, avec une erreur');
 await autre.check('input[name=nom][value="Phoque gris"]');
 await autre.click('button[type=submit]');
 await autre.waitForSelector('#titre');
+await autre.click('#suivant');   // la question du jeu, lue
+await autre.waitForFunction(() => document.querySelector('#titre')?.textContent.includes('Arriver'));
 dit(true, 'la deuxième équipe entre sous un autre nom');
 
 // ---------------------------------------------------------------- étape 1
@@ -201,6 +211,7 @@ const sansDefiler = (p, sel) => p.evaluate((s) => {
 dit(await eleve.isDisabled('#suivant'), "étape 1 : on ne passe pas sans l'hypothèse");
 dit(await sansDefiler(eleve, '[data-rep="F1.2"]'), "étape 1 : la case de l'hypothèse se voit sans défiler");
 dit(await eleve.locator('#hint [data-aller="F1.2"]').count() === 1, 'étape 1 : la phrase sous « Continuer » mène à la réponse qui manque');
+dit((await eleve.textContent('.qe-att')).includes('Donnez une raison'), 'étape 1 : sous la question, « Ce qu’on attend »');
 await ecrire(eleve, 'F1.2', 'Non, des familles y vivaient sûrement.');
 dit(!(await eleve.isDisabled('#suivant')), "étape 1 : l'hypothèse écrite débloque la suite");
 await capture(eleve, '03-arrivee');
@@ -208,22 +219,20 @@ await auditer(eleve, 'équipe · étape 1');
 await suivant(eleve);
 
 // ---------------------------------------------------------------- étape 2
-for (let i = 0; i < 6; i++) { await eleve.click(`[data-releve="${i}"]`); await eleve.waitForTimeout(50); }
-dit(/^https:\/\//.test(await eleve.getAttribute('.trouve .src-l', 'href') || ''), 'étape 2 : chaque relevé donne le lien de sa source');
-// sans les dessins, l'image temporaire (toujours la même, chargée en entier) marque la place de la carte et de la garde-parc
-const imagesTemp = () => eleve.evaluate(() => [...document.querySelectorAll('.carte--vide img.vide-img, .guide img.garde-temp')]
-  .map((i) => ({ src: new URL(i.src).pathname, l: i.naturalWidth, h: i.naturalHeight, ratio: i.clientWidth / i.clientHeight })));
-const temp = await imagesTemp();
-dit(IMAGES ? await eleve.locator('svg.carte').count() === 1 && !temp.length
-  : await eleve.locator('.carte--vide').count() === 1 && !(await eleve.locator('svg.carte').count()) && temp.length === 2
-    && temp.every((i) => i.src === '/images/temporaire.png' && i.l === 306 && i.h === 175 && Math.abs(i.ratio - 306 / 175) < 0.05),
-  IMAGES ? 'images : la carte dessinée est là' : 'images à venir : relevés en boutons, et l’image temporaire à la place de la carte et du portrait de la garde-parc, à l’échelle, sans déformation');
+await eleve.click('[data-releve="0"]'); await eleve.waitForTimeout(50);
+dit(await eleve.locator('#carnet [data-rep="F2.1"]').count() === 1 && (await eleve.textContent('#carnet')).indexOf('Gespe') < (await eleve.textContent('#carnet')).indexOf('Avant le parc'),
+  'étape 2 : on lit d’abord le relevé, puis sa question, dessous (Playtest 2)');
+for (let i = 1; i < 6; i++) { await eleve.click(`[data-releve="${i}"]`); await eleve.waitForTimeout(50); }
+dit(!(await eleve.locator('#app a[href^="http"]').count()), 'étape 2 : aucune source ni lien externe chez les équipes (ils restent dans le dossier)');
+// la carte est dessinée pour le jeu (pas une image à faire autoriser) : toujours là, qui change avec la ligne
+dit(await eleve.locator('svg.carte').count() === 1 && await eleve.locator('svg.carte .maison').count() === 6,
+  'étape 2 : la carte schématique, ses six villages habités');
 dit(await sansDefiler(eleve, '[data-releve="0"]') && await sansDefiler(eleve, '#carnet .trouve'),
   'étape 2 : la carte reste en place, le relevé trouvé s’affiche à côté, sans défiler');
 await eleve.click('[data-releve="1"]');
 dit((await eleve.textContent('#carnet .trouve h3')).includes('Grande-Grave') && (await eleve.textContent('#carnet .trouve .sur')).includes('6 sur 6'),
   'étape 2 : rouvrir un relevé déjà lu le remontre, sans le défaire');
-dit(!(await eleve.isDisabled('#suivant')) && (await eleve.textContent('#scene')).includes('facultative'),
+dit(!(await eleve.isDisabled('#suivant')) && (await eleve.textContent('#app')).includes('facultative'),
   'étape 2 : en 50 min, les deux questions sont facultatives : les six relevés suffisent');
 await ecrire(eleve, 'F2.1', "Gespe'gewa'gi, le territoire des Mi'gmaq.");
 await ecrire(eleve, 'F2.4', 'Des maisons, des chalets, des commerces, des églises et des écoles.');
@@ -235,21 +244,43 @@ await suivant(eleve);
 // ---------------------------------------------------------------- étape 3
 for (const d of ['d2', 'd3', 'd5']) await eleve.click(`[data-doc="${d}"]`);
 await suivant(eleve);
-dit(await eleve.locator('.verdict').count() === 3 && !(await eleve.locator('.doc').count()), 'étape 3 : les trois verdicts, et seulement eux');
+dit(await eleve.locator('.verdicts:not(.verdicts--tous) .verdict').count() === 3 && !(await eleve.locator('.doc').count()), 'étape 3 : les trois verdicts, puis les douze à relire');
+dit((await eleve.textContent('.verdicts')).includes('Bon choix') && await eleve.locator('.manques').count() === 1,
+  'étape 3 : chaque verdict dit « bon choix » ou « pas utile », et les bons documents manqués sont nommés');
 dit(await eleve.locator('.bravo').count() === 1, 'étape 3 : un « bravo » nomme le geste, sans score');
-await ecrire(eleve, 'F3.2', 'Les deux : elles ne comptent pas la même chose.');
+await ecrire(eleve, 'F3.2', 'Les deux : elles ne parlent pas des mêmes personnes.');
 await capture(eleve, '05-dossier');
 await auditer(eleve, 'équipe · étape 3, verdicts');
 await suivant(eleve);
 
 // ---------------------------------------------------------------- étape 4
-await eleve.click('[data-outil="village"]');
-await eleve.click('[data-sect="rosiers"]');
-await eleve.click('[data-outil="sauvage"]');
-await eleve.click('[data-sect="foret"]');
+// le secteur d'abord, puis sa zone (Playtest 2) ; la ligne ne s'arrête pas avant le minimum
+const zoner = async (s, z) => { await eleve.click(`.trace-carte [data-sect="${s}"]`); await eleve.waitForTimeout(60); await eleve.click(`[data-zone="${z}"]`); await eleve.waitForTimeout(60); };
+dit(await eleve.locator('svg.carte .sect[data-sect]').count() === 7 && (await eleve.textContent('.panneau-s')).includes('7 à décider'),
+  'étape 4 : sept secteurs à décider, rien n’est zoné d’avance');
+await eleve.click('.trace-carte [data-sect="rosiers"]');
+dit((await eleve.textContent('.panneau-s')).includes('Cap-des-Rosiers') && await eleve.locator('[data-zone]').count() === 5,
+  'étape 4 : toucher un secteur ouvre ses cinq choix, à côté de la carte');
+await eleve.click('[data-zone="village"]');
 dit(await eleve.locator('.effet').count() === 1, 'étape 4 : le geste affiche aussitôt sa conséquence');
-dit(await sansDefiler(eleve, '.effet'), 'étape 4 : la conséquence se voit à côté de la carte, sans défiler');
+dit((await eleve.textContent('.panneau-s')).includes('L\'Anse-au-Griffon'), 'étape 4 : un secteur décidé, le suivant à décider se présente');
+await zoner('foret', 'sauvage');
 await ecrire(eleve, 'F4.3', 'On garde Cap-des-Rosiers en zone village, le corridor reste continu.');
+dit(await eleve.isDisabled('#suivant') && (await eleve.textContent('#hint')).includes('secteurs à décider'),
+  'étape 4 : pas de ligne arrêtée tant que des secteurs restent à décider');
+for (const [s, z] of [['anse', 'sauvage'], ['morris', 'sauvage'], ['penouille', 'plein'], ['grave', 'village'], ['ship', 'hors']]) await zoner(s, z);
+dit(await eleve.isDisabled('#suivant') && (await eleve.textContent('#hint')).includes('préservation'),
+  'étape 4 : ni la phrase ni les sept zones ne suffisent sans un secteur en préservation');
+await zoner('anse', 'preservation');
+dit(!(await eleve.isDisabled('#suivant')), 'étape 4 : sept secteurs décidés, un en préservation, la phrase écrite : la ligne peut s’arrêter');
+dit(await eleve.locator('svg.carte .maison--vide').count() === 3, 'étape 4 : la carte barre les villages vidés (ici trois)');
+// après un geste, sans toucher au défilement : la carte, ses choix, la conséquence et la question, d'un seul regard
+const enVue = (p, sel) => p.evaluate((x) => {
+  const b = document.querySelector(x)?.getBoundingClientRect(), pied = document.querySelector('.pied')?.getBoundingClientRect().top ?? innerHeight;
+  return !!b && b.top >= 0 && b.top + 32 <= pied;
+}, sel);
+dit(await enVue(eleve, '.trace-effet .effet') && await enVue(eleve, '#carnet [data-rep="F4.3"]') && await enVue(eleve, '.trace-carte svg.carte')
+  && await enVue(eleve, '[data-zone="preservation"]'), 'étape 4 : la carte, ses choix, la conséquence et la question se voient ensemble, sans défiler');
 await capture(eleve, '06-trace');
 await auditer(eleve, 'équipe · étape 4, tracé et conséquence');
 await suivant(eleve);
@@ -257,15 +288,19 @@ await suivant(eleve);
 // ---------------------------------------------------------------- étape 5
 await suivant(eleve); // complication 1
 dit(!(await eleve.textContent('#app')).toLowerCase().includes('complication')
-  && (await eleve.textContent('.comp .sur')).includes('points de vue'), 'étape 5 : « D\'autres points de vue », le mot « complication » n\'apparaît plus');
+  && (await eleve.textContent('.comp .sur')).includes('Point de vue 1 sur 4'), 'étape 5 : « D\'autres points de vue », le mot « complication » n\'apparaît plus');
 dit(await sansDefiler(eleve, '#carnet .comp') && await sansDefiler(eleve, '[data-sect]'),
   'étape 5 : le point de vue arrive à droite, la carte à retoucher reste visible sans défiler');
-dit(!(await eleve.isDisabled('#suivant')) && (await eleve.textContent('#scene')).includes('facultative'),
-  'étape 5 : en 50 min, la question de la route est facultative et ne bloque pas');
+dit(!(await eleve.isDisabled('#suivant')) && (await eleve.textContent('#carnet .comp')).includes('facultative'),
+  'étape 5 : en 50 min, la question de la route, sous son point de vue, est facultative et ne bloque pas');
 await ecrire(eleve, 'F5.1', 'Moins bien : la route coupe les passages des animaux.');
 await suivant(eleve); await suivant(eleve); await suivant(eleve); // complications 2 à 4
-await eleve.click('[data-outil="plein"]');
-await eleve.click('[data-sect="penouille"]');
+await eleve.click('[data-pov="0"]');
+dit((await eleve.textContent('#carnet .comp h3')).includes('route 132'), 'étape 5 : un point de vue déjà lu se relit (1, 2, 3, 4)');
+await eleve.click('[data-pov="3"]');
+await eleve.click('.trace-carte [data-sect="penouille"]');
+await eleve.click('[data-zone="sauvage"]');
+dit(await eleve.locator('.trace-effet .effet').count() === 1, 'étape 5 : un geste après le point de vue affiche ce qu’il change');
 await ecrire(eleve, 'F5.4', "Les Mi'gmaq, depuis des temps immémoriaux.");
 await capture(eleve, '07-complications');
 await auditer(eleve, 'équipe · étape 5, point de vue');
@@ -281,7 +316,7 @@ await auditer(prof, 'enseignant · en direct, détail d’une équipe');
 // le « bravo » : l'enseignant·e salue une réponse, l'équipe le voit tout de suite, sans score
 await prof.click('#detail [data-bravo="F5.4"]');
 await eleve.waitForSelector('.bravo--ens', { timeout: 5000 });
-dit((await eleve.textContent('.bravo--ens')).includes('Le territoire porte déjà un nom'), 'un « bravo » de l’enseignant·e arrive chez l’équipe, avec sa question');
+dit((await eleve.textContent('.bravo--ens')).includes('Ce territoire a déjà un nom'), 'un « bravo » de l’enseignant·e arrive chez l’équipe, avec sa question');
 await prof.waitForSelector('#detail [data-bravo="F5.4"][aria-pressed="true"]');
 await capture(eleve, '08c-bravo-equipe');
 await auditer(eleve, 'équipe · bravo de l’enseignant·e');
@@ -332,6 +367,7 @@ await prof.fill('[data-raison="releves|0|t"]', 'Essai de correction');
 await prof.click('details.rg-groupe[data-k="rg|Questions et réponses attendues"] > summary');
 await prof.click('details.rg-item[data-k="rg|banque|F2.1"] > summary');
 await prof.fill('[data-corr="banque|F2.1|reponse"]', 'Réponse attendue corrigée pour le test');
+await prof.check('[data-temps-equipes]');
 dit((await prof.textContent('#ed-etat')).includes('pas encore appliqués'), 'réglages : rien ne part avant « Appliquer »');
 await capture(prof, '08b-reglages');
 await auditer(prof, 'enseignant · réglages, sections ouvertes');
@@ -371,7 +407,7 @@ dit(true, 'la question ajoutée arrive en direct chez l’équipe à l’arrivé
 dit((await autre.textContent('#scene')).includes('facultative'), 'la question rendue facultative est marquée comme telle');
 dit(await autre.isDisabled('#suivant'), 'la question ajoutée, requise, retient l’équipe');
 dit(/Il reste environ|Moins d.une minute|Temps prévu dépassé/.test(await autre.textContent('#minutes'))
-  && (await autre.getAttribute('#minutes', 'title')).includes('2 min'), 'l’équipe voit le temps qui reste, selon les nouvelles minutes');
+  && (await autre.getAttribute('#minutes', 'title')).includes('2 min'), '« Montrer le temps aux équipes » allumé : l’équipe voit le temps qui reste, selon les nouvelles minutes');
 await autre.fill('[data-rep^="A"]', 'Le fou de Bassan, il est partout sur les falaises.');
 await autre.waitForTimeout(80);
 dit(!(await autre.isDisabled('#suivant')), 'répondre à la question ajoutée suffit (F1.2 est facultative)');
@@ -1016,7 +1052,7 @@ if (MODE === 'local') {
   await hl.check('input[name=nom][value="Castor"]');
   await hl.click('button[type=submit]');
   await hl.waitForSelector('#titre', { timeout: 8000 });
-  dit((await hl.textContent('#titre')).includes('Arriver'), 'hors ligne, une séance se crée et une équipe la rejoint (démonstration)');
+  dit(/La question du jeu|Arriver/.test(await hl.textContent('#titre')), 'hors ligne, une séance se crée et une équipe la rejoint (démonstration)');
   const [pied, bande] = await Promise.all(['.pied', '.horsligne'].map((x) => hl.locator(x).boundingBox()));
   dit(pied && bande && pied.y + pied.height <= bande.y + 1, 'le bandeau ne cache pas la barre « Suivant »');
   await capture(hl, '17b-hors-ligne-jeu');
@@ -1032,7 +1068,7 @@ if (MODE === 'local') {
   await hl.check('input[name=nom][value="Castor"]');
   await hl.click('button[type=submit]');
   await hl.waitForSelector('#titre', { timeout: 8000 });
-  dit((await hl.textContent('#titre')).includes('Arriver'), 'même code, même nom : l’équipe retrouve sa partie');
+  dit(/La question du jeu|Arriver/.test(await hl.textContent('#titre')), 'même code, même nom : l’équipe retrouve sa partie');
   await hl.goto(`${B2}/enseignant/preparer/deroulement/`);
   await hl.waitForSelector('[data-onglet="deroulement"][aria-current="page"]', { timeout: 8000 });
   dit(true, 'hors ligne, une adresse d’onglet se recharge : la séance revient sur cet onglet');

@@ -22,7 +22,7 @@
       ['el-releve', '[data-releve]', 'Touchez un relevé pour l’ouvrir.'],
       ['el-rep', '[data-rep]', 'Écrit en équipe, enregistré tout seul.'],
       ['el-envoi', '#etat-envoi', 'Vert : l’enseignant·e a vos réponses.'],
-      ['el-outil', '[data-outil]', 'Une zone, puis un secteur de la carte.']
+      ['el-carte', '.trace-choix', 'Un secteur sur la carte, puis sa zone ici.']
     ],
     prof: [
       ['en-creer', '#creer', 'Donne le code à mettre au tableau.'],

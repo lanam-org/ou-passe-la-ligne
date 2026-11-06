@@ -215,9 +215,10 @@ export async function effacerSeance(code) {
  * n'enregistre rien (eleve.js).
  */
 export const CLE_APERCU = 'forillon:apercu';
-export function ouvrirApercu(reglages) {
+export function ouvrirApercu(reglages, etape = null) {
   try { localStorage.setItem(CLE_APERCU, JSON.stringify({ config: reglages || null, t: Date.now() })); } catch { /* vide */ }
-  window.open('eleve.html?apercu=1', '_blank', 'noopener');
+  // `etape` : l'aperçu s'ouvre sur cette étape (« Voir cette étape comme l'équipe », depuis le détail d'une équipe)
+  window.open(`eleve.html?apercu=1${Number.isInteger(etape) ? `&etape=${etape}` : ''}`, '_blank', 'noopener');
 }
 
 /** Les messages à toute la classe : des phrases prêtes, ou un message écrit par l'enseignant·e (« perso »). */

@@ -74,20 +74,30 @@ function lecteur(ch, classe) {
   </div>`;
 }
 
-/** Avancer ensemble : un interrupteur, et l'étape ouverte avec le bouton qui ouvre la suivante. */
+/**
+ * Avancer ensemble : un interrupteur, et l'étape ouverte avec le bouton qui ouvre la suivante. Retours du Playtest 2
+ * (« ça ne marche pas ») : le geste n'avait aucun effet visible. On dit maintenant ce qu'il fait, combien d'équipes
+ * attendent l'ouverture et combien y arrivent encore ; les équipes en attente le voient en grand chez elles.
+ */
 function vueRythme() {
-  const { c, S } = etat;
+  const { c, S, EQ } = etat;
   const r = S?.rythme, dernier = c.etapes.findIndex((x) => x.id === 'debrief');
   const ouverte = r && r.etape <= dernier ? c.etapes[r.etape] : null;
+  const enJeu = EQ.filter((e) => !e.fini);
+  const arrivees = r ? enJeu.filter((e) => e.etape >= r.etape).length : 0;
+  const enRoute = r ? enJeu.length - arrivees : 0;
   return `<div class="rythme">
-    <label class="bascule"><input type="checkbox" role="switch" data-rythme ${r ? 'checked' : ''}><span class="bascule-p" aria-hidden="true"></span>
+    <label class="bascule"><input type="checkbox" role="switch" data-rythme ${r ? 'checked' : ''} aria-describedby="rythme-d"><span class="bascule-p" aria-hidden="true"></span>
       <span>Avancer ensemble</span></label>
     ${r && r.etape > 0 ? `<button class="btn btn--f btn--s" type="button" data-rythme-precedente aria-label="Revenir à l'étape précédente"
       title="Revenir à l'étape précédente">←</button>` : ''}
-    ${!r ? '' : ouverte ? `<span>Jusqu'à <b>${esc(ouverte.n)}. ${esc(ouverte.t)}</b></span>
+    ${!r ? '' : ouverte ? `<span>Ouvert jusqu'à <b>${esc(ouverte.n)}. ${esc(ouverte.t)}</b></span>
       <button class="btn btn--s" type="button" data-rythme-suivante>${r.etape === dernier ? 'Ouvrir la fin' : 'Ouvrir l\'étape suivante'} →</button>`
       : '<span>Toutes les étapes sont ouvertes</span>'}
-  </div>`;
+  </div>
+  <p class="hint rythme-d" id="rythme-d">${!r ? 'Allumé : aucune équipe ne dépasse l\'étape que vous ouvrez. Elle termine son étape, puis attend votre signal.'
+    : ouverte ? `${arrivees} équipe${arrivees > 1 ? 's' : ''} à cette étape (elles attendent votre signal pour la suite) · ${enRoute} encore en route.`
+      : 'Chaque équipe avance à son rythme jusqu\'à la fin.'}</p>`;
 }
 
 /**
@@ -178,9 +188,10 @@ export function vueDirect() {
       ${eq.length ? '<p class="hint eq-aide">Touchez une équipe pour lire ses réponses, et saluer une bonne réponse d\'un <b>✦ Bravo</b> : l\'équipe le voit tout de suite.</p>' : ''}
       ${eq.length ? `<div class="equipes">${eq.map((e) => {
         const t = etatTemps(e), x = etapeDe(e);
+        const attend = S?.rythme && !e.fini && e.etape >= S.rythme.etape;
         return `<button class="eq" data-equipe="${esc(e.id)}" aria-pressed="${e.id === choisie}">
           <span class="eq-h"><b>${esc(e.nom)}</b><span class="eq-t ${t.cls}">${t.txt}</span></span>
-          <span class="eq-e">${e.fini ? 'Partie terminée' : `Étape ${x.n} · ${esc(x.t)}`}</span>
+          <span class="eq-e">${e.fini ? 'Partie terminée' : `Étape ${x.n} · ${esc(x.t)}`}${attend ? ' <span class="badge badge--attend">attend votre signal</span>' : ''}</span>
           ${segments(e)}${puces(e)}</button>`;
       }).join('')}</div>`
       : `<p class="vide">Aucune équipe pour l'instant. Affichez le code <b>${esc(code)}</b> au tableau.</p>`}
@@ -199,10 +210,65 @@ export function vueDirect() {
     </section>`;
 }
 
+// Ce que l'équipe a à faire, étape par étape, et des phrases pour relancer sans donner la réponse.
+const MISSIONS = {
+  arrivee: ['Lire la question du jeu, puis écrire une hypothèse.', ['Lisez la question à voix haute. Que vous demande-t-on ?', 'Pensez à la côte gaspésienne : qui pouvait vivre là ?']],
+  marche: ['Faire les six relevés sur la carte, puis répondre aux questions des relevés.', ['Quel relevé n\'avez-vous pas encore ouvert ?', 'Relisez le relevé : la réponse y est.']],
+  dossier: ['Choisir les trois documents les plus utiles, lire le verdict, puis répondre à la question.', ['Ce document aide-t-il à dire QUI a le droit d\'habiter ici ?', 'Un document vrai peut ne pas servir à CETTE question.']],
+  trace: ['Donner une zone à chaque secteur, en garder au moins un en préservation, puis écrire pourquoi.', ['Touchez un secteur, puis choisissez sa zone à droite.', 'Que protège votre ligne ? Qui doit partir ?', 'Les maisons barrées : ce sont les villages que vous videz.']],
+  comp: ['Lire les quatre points de vue ; changer la ligne si l\'équipe le veut ; répondre aux questions.', ['Ce point de vue change-t-il votre ligne ?', 'Regardez le corridor et les maisons barrées sur votre carte.']],
+  bilan: ['Comparer sa ligne à celle de 1970, puis répondre à la question.', ['Qu\'est-ce que la ligne de 1970 a fait que la vôtre ne fait pas ?']],
+  debrief: ['Préparer ce que l\'équipe dira en classe.', ['Qu\'allez-vous dire à la classe ?']]
+};
+
+/** Ce qui manque à l'équipe pour continuer : les mêmes conditions que le bouton du bas, chez elle. */
+function manque(e) {
+  const { c, S } = etat;
+  const x = etapeDe(e);
+  const m = [];
+  if (x.id === 'arrivee' && !J.repondu(e, 'F1.2') && e.atteinte === 0) m.push('Elle lit peut-être encore la question du jeu, ou écrit son hypothèse.');
+  if (x.id === 'marche' && e.releves.length < c.releves.length) m.push(`${c.releves.length - e.releves.length} relevé${c.releves.length - e.releves.length > 1 ? 's' : ''} à faire.`);
+  if (x.id === 'dossier' && !e.juge) m.push(`${e.docs.length} document${e.docs.length > 1 ? 's' : ''} choisi${e.docs.length > 1 ? 's' : ''} sur 3.`);
+  if (x.id === 'trace') m.push(...J.manqueLigne(c, e).map((t) => `${t}.`));
+  if (x.id === 'comp' && e.comps < c.complications.length) m.push(`Point de vue ${e.comps} sur ${c.complications.length}.`);
+  for (const q of [...Rg.aRattraper(c, e), ...Rg.questionsVisibles(c, e, x.id)]) if (q.requise && !J.repondu(e, q.id)) m.push(`Répondre à ${qid(q)} : « ${q.eleve} »`);
+  if (!m.length && S?.rythme && e.etape >= S.rythme.etape && !e.fini) m.push('Rien : elle attend que vous ouvriez l\'étape suivante (Avancer ensemble).');
+  return m;
+}
+
+/** Pour répondre à une main levée : l'étape, ce qu'elle a à faire, ce qui lui manque, la question en cours et sa réponse attendue. */
+function ouEnEst(e) {
+  const { c, S } = etat;
+  if (e.fini) return '<div class="ou-en-est"><p><b>Partie terminée.</b> Toutes ses réponses sont plus bas.</p></div>';
+  const x = etapeDe(e), t = etatTemps(e);
+  const [mission, relances] = MISSIONS[x.id] || ['', []];
+  const qs = Rg.questionsVisibles(c, e, x.id);
+  const m = manque(e);
+  return `<div class="ou-en-est">
+    <div class="ou-h"><p class="sur">Où en est l'équipe</p>
+      <button class="lien" type="button" data-apercu-etape="${e.etape}">${icone('oeil')} Voir cette étape comme l'équipe</button></div>
+    <p class="ou-etape">Étape ${esc(x.n)} · <b>${esc(x.t)}</b> <span class="eq-t ${t.cls}">${t.txt}</span></p>
+    <dl class="ou-l">
+      <dt>À faire</dt><dd>${esc(mission)}</dd>
+      <dt>Pour continuer</dt><dd>${m.length ? `<ul>${m.map((y) => `<li>${esc(y)}</li>`).join('')}</ul>` : 'Rien ne manque : elle peut passer à la suite.'}</dd>
+      ${relances.length ? `<dt>Pour relancer, sans donner la réponse</dt><dd><ul>${relances.map((y) => `<li>« ${esc(y)} »</li>`).join('')}</ul></dd>` : ''}
+    </dl>
+    ${qs.map((q) => {
+      const r = String(e.reponses?.[q.id] || '').trim();
+      return `<div class="rep rep--ici"><p class="k">${esc(qid(q))} · la question en cours${q.requise ? '' : ' · facultative'}</p>
+        <p><b>${esc(q.eleve)}</b></p>${q.attendu ? `<p class="hint">Ce que l'équipe lit dessous : ${esc(q.attendu)}</p>` : ''}
+        <p>${r ? esc(r) : 'pas encore de réponse'}</p>
+        ${q.reponse ? `<p class="att"><span class="sur">Réponse attendue</span> ${esc(q.reponse)}</p>` : ''}</div>`;
+    }).join('')}
+  </div>`;
+}
+
 function vueDetail(e) {
   const { c, S, ecrites } = etat;
   return `<section class="p-sect detail" id="detail">
     <div class="p-sect-h"><h3>Équipe ${esc(e.nom)}</h3><button class="lien" data-equipe="">${icone('croix')} Fermer</button></div>
+    ${ouEnEst(e)}
+    <h4 class="detail-tout">Toute sa partie</h4>
     <div class="detail-g">
       <div>${carte(c, e, { cliquable: false })}<div style="margin-top:12px">${blocReleve(c, e, true)}</div>
         ${e.juge ? `<p class="sur" style="margin-top:14px">Documents retenus</p><ul class="docs-r">${e.docs.map((id) => {

@@ -130,28 +130,14 @@ const ICONES = {
 export const icone = (nom) => `<svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false">${ICONES[nom]}</svg>`;
 
 /**
- * Vrai si les dessins sont affichés ; faux : la carte devient des boutons dans un cadre « Carte à venir »,
- * et l'image temporaire marque la place des images (config.js).
+ * Vrai si les images du jeu sont arrivées ; faux : l'image temporaire marque leur place (la grande image de
+ * l'arrivée), en attendant (config.js). La carte n'en dépend plus : c'est un schéma dessiné pour le jeu, toujours
+ * affiché (Playtest 2). La garde-parc n'a plus de portrait : sa consigne suffit.
  */
 export const IMAGES = config.images === true;
 
 /**
- * L'image temporaire, toujours la même, là où une image est prévue (la carte, la garde-parc) :
- * mise à l'échelle de sa place, jamais rognée ni déformée. À remplacer par les vraies images.
+ * L'image temporaire, toujours la même, là où une image est prévue : mise à l'échelle de sa place, jamais rognée
+ * ni déformée. À remplacer par les vraies images.
  */
 export const IMAGE_TEMPORAIRE = 'images/temporaire.png';
-
-/** Le personnage de la garde-parc (fictif), en SVG. */
-const DESSIN_GARDE = `<svg viewBox="0 0 52 52" aria-hidden="true">
-  <circle cx="26" cy="26" r="25" fill="#DCE8F1"/>
-  <path d="M26 14c-6 0-9 4-9 9v4h18v-4c0-5-3-9-9-9z" fill="#3E5A4A"/>
-  <circle cx="26" cy="27" r="7.5" fill="#E8C9A0"/>
-  <path d="M14 24h24l-2-4H16z" fill="#1F5A3D"/>
-  <path d="M26 16c7 0 12 3 12 5H14c0-2 5-5 12-5z" fill="#1F5A3D"/>
-  <circle cx="23" cy="27" r="1.2" fill="#1B2A33"/><circle cx="29" cy="27" r="1.2" fill="#1B2A33"/>
-  <path d="M23 31c2 1.6 4 1.6 6 0" stroke="#1B2A33" stroke-width="1.3" fill="none" stroke-linecap="round"/>
-  <path d="M16 52c0-7 4.5-11 10-11s10 4 10 11z" fill="#3E5A4A"/></svg>`;
-
-// Sans images : l'image temporaire à la place du portrait (taille dans site.css, .garde-temp).
-export const GARDE = IMAGES ? DESSIN_GARDE
-  : `<img class="garde-temp" src="${IMAGE_TEMPORAIRE}" alt="" width="126" height="72">`;

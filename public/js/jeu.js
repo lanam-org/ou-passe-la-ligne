@@ -15,7 +15,9 @@ export function nouvelEtat(c, nom, appareil) {
     nom, appareil, creeLe: maintenant, maj: maintenant,
     etape: 0, atteinte: 0, entree: maintenant, temps: {},
     releves: [], docs: [], juge: false,
-    zones: Object.fromEntries(c.secteurs.map((s) => [s.id, 'preservation'])),
+    // Rien n'est zoné au départ : la ligne n'existe pas encore. Un secteur est « à décider » tant que
+    // l'équipe ne lui a pas donné de zone (son historique est vide, voir decide()).
+    zones: Object.fromEntries(c.secteurs.map((s) => [s.id, null])),
     comps: 0, gespeg: true, gespegVu: 0, historique: {}, corridorRompu: false,
     mentions: [], reponses: {}, fini: false,
     compteurs: { retours: 0, sauts: 0, clicsVides: 0, gestesTrace: 0, gestesComp: 0,
@@ -26,6 +28,27 @@ export function nouvelEtat(c, nom, appareil) {
 export const nomZone = (c, z) => (z ? c.zones[z].nom : 'hors de la ligne');
 export const nbVillages = (c) => c.secteurs.filter((s) => s.habite).length;
 
+/**
+ * Un secteur est décidé dès que l'équipe lui a donné une zone, même celle qu'il avait déjà (« hors de la ligne »
+ * au départ). L'historique de ses zones le garde : aucun nouveau champ dans la fiche de l'équipe.
+ */
+export const decide = (e, id) => (e.historique?.[id] || []).length > 0;
+/** Les secteurs encore à décider, dans l'ordre de la carte. */
+export const aDecider = (c, e) => c.secteurs.filter((s) => !decide(e, s.id));
+
+/**
+ * Le minimum avant d'arrêter la ligne (retours des enseignant·es, Playtest 2) : il n'y a pas de bonne réponse,
+ * mais chaque secteur reçoit une décision et la ligne protège au moins un secteur en préservation.
+ * Renvoie ce qui manque, en clair (vide : la ligne peut s'arrêter).
+ */
+export function manqueLigne(c, e) {
+  const reste = aDecider(c, e);
+  const manque = [];
+  if (reste.length) manque.push(`${reste.length === 1 ? 'Un secteur reste' : `${reste.length} secteurs restent`} à décider : ${reste.map((s) => s.nom).join(', ')}`);
+  if (!c.secteurs.some((s) => decide(e, s.id) && e.zones[s.id] === 'preservation')) manque.push('Aucun secteur en préservation : votre ligne doit protéger quelque chose');
+  return manque;
+}
+
 /** Ce que la ligne fait : secteurs, villages vidés ou gardés, corridor, visiteurs. */
 export function releve(c, e) {
   const par = { preservation: 0, sauvage: 0, plein: 0, village: 0 };
@@ -33,15 +56,18 @@ export function releve(c, e) {
   const vides = [], gardes = [], dehors = [];
   for (const s of c.secteurs) {
     const z = e.zones[s.id];
-    if (!z) { if (s.habite) dehors.push(s.nom); continue; }
+    if (!z) { if (s.habite && decide(e, s.id)) dehors.push(s.nom); continue; }
     dans += 1; par[z] += 1;
     if (s.habite) (c.zones[z].habite ? gardes : vides).push(s.nom);
   }
+  // le corridor ne se juge qu'une fois ses secteurs décidés : un secteur pas encore touché ne rompt rien
   const maillons = c.corridor.map((id) => e.zones[id]);
-  const corridor = maillons.some((z) => !z) ? 'rompu'
-    : maillons.every((z) => z === 'preservation' || z === 'sauvage') ? 'continu' : 'affaibli';
+  const corridor = c.corridor.some((id) => !decide(e, id)) ? 'à décider'
+    : maillons.some((z) => !z) ? 'rompu'
+      : maillons.every((z) => z === 'preservation' || z === 'sauvage') ? 'continu' : 'affaibli';
   const visiteurs = (par.plein || par.village) ? 'fort' : par.sauvage ? 'sentiers seulement' : 'aucun';
-  return { dans, total: c.secteurs.length, par, vides, gardes, dehors, corridor, visiteurs };
+  return { dans, total: c.secteurs.length, par, vides, gardes, dehors, corridor, visiteurs,
+    aDecider: aDecider(c, e).map((s) => s.nom) };
 }
 
 const ajouterMention = (e, id, nouvelles) => {
@@ -58,7 +84,9 @@ export function peindre(c, e, idSecteur, outil, maintenant = Date.now()) {
   const sec = c.secteurs.find((x) => x.id === idSecteur);
   if (!sec) return null;
   const cible = outil === 'hors' ? null : outil;
-  if (e.zones[idSecteur] === cible) return null;
+  // un secteur pas encore décidé peut recevoir la zone qu'il a déjà (« hors de la ligne ») : c'est une décision
+  const premier = !decide(e, idSecteur);
+  if (e.zones[idSecteur] === cible && !premier) return null;
   const avant = releve(c, e);
   const avantZone = e.zones[idSecteur];
   e.zones[idSecteur] = cible;
@@ -78,8 +106,8 @@ export function peindre(c, e, idSecteur, outil, maintenant = Date.now()) {
   }
 
   // ce que le geste révèle
-  const hist = (e.historique[idSecteur] ||= []);
-  for (const z of [avantZone || 'hors', cible || 'hors']) if (!hist.includes(z)) hist.push(z);
+  const hist = ((e.historique ||= {})[idSecteur] ||= []);
+  for (const z of premier ? [cible || 'hors'] : [avantZone || 'hors', cible || 'hors']) if (!hist.includes(z)) hist.push(z);
   if (e.comps > 0) ajouterMention(e, 'rouverte', nouvelles);
   if (new Set(Object.values(e.zones).filter(Boolean)).size >= 3) ajouterMention(e, 'zonage', nouvelles);
   if (sec.habite && ['preservation', 'sauvage', 'plein'].some((z) => hist.includes(z)) && hist.includes('village'))
@@ -91,7 +119,7 @@ export function peindre(c, e, idSecteur, outil, maintenant = Date.now()) {
   return {
     nouvelles,
     effet: {
-      secteur: sec.nom, fait: sec.fait, src: sec.src, de: avantZone, a: cible,
+      id: sec.id, secteur: sec.nom, fait: sec.fait, src: sec.src, de: avantZone, a: cible, premier, etape: ici, comps: e.comps,
       dans: apres.dans - avant.dans,
       vides: apres.vides.length - avant.vides.length,
       gardes: apres.gardes.length - avant.gardes.length,
