@@ -21,7 +21,9 @@ export const etat = {
 };
 
 /** Ce qui ne vit qu'à l'écran. lus : les documents ouverts avec « Lire ». */
-const uiDepart = () => ({ outil: 'preservation', effet: null, nouvelles: [], avis: {}, avisEnvoye: false,
+// secteur : le secteur choisi sur la carte (on choisit sa zone ensuite) ; questionLue : l'écran « La question du jeu »
+// est passé ; povVoir : le point de vue relu (null : le dernier arrivé).
+const uiDepart = () => ({ secteur: null, questionLue: false, povVoir: null, effet: null, nouvelles: [], avis: {}, avisEnvoye: false,
   rendue: -1, erreur: '', lus: new Set(), compVu: 0, compNeuf: false, bravos: '{}', releveVu: null,
   rythme: undefined, attend: undefined, finFetee: false });
 export const ui = { ...uiDepart(), signalFerme: 0, bravoVu: 0 };

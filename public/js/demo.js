@@ -58,7 +58,8 @@ function equipes(c, maintenant) {
         r(e, 'F3.2', "Les deux, elles comptent pas la même chose : ceux qui habitaient là ou ceux qui ont perdu un terrain.");
       }],
       [7, (e, q) => {
-        peindre(c, e, q, [['rosiers', 'village'], ['anse', 'village'], ['ship', 'village'], ['grave', 'plein'], ['morris', 'sauvage']]);
+        peindre(c, e, q, [['rosiers', 'village'], ['anse', 'village'], ['ship', 'village'], ['grave', 'plein'], ['morris', 'sauvage'],
+          ['foret', 'preservation'], ['penouille', 'sauvage']]);
         J.mentionner(e, 'corridor');
         r(e, 'F4.3', 'Elle vide Grande-Grave, Penouille et Rivière-Morris. Le corridor tient. On garde la forêt pour les animaux et trois villages au bord de la mer.');
       }],
@@ -83,7 +84,8 @@ function equipes(c, maintenant) {
         r(e, 'F3.2', "Les deux peut-être ? 983 c'est les gens qui habitaient, 1 800 c'est plus large.");
       }],
       [9, (e, q) => {
-        peindre(c, e, q, [['anse', 'village'], ['rosiers', 'village'], ['morris', 'village'], ['penouille', 'village'], ['grave', 'village'], ['ship', 'village']]);
+        peindre(c, e, q, [['anse', 'village'], ['rosiers', 'village'], ['morris', 'village'], ['penouille', 'village'], ['grave', 'village'], ['ship', 'village'],
+          ['foret', 'preservation']]);
         r(e, 'F4.3', 'On vide aucun village. On voulait que les familles restent chez elles.');
       }],
       [6, (e, q) => {

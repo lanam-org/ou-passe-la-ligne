@@ -161,6 +161,8 @@ function entrerApercu() {
   appliquerReglages(lu?.config || null);
   const E = J.nouvelEtat(etat.c, 'Aperçu', 'apercu');
   E.atteinte = etat.c.etapes.length - 1;
+  const etape = Number(params.get('etape'));   // depuis le détail d'une équipe : l'étape où elle se trouve
+  if (Number.isInteger(etape) && etape > 0 && etape < etat.c.etapes.length) E.etape = etape;
   Object.assign(etat, { code: null, idEq: 'apercu', E, S: { etat: 'ouverte', config: lu?.config || null, chrono: null } });
   $('#retour-accueil').hidden = true;
   document.body.dataset.ecran = 'jeu';
@@ -182,7 +184,10 @@ function rendre() {
   // Nouvelle étape : en haut de la page, et le focus sur son titre (le clavier et le lecteur d'écran
   // repartent du début de l'étape, pas du bouton « Continuer » resté en bas).
   let focusTitre = false;
-  if (ui.rendue !== E.etape) { if (ui.rendue !== -1) { window.scrollTo({ top: 0 }); focusTitre = true; } ui.rendue = E.etape; }
+  if (ui.rendue !== E.etape) {
+    if (ui.rendue !== -1) { window.scrollTo({ top: 0 }); focusTitre = true; }
+    ui.rendue = E.etape; ui.secteur = null; ui.povVoir = null;   // une nouvelle étape repart sans secteur choisi
+  }
   ui.compNeuf = E.comps > ui.compVu; ui.compVu = E.comps;   // un point de vue qui vient d'arriver se signale, une fois
   const v = ECRANS[e.id]();
 
@@ -197,11 +202,13 @@ function rendre() {
   const actif = document.activeElement?.dataset?.rep
     ? { id: document.activeElement.dataset.rep, a: document.activeElement.selectionStart, b: document.activeElement.selectionEnd } : null;
 
-  $('#titre').textContent = e.t;
+  $('#titre').textContent = v.titre || e.t;
+  $('#bandeau-q').hidden = !!v.sansBandeau;   // l'écran « La question du jeu » la montre déjà, en grand
   majMinutes();
   $('#guide-txt').innerHTML = typo(v.guide);
   $('#scene').innerHTML = typo((e.id === 'avis' ? '' : rattrapage()) + v.h);
-  if (focusTitre) { $('#titre').focus({ preventScroll: true }); carteEtape(e.n, e.t); }
+  // la carte d'une nouvelle étape rappelle la question du jeu (Playtest 2 : la répéter tout au long du parcours)
+  if (focusTitre) { $('#titre').focus({ preventScroll: true }); carteEtape(e.n, e.t, ['debrief', 'avis'].includes(e.id) ? '' : c.question); }
   else if (actif) {
     const t = document.querySelector(`[data-rep="${CSS.escape(actif.id)}"]`);
     if (t) { t.focus(); try { t.setSelectionRange(actif.a, actif.b); } catch { /* vide */ } }
@@ -235,19 +242,24 @@ function retenue() {
   if (!r || etat.apercu || !E || E.fini || S.etat === 'fermee') return false;
   const e = c.etapes[E.etape];
   if (e.id === 'avis' || (e.id === 'dossier' && !E.juge) || (e.id === 'comp' && E.comps < c.complications.length)) return false;
+  if (e.id === 'arrivee' && ECRANS.arrivee().titre) return false;   // « La question du jeu » fait partie de l'arrivée
   return E.etape >= r.etape;
 }
 
-/** Le temps qui reste à l'étape : discret, jamais bloquant ; ocre une fois le temps prévu dépassé. */
+/**
+ * Le temps qui reste à l'étape : discret, jamais bloquant ; ocre une fois le temps prévu dépassé. Caché par défaut
+ * (un compte à rebours stresse les élèves : retours des enseignant·es) ; « En pause » se montre toujours.
+ */
 function majMinutes() {
   const { c, E, S } = etat;
   const z = $('#minutes');
   if (!z || !E || E.fini) return;
   const e = c.etapes[E.etape];
-  if (e.id === 'avis') { z.textContent = ''; const b = $('#temps-i'); if (b) b.parentElement.hidden = true; return; }
-  if ($('#temps-i')) $('#temps-i').parentElement.hidden = false;
-  const reste = Rg.resteEtape(c, E, S?.chrono);
   const pause = !!S?.chrono?.pause;
+  const b = $('#temps-i');
+  if (e.id === 'avis' || (!c.tempsEquipes && !pause)) { z.textContent = ''; if (b) b.parentElement.hidden = true; return; }
+  if (b) b.parentElement.hidden = !c.tempsEquipes;
+  const reste = Rg.resteEtape(c, E, S?.chrono);
   z.textContent = pause ? 'En pause'
     : reste <= 0 ? 'Temps prévu dépassé'
       : reste < 60000 ? 'Moins d\'une minute'
@@ -255,8 +267,7 @@ function majMinutes() {
   z.toggleAttribute('data-depasse', !pause && reste <= 0);
   z.title = `Temps prévu pour cette étape : ${e.min} min`;
   // la barre du temps qui reste, qui se vide (comme le compte à rebours d'un Kahoot, sans pression de score)
-  const b = $('#temps-i');
-  if (b) {
+  if (b && c.tempsEquipes) {
     const part = Math.max(0, Math.min(1, reste / (e.min * 60000 || 1)));
     b.style.width = `${Math.round(part * 100)}%`;
     b.parentElement.dataset.niveau = reste <= 0 ? 'fini' : part < 0.2 ? 'bas' : '';
@@ -277,8 +288,9 @@ function majPied(v) {
     ui.attend = attend;
   }
   // Une réponse requise manque : la phrase sous le bouton devient un lien qui y mène.
-  const manque = !v.peut && v.hint && reponseManquante();
-  $('#hint').innerHTML = attend ? '<span class="attend">En attente de votre enseignant·e</span>'
+  const manque = !v.peut && v.hint && v.lien !== false && reponseManquante();
+  $('.pied')?.classList.toggle('pied--attend', !!attend);
+  $('#hint').innerHTML = attend ? '<span class="attend">En attente de votre enseignant·e : c\'est fait, elle ou il ouvrira l\'étape suivante.</span>'
     : manque ? `<button type="button" class="lien lien-manque" data-aller="${esc(manque.id)}">${esc(v.hint)}</button>`
       : esc(v.hint || '');
 }
@@ -308,6 +320,7 @@ document.addEventListener('click', async (ev) => {
   // fermer l'onglet de l'aperçu ; si le navigateur refuse, revenir à l'espace enseignant
   if (ev.target.closest('[data-fermer-apercu]')) { window.close(); setTimeout(() => { location.href = 'enseignant.html'; }, 300); return; }
   if (ev.target.closest('[data-imprimer-fin]')) return window.print();
+  if (ev.target.closest('[data-quitter-demander]')) { const d = $('#d-quitter'); d.returnValue = ''; return d.showModal(); }
   const al = ev.target.closest('[data-aller]');
   if (al) {
     const t = document.querySelector(`[data-rep="${CSS.escape(al.dataset.aller)}"]`);
@@ -340,13 +353,41 @@ document.addEventListener('click', async (ev) => {
   const doc = ev.target.closest('[data-doc]');
   if (doc) { J.basculerDoc(E, doc.dataset.doc); return apres(); }
   if (ev.target.closest('[data-gespeg]')) return apres(J.basculerGespeg(E));
-  const outil = ev.target.closest('[data-outil]');
-  if (outil) { ui.outil = outil.dataset.outil; return rendre(); }
+  // la carte : on touche un secteur, puis on choisit sa zone (Playtest 2 : le secteur d'abord, plus de rangée d'outils)
   const sect = ev.target.closest('[data-sect]');
   if (sect) {
-    const r = J.peindre(c, E, sect.dataset.sect, ui.outil);
+    ui.secteur = sect.dataset.sect;
+    const s = c.secteurs.find((x) => x.id === ui.secteur);
+    dire(`${s.nom} choisi. ${J.decide(E, s.id) ? `Zone actuelle : ${J.nomZone(c, E.zones[s.id])}.` : 'Pas encore décidé.'} Choisissez sa zone.`);
+    rendre();
+    // la carte, le panneau et la question (à droite) d'un seul regard : si la carte dépasse le bas de l'écran,
+    // on la remonte sous la barre du haut (Playtest 2 : l'équipe ne doit pas défiler sans cesse)
+    const g = document.querySelector('.trace-g'), pied = document.querySelector('.pied');
+    if (g && pied && g.getBoundingClientRect().bottom > pied.getBoundingClientRect().top) g.scrollIntoView({ block: 'start', behavior: 'smooth' });
+    // au clavier, le focus passe aux choix de zone
+    if (ev.detail === 0) document.querySelector('.choix-z[aria-pressed="true"], .choix-z')?.focus({ preventScroll: true });
+    return;
+  }
+  const zone = ev.target.closest('[data-zone]');
+  if (zone && ui.secteur) {
+    const premier = !J.decide(E, ui.secteur);
+    const r = J.peindre(c, E, ui.secteur, zone.dataset.zone);
     if (r) { ui.effet = r.effet; direEffet(r.effet); }
-    return apres(r ? r.nouvelles : []);
+    // au tracé, un secteur tout juste décidé : on passe au suivant à décider (et on le dit)
+    const suivant = r && premier && c.etapes[E.etape].id === 'trace' ? J.aDecider(c, E)[0] : null;
+    if (suivant) ui.secteur = suivant.id;
+    apres(r ? r.nouvelles : []);
+    if (suivant) setTimeout(() => dire(`Secteur suivant à décider : ${suivant.nom}.`), 900);
+    (document.querySelector('.choix-z[aria-pressed="true"]') || document.querySelector('.choix-z'))?.focus({ preventScroll: true });
+    return;
+  }
+  const pov = ev.target.closest('[data-pov]');
+  if (pov) {
+    ui.povVoir = Number(pov.dataset.pov); ui.compNeuf = false; rendre();
+    const x = c.complications[ui.povVoir];
+    if (x) dire(`Point de vue ${ui.povVoir + 1} : ${x.t}. ${sansBalises(x.x)}`);
+    document.querySelector(`.pov-b[data-pov="${ui.povVoir}"]`)?.focus({ preventScroll: true });
+    return;
   }
   if (ev.target.closest('.carte')) { E.compteurs.clicsVides += 1; sauver(); return; }
 
@@ -357,11 +398,16 @@ document.addEventListener('click', async (ev) => {
 
   if (ev.target.closest('#suivant')) {
     const e = c.etapes[E.etape];
+    if (e.id === 'arrivee' && ECRANS.arrivee().titre) {   // « La question du jeu » lue : l'arrivée, comme une nouvelle étape
+      ui.questionLue = true; rendre();
+      window.scrollTo({ top: 0 }); $('#titre').focus({ preventScroll: true });
+      return;
+    }
     if (!ECRANS[e.id]().peut || retenue()) return;
     if (e.id === 'dossier' && !E.juge) return apres(J.juger(c, E));
     if (e.id === 'trace' && J.releve(c, E).corridor === 'continu') ui.nouvelles.push(...J.mentionner(E, 'corridor'));
     if (e.id === 'comp' && E.comps < c.complications.length) {
-      E.comps += 1;
+      E.comps += 1; ui.povVoir = null; ui.effet = null;
       const x = c.complications[E.comps - 1];
       dire(`Point de vue ${E.comps} sur ${c.complications.length}, ${x.t} : ${sansBalises(x.x)} ${sansBalises(x.quoi)}`);
       return apres();

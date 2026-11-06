@@ -23,7 +23,7 @@ function vueComparer(c, eq) {
   const faits1970 = `<div class="cmp-1970">${(c.bilan[0]?.paires || []).slice(0, 2).map(([v, k]) =>
     `<p class="paire"><span class="v">${esc(v)}</span><span class="k">${esc(k)}</span></p>`).join('')}</div>`;
   const resume = (r) => `<ul class="cmp-r"><li><b>${r.dans} / ${r.total}</b> secteurs dans le parc</li>
-    <li><b>${r.vides.length}</b> village${r.vides.length > 1 ? 's' : ''} à vider</li><li><b>${r.gardes.length}</b> gardé${r.gardes.length > 1 ? 's' : ''}</li>
+    <li><b>${r.vides.length}</b> village${r.vides.length > 1 ? 's' : ''} vidé${r.vides.length > 1 ? 's' : ''}</li><li><b>${r.gardes.length}</b> gardé${r.gardes.length > 1 ? 's' : ''}</li>
     <li>corridor <b>${esc(r.corridor)}</b></li></ul>`;
   const fiche = (titre, e, cls = '', vue = carte(c, e, { cliquable: false, mini: true })) =>
     `<article class="cmp-c${cls}"><h4>${titre}</h4>${vue}${resume(J.releve(c, e))}</article>`;
