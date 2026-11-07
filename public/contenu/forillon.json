@@ -1037,6 +1037,7 @@
   },
   {
    "id": "F6.3",
+   "demandeCadre": true,
    "forme": "Choix",
    "q": "Qu'est-ce qui a changé en 2024 ?",
    "sources": [
@@ -1454,7 +1455,7 @@
   {
    "g": "Engagement",
    "c": "Lire avant d'agir",
-   "test": "Les six relevés ouverts ; au moins trois documents lus avant le choix ; les points de vue relus (compté).",
+   "test": "Au moins trois documents lus avant le choix ; les relevés ouverts et les points de vue relus (comptés).",
    "src": "auto"
   },
   {

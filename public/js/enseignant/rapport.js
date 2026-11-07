@@ -80,7 +80,7 @@ export function rapportHTML() {
         <dl class="r-rep">${ecrites.map((q) => `<dt>${esc(qid(q))} · ${esc(q.eleve)}${q.requise ? '' : ' (facultative)'}</dt>
           <dd>${String(e.reponses?.[q.id] || '').trim() ? esc(e.reponses[q.id]) + (retourDe(S, e.id, q.id) ? ` <b>${RETOURS[retourDe(S, e.id, q.id).k].s} ${esc(RETOURS[retourDe(S, e.id, q.id).k].court)}</b>` : '') : '<i>pas de réponse</i>'}</dd>`).join('')}${
           autresReponses(e).map((x) => `<dt>${esc(x.t)} (${esc(x.k)})</dt><dd>${esc(x.r)}</dd>`).join('')}${
-          J.questionsAvantApres(c).map((q, j) => `<dt>Avant / après ${j + 1} · ${esc(q.q)}</dt>
+          ((c.avantApresTous || []).some((q, j) => J.repondu(e, J.idAvant(j))) ? c.avantApresTous : []).map((q, j) => `<dt>Avant / après ${j + 1} · ${esc(q.q)}</dt>
             <dd><span class="r-k">Au début :</span> ${esc(String(e.reponses?.[J.idAvant(j)] || '').trim()) || '<i>pas de réponse</i>'}</dd>
             <dd><span class="r-k">À la fin :</span> ${esc(String(e.reponses?.[J.idApres(j)] || '').trim()) || '<i>pas de réponse</i>'}</dd>`).join('')}</dl>
         ${grilleCompetences()}

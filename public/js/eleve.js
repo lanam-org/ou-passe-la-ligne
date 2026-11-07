@@ -104,7 +104,7 @@ let arretSeance = () => {};
 function entrer(cd, id, fiche) {
   Object.assign(etat, { code: cd, idEq: id, E: fiche });
   const { E } = etat;
-  J.completerCompteurs(E);   // une fiche d'avant n'a pas les nouveaux compteurs
+  J.completerCompteurs(E, etat.c);   // une fiche d'avant n'a pas les nouveaux compteurs
   relireAnnonces();
   $('#etat-envoi').hidden = false;
   $('#retour-accueil').hidden = true;    // en jeu, pas de sortie par erreur : « Quitter la séance » demande confirmation
@@ -191,6 +191,7 @@ function rendre() {
   }
   ui.compNeuf = E.comps > ui.compVu; ui.compVu = E.comps;   // un point de vue qui vient d'arriver se signale, une fois
   const v = ECRANS[e.id]();
+  ui.ecran = v.ecran || null;   // « La question du jeu » ou « Avant de commencer » : un écran à part, dans l'arrivée
 
   $('#prog').innerHTML = `<div class="prog-seg" style="grid-template-columns:repeat(${vis.length},1fr)">${
     vis.map((x) => { const i = idx(x.id); return `<button data-etape="${i}" class="${i < E.etape ? 'fait' : ''}"
@@ -287,6 +288,7 @@ function majPied(v) {
   if (attend !== ui.attend) {                    // l'attente, et sa fin, dites au lecteur d'écran (une fois)
     if (attend) dire('En attente de votre enseignant·e.'); else if (ui.attend) dire('L\'étape suivante est ouverte.');
     ui.attend = attend;
+    attendre(!!attend);                            // le journal retire ce temps du « temps sans geste »
   }
   // Une réponse requise manque : la phrase sous le bouton devient un lien qui y mène.
   const manque = !v.peut && v.hint && v.lien !== false && reponseManquante();
@@ -305,14 +307,18 @@ function apres(nouvelles = []) { ui.nouvelles.push(...nouvelles); sauver(); rend
 /* ------------------------------------------------------------ le journal (des nombres, pour l'enseignant·e) */
 // Rien ne s'affiche chez l'équipe ; rien n'est compté dans l'aperçu de l'enseignant·e. Voir nouveauxCompteurs (jeu.js).
 
-const journal = () => (etat.E && !etat.apercu && !etat.E.fini ? etat.E.compteurs : null);
 const etapeIci = () => etat.c.etapes[etat.E.etape].id;
+// ni l'aperçu, ni après la fin de partie, ni « Ton avis » (individuel, hors du jeu)
+const journal = () => (etat.E && !etat.apercu && !etat.E.fini && etapeIci() !== 'avis' ? etat.E.compteurs : null);
+// la case du journal : l'étape, ou « avant » pour la question du jeu et les deux questions du début (leur temps est
+// compté à part : l'arrivée garde son temps prévu)
+const caseIci = () => (ui.ecran ? 'avant' : etapeIci());
 
 /** Le premier geste dans une étape (un relevé, un secteur, une case, un document…) : combien de temps après y être entré. */
 function premierGeste() {
   const k = journal();
   if (!k) return;
-  const id = etapeIci();
+  const id = caseIci();
   if (k.premiere[id] == null) { k.premiere[id] = Math.max(0, Date.now() - (etat.E.entree || Date.now())); sauver(); }
 }
 
@@ -328,28 +334,35 @@ function marquerEnvoyees() {
 }
 
 // Le temps sans aucun geste : un écart de plus de 2 min entre deux gestes s'ajoute à l'étape (une discussion orale
-// y ressemble aussi : c'est un repère, pas un jugement). La pause de l'enseignant·e et l'attente de son signal ne comptent pas.
+// y ressemble aussi : c'est un repère, pas un jugement). La pause de l'enseignant·e et l'attente de son signal sont
+// retirées de l'écart (seulement elles : le reste compte).
 const INACTIF = 120000;
-let dernierGeste = Date.now(), horsJeu = false;
+let dernierGeste = Date.now();
+const attente = { depuis: null, cumul: 0 };   // l'attente du signal (Avancer ensemble) depuis le dernier geste
+function attendre(oui, t = Date.now()) {
+  if (oui && attente.depuis == null) attente.depuis = t;
+  if (!oui && attente.depuis != null) { attente.cumul += Math.max(0, t - Math.max(attente.depuis, dernierGeste)); attente.depuis = null; }
+}
 function geste() {
   const k = journal(), t = Date.now();
-  if (k && t - dernierGeste >= INACTIF && !horsJeu) {
-    const id = etapeIci();
-    k.inactif = { ...k.inactif, [id]: (k.inactif[id] || 0) + (t - dernierGeste) };
+  const enAttente = attente.cumul + (attente.depuis != null ? Math.max(0, t - Math.max(attente.depuis, dernierGeste)) : 0);
+  const ecart = t - dernierGeste - Rg.enPause(etat.S?.chrono, dernierGeste, t) - enAttente;
+  if (k && ecart >= INACTIF) {
+    const id = caseIci();
+    k.inactif = { ...k.inactif, [id]: (k.inactif[id] || 0) + ecart };
     k.inactifN += 1;
     sauver();
   }
-  dernierGeste = t; horsJeu = false;
+  dernierGeste = t; attente.cumul = 0;
 }
 for (const t of ['pointerdown', 'keydown', 'input', 'wheel', 'touchmove']) document.addEventListener(t, geste, { capture: true, passive: true });
-setInterval(() => { if (etat.S?.chrono?.pause || ui.attend) horsJeu = true; }, 5000);
 
 // « Suivant » touché alors que l'étape n'est pas finie (un bouton désactivé ne reçoit pas de clic, mais reçoit le
 // pointeur) ; l'attente du signal de l'enseignant·e ne compte pas.
 document.addEventListener('pointerdown', (ev) => {
   const bt = ev.target.closest?.('#suivant'), k = journal();
   if (!bt || !bt.disabled || !k || ui.attend) return;
-  const id = etapeIci();
+  const id = caseIci();
   k.blocages = { ...k.blocages, [id]: (k.blocages[id] || 0) + 1 };
   sauver();
 }, true);
@@ -435,7 +448,8 @@ document.addEventListener('click', async (ev) => {
   const sect = ev.target.closest('[data-sect]');
   if (sect) {
     // au tracé, un secteur touché par l'équipe puis laissé sans zone pour un autre : une hésitation (le journal)
-    if (etapeIci() === 'trace' && ui.secteur && ui.secteurTouche && !ui.secteurDecide && ui.secteur !== sect.dataset.sect && journal()) {
+    if (etapeIci() === 'trace' && ui.secteur && ui.secteurTouche && !ui.secteurDecide && !J.decide(E, ui.secteur)
+      && ui.secteur !== sect.dataset.sect && journal()) {
       E.compteurs.sansZone += 1; sauver();
     }
     ui.secteur = sect.dataset.sect; ui.secteurTouche = true; ui.secteurDecide = false;
@@ -466,8 +480,9 @@ document.addEventListener('click', async (ev) => {
   }
   const pov = ev.target.closest('[data-pov]');
   if (pov) {
+    const affiche = Math.min(ui.povVoir ?? E.comps - 1, E.comps - 1);
     ui.povVoir = Number(pov.dataset.pov); ui.compNeuf = false;
-    if (journal()) { E.compteurs.povRelus += 1; sauver(); }
+    if (journal() && ui.povVoir !== affiche) { E.compteurs.povRelus += 1; sauver(); }   // un autre point de vue, relu
     rendre();
     const x = c.complications[ui.povVoir];
     if (x) dire(`Point de vue ${ui.povVoir + 1} : ${x.t}. ${sansBalises(x.x)}`);
@@ -487,8 +502,16 @@ document.addEventListener('click', async (ev) => {
     const ecran = e.id === 'arrivee' ? ECRANS.arrivee() : null;
     if (ecran?.ecran) {
       if (!ecran.peut) return;
+      premierGeste();
       if (ecran.ecran === 'question') ui.questionLue = true;
-      if (ecran.ecran === 'avant') { ui.avantPasse = true; marquerEnvoyees(); sauver(); }
+      if (ecran.ecran === 'avant') { ui.avantPasse = true; marquerEnvoyees(); }
+      // le temps de ces écrans compte à part (« avant ») : l'arrivée repart de zéro, avec son temps prévu
+      if (!etat.apercu) {
+        const t = Date.now();
+        E.temps.avant = (E.temps.avant || 0) + Math.max(0, t - (E.entree || t));
+        E.entree = t;
+        sauver();
+      }
       rendre();
       window.scrollTo({ top: 0 }); $('#titre').focus({ preventScroll: true });
       return;
@@ -497,14 +520,15 @@ document.addEventListener('click', async (ev) => {
     if (e.id === 'dossier' && !E.juge) return apres(J.juger(c, E));
     if (e.id === 'trace' && J.releve(c, E).corridor === 'continu') ui.nouvelles.push(...J.mentionner(E, 'corridor'));
     // la ligne arrêtée, puis la ligne d'après les quatre points de vue (la première fois) : ce que les points de vue changent
-    if (e.id === 'trace' && !E.compteurs.ligneTrace) E.compteurs.ligneTrace = { ...E.zones };
+    if (e.id === 'trace' && journal() && !E.compteurs.ligneTrace) E.compteurs.ligneTrace = { ...E.zones };
     if (e.id === 'comp' && E.comps < c.complications.length) {
+      premierGeste();   // entendre un point de vue est un geste de l'étape
       E.comps += 1; ui.povVoir = null; ui.effet = null;
       const x = c.complications[E.comps - 1];
       dire(`Point de vue ${E.comps} sur ${c.complications.length}, ${x.t} : ${sansBalises(x.x)} ${sansBalises(x.quoi)}`);
       return apres();
     }
-    if (e.id === 'comp' && !E.compteurs.lignePdv) E.compteurs.lignePdv = { ...E.zones };
+    if (e.id === 'comp' && journal() && !E.compteurs.lignePdv) E.compteurs.lignePdv = { ...E.zones };
     marquerEnvoyees();
     if (e.id === 'debrief') {
       if (avisActif()) { J.allerA(c, E, idx('avis')); }

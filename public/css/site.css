@@ -1730,3 +1730,6 @@ body:has(.prog-proj) .page{padding:0}
 @media (max-width:700px){.tab--mes td:last-child{white-space:normal}}
 .aa-ens{margin-top:16px}
 .aa-ens .rep .k{display:inline;font-weight:700;color:var(--doux)}
+.tab--mes th[scope="row"]{white-space:normal;font-size:14px;font-weight:400;color:var(--encre);border-bottom:1px solid var(--trait);vertical-align:top;
+  text-transform:none;letter-spacing:0;background:none}
+.tab--mes th[scope="row"] b{font-weight:700}

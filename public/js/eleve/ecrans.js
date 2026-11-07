@@ -72,9 +72,11 @@ export const ECRANS = {
       btn: 'Nous avons lu la question', peut: true, hint: ''
     };
     // Puis les deux questions du début (avant / après) : ce que l'équipe pense AVANT de jouer. Les mêmes reviennent
-    // au retour sur la démarche ; la différence, c'est ce que la partie a changé.
-    if (debut && aa.length && !ui.avantPasse) {
-      const fait = J.avantFait(c, E);
+    // au retour sur la démarche ; la différence, c'est ce que la partie a changé. Passé une fois (« Commencer »), il ne
+    // revient plus, même après un rafraîchissement. L'aperçu de l'enseignant·e le montre, sans rien exiger.
+    const passe = ui.avantPasse || (E.compteurs?.envoyees || []).includes(J.idAvant(0));
+    if (aa.length && !passe && (debut || (etat.apercu && E.etape === 0))) {
+      const fait = J.avantFait(c, E) || etat.apercu;
       return {
         ecran: 'avant', titre: 'Avant de commencer',
         guide: 'Deux questions courtes, <b>avant de jouer.</b> Il n\'y a pas de bonne réponse : écrivez ce que vous pensez maintenant. Les mêmes questions reviendront à la fin.',
@@ -280,7 +282,8 @@ export const ECRANS = {
     const orales = c.q?.orales || [];
     const restent = Rg.aRattraper(c, E).filter((q) => q.requise).length;
     // les deux questions du début, encore une fois : seulement pour une équipe qui y a répondu au début
-    const aa = J.apresDemande(c, E) ? J.questionsAvantApres(c) : [];
+    // (l'aperçu de l'enseignant·e les montre aussi, pour voir ce que les équipes verront)
+    const aa = J.apresDemande(c, E) || etat.apercu ? J.questionsAvantApres(c) : [];
     const apresOk = J.apresFait(c, E);
     const pret = ok('debrief') && !restent && apresOk;
     const blocApres = aa.length ? `<div class="aa-fin"><h3 class="sous" style="margin-top:0;padding-top:0;border:0">Les deux questions du début</h3>
@@ -302,8 +305,7 @@ export const ECRANS = {
         </details>`,
       btn: avis ? 'Donner mon avis' : 'Terminer la partie', peut: pret,
       hint: pret ? '' : restent ? 'Une question d\'une étape précédente attend votre réponse.'
-        : !apresOk ? 'Répondez aux deux questions du début.' : PAS_FINI,
-      lien: apresOk
+        : !apresOk ? 'Répondez aux deux questions du début.' : PAS_FINI
     };
   },
 

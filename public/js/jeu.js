@@ -42,14 +42,22 @@ export const nouveauxCompteurs = () => ({ retours: 0, sauts: 0, clicsVides: 0, g
   apresComp: [0, 0, 0, 0], premierGeste: null, t0Trace: null,
   povRelus: 0, docsLus: [], relireDocs: 0, inactif: {}, inactifN: 0, envoyees: [], revisions: {},
   aideOu: 0, aideManque: 0, blocages: {}, sansZone: 0, changeZone: 0, premiere: {},
-  bulles: { vues: 0, guide: 0, arret: 0 }, ligneTrace: null, lignePdv: null });
+  bulles: { vues: 0, guide: 0, arret: 0 }, ligneTrace: null, lignePdv: null, depuis: Date.now() });
 
-/** Les compteurs d'une fiche, complétés : une fiche d'avant (Playtest 1 ou 2) n'a pas les nouveaux. */
-export function completerCompteurs(e) {
+/**
+ * Les compteurs d'une fiche, complétés : une fiche d'avant n'a pas les nouveaux. `depuis` dit quand le journal a
+ * commencé : une équipe qui reprend une partie commencée avant n'a qu'un journal partiel, et les étapes déjà
+ * commencées ne disent rien de leur premier geste (-1). Vrai si la fiche vient d'être complétée.
+ */
+export function completerCompteurs(e, c = null) {
   const d = nouveauxCompteurs(), k = e.compteurs || {};
+  const ancienne = k.depuis == null;
   e.compteurs = { ...d, ...k, bulles: { ...d.bulles, ...(k.bulles || {}) } };
-  return e.compteurs;
+  if (ancienne && c) c.etapes.slice(0, (e.etape ?? 0) + 1).forEach((x) => { if (e.compteurs.premiere[x.id] == null) e.compteurs.premiere[x.id] = -1; });
+  return ancienne;
 }
+/** Le journal ajouté au Playtest 2 existe pour cette fiche (sinon : rien de mesuré, cases vides). */
+export const journalMesure = (e) => e?.compteurs?.depuis != null;
 
 export const nomZone = (c, z) => (z ? c.zones[z].nom : 'hors de la ligne');
 export const nbVillages = (c) => c.secteurs.filter((s) => s.habite).length;
@@ -129,7 +137,7 @@ export function peindre(c, e, idSecteur, outil, maintenant = Date.now()) {
   if (ici === 'trace') {
     k.gestesTrace += 1;
     if (k.premierGeste == null && k.t0Trace != null) k.premierGeste = maintenant - k.t0Trace;
-    if (!premier) k.changeZone = (k.changeZone || 0) + 1;   // une zone déjà donnée, changée : l'équipe hésite ou révise
+    if (!premier && !e.fini) k.changeZone = (k.changeZone || 0) + 1;   // une zone déjà donnée, changée : l'équipe hésite ou révise
   }
   if (ici === 'comp') {
     k.gestesComp += 1;
@@ -208,7 +216,7 @@ export function allerA(c, e, i, maintenant = Date.now()) {
   e.temps[ancienne] = (e.temps[ancienne] || 0) + Math.max(0, maintenant - (e.entree || maintenant));
   // une étape quittée sans aucun geste : son « premier geste » ne se mesurera plus (une visite suivante fausserait le temps)
   const pr = e.compteurs?.premiere;
-  if (pr && pr[ancienne] == null && i !== e.etape) pr[ancienne] = -1;
+  if (pr && !e.fini && pr[ancienne] == null && i !== e.etape) pr[ancienne] = -1;
   e.etape = i;
   e.entree = maintenant;
   e.atteinte = Math.max(e.atteinte, i);
@@ -247,19 +255,20 @@ export const apresFait = (c, e) => !apresDemande(c, e) || questionsAvantApres(c)
 /* ------------------------------------------------------------ ce que disent les réponses (des nombres seulement) */
 
 // Des repères automatiques, à vérifier à la main : ils comptent des mots, ils ne comprennent pas les phrases.
-const norm = (t) => String(t || '').replace(/[’ʼ`´]/g, "'").toLowerCase();
+// minuscules, apostrophes droites, SANS accents : « L'État » et « l'etat », « pêcheurs » et « pecheurs » se lisent pareil
+const norm = (t) => String(t || '').replace(/[’ʼ`´]/g, "'").normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
 export const nbMots = (t) => (norm(t).match(/[\p{L}\p{N}'-]+/gu) || []).length;
-const NOMBRE_OU_SOURCE = /\d|selon|d'après|document|relevé|source|journal|article|témoin|recensement|point de vue|chiffre|données/;
-const JUSTIFIE = /parce qu|\bcar\b|puisqu|\bdonc\b|c'est pourquoi|à cause|grâce à|\bmais\b|cependant|par contre|alors que|sinon/;
-const CADRE = /gespe'?gewa'?gi|mi'?gmaq|mi'?kmaq|mi'?gmaw|micmac|gespeg|autochtone|premi[eè]res? nations?/;
+const NOMBRE_OU_SOURCE = /\d|selon|d'apres|document|releve|source|journal|article|temoin|recensement|point de vue|chiffre|donnees/;
+const JUSTIFIE = /parce qu|\bcar\b|puisqu|\bdonc\b|c'est pourquoi|a cause|grace a|\bmais\b|cependant|par contre|alors que|sinon/;
+const CADRE = /gespe'?gewa'?gi|mi'?gmaq|mi'?kmaq|mi'?gmaw|micmac|gespeg|autochtone|premieres? nations?/;
 // qui est touché par un parc : six familles d'acteurs (question 1 de l'avant / après)
 export const ACTEURS = {
-  habitants: /famill|habitant|résident|villag|\bgens\b|population|propriétaire|maison|exproprié|citoyen/,
-  economie: /pêch|agricult|fermi|travail|emploi|commer|entrepr|économ|région|municipal|industr|bûcheron/,
+  habitants: /famill|habitant|resident|villag|\bgens\b|population|proprietaire|maison|exproprie|citoyen/,
+  economie: /\bpech|agricult|fermi|travail|emploi|commer|entrepr|econom|region|municipal|industr|bucheron/,
   autochtones: CADRE,
-  gouvernement: /gouvern|\bétat\b|ottawa|fédéral|provincial|parcs canada|ministr|politi|élus?\b/,
+  gouvernement: /gouvern|\betat\b|ottawa|federal|provincial|parcs canada|ministr|politi|\belus?\b/,
   visiteurs: /touris|visiteur|vacancier|randonn|campeur/,
-  nature: /animal|animaux|nature|faune|flore|forêt|environnement|oiseau|espèce|baleine|phoque|arbre|écosyst|plante/
+  nature: /animal|animaux|nature|faune|flore|foret|environnement|oiseau|espece|baleine|phoque|arbre|ecosyst|plante/
 };
 export const acteurs = (t) => Object.keys(ACTEURS).filter((k) => ACTEURS[k].test(norm(t)));
 
@@ -271,11 +280,13 @@ export const acteurs = (t) => Object.keys(ACTEURS).filter((k) => ACTEURS[k].test
 export function analyseTextes(c, e) {
   const qs = questionsEcrites(c).filter((q) => repondu(e, q.id));
   const textes = qs.map((q) => e.reponses[q.id]);
-  const aa = questionsAvantApres(c);
+  // les questions du début et de la fin, même si le réglage a été éteint depuis : des réponses écrites restent lisibles
+  const aa = c.avantApresTous || questionsAvantApres(c);
   const lAA = aa.flatMap((q, i) => [[idAvant(i), q], [idApres(i), q]]).filter(([id]) => repondu(e, id));
-  // une question qui demande le peuple ou le territoire (F2.1, F5.4 : « demandeCadre » dans le contenu), ou qui en parle
+  // une question qui demande le peuple ou le territoire (« demandeCadre » dans le contenu : F2.1, F5.4, F6.3), ou qui
+  // en parle elle-même (son texte) ; pas la réponse attendue : le résultat ne dépend pas du guide
   const demandent = new Set((c.banqueTous || c.banque || []).filter((b) => b.demandeCadre).map((b) => b.id));
-  const demande = (q) => demandent.has(q.id) || CADRE.test(norm([q.eleve, q.q, q.attendu, q.reponse].join(' ')));
+  const demande = (q) => demandent.has(q.id) || CADRE.test(norm(q.eleve || q.q || ''));
   const cadre = [...qs.map((q) => [q.id, q]), ...lAA].filter(([id, q]) => !demande(q) && CADRE.test(norm(e.reponses[id]))).map(([id]) => id);
   const cote = (id) => (repondu(e, id) ? { mots: nbMots(e.reponses[id]), acteurs: acteurs(e.reponses[id]) } : null);
   return {
@@ -322,13 +333,16 @@ export function indicateurs(c, e, maintenant = Date.now()) {
   const changee = ligneChangee(c, e);
   const pr = Object.entries(k.premiere || {}).filter(([, v]) => v >= 0);
   const prMax = pr.length ? pr.reduce((a, b) => (b[1] > a[1] ? b : a)) : null;
-  const nomEtape = (id) => c.etapes.find((x) => x.id === id)?.t || id;
+  const nomEtape = (id) => (id === 'avant' ? 'Avant de commencer' : c.etapes.find((x) => x.id === id)?.t || id);
   const blocs = somme(k.blocages);
   const blocPire = Object.entries(k.blocages || {}).sort((a, b) => b[1] - a[1])[0];
   const inactif = somme(k.inactif);
   const revisees = Object.values(k.revisions || {}).filter((n) => n > 0);
   const b = k.bulles || {};
   const part = (n) => (tx.n ? `${n} / ${tx.n}` : '');
+  // le journal n'existe que depuis le Playtest 2 : une fiche plus ancienne laisse ces cases vides (pas « 0 ✓ »)
+  const m = journalMesure(e);
+  const j = (l) => (m ? l : { ...l, v: '', ok: null });
   return [
     ...(aa.length ? [
       { g: 'Apprentissage', k: 'Avant / après : acteurs nommés (question 1)', v: av && ap ? `${av.acteurs.length} → ${ap.acteurs.length}` : av ? `${av.acteurs.length} → …` : '',
@@ -353,21 +367,22 @@ export function indicateurs(c, e, maintenant = Date.now()) {
     { g: 'Engagement', k: 'Réponses écrites', v: `${ecrites.filter((q) => repondu(e, q.id)).length} / ${ecrites.length}` },
     { g: 'Engagement', k: 'Gestes reconnus', v: `${e.mentions.length} / ${Object.keys(c.mentions).length}` },
     { g: 'Engagement', k: 'Relevés ouverts', v: `${e.releves.length} / ${c.releves.length}` },
-    { g: 'Engagement', k: 'Documents lus avant le choix', v: `${(k.docsLus || []).length} / ${c.documents.length}` },
-    { g: 'Engagement', k: 'Points de vue relus', v: e.comps ? String(k.povRelus || 0) : '' },
-    { g: 'Engagement', k: 'Dossier relu après le verdict', v: e.juge ? ((k.relireDocs || 0) ? 'oui' : 'non') : '' },
-    { g: 'Engagement', k: 'Temps sans activité (plus de 2 min d\'affilée)', v: k.inactifN ? `${enMin(inactif)}, ${k.inactifN} fois` : 'aucun',
-      ok: inactif <= 5 * 60000 },
-    { g: 'Engagement', k: 'Réponses réécrites après avoir quitté leur étape', v: revisees.length ? `${revisees.length} question${revisees.length > 1 ? 's' : ''}, ${somme(k.revisions)} fois` : '0' },
-    { g: 'Engagement', k: 'Aide utilisée', v: `« Où chercher » ${k.aideOu || 0} · ce qui manque ${k.aideManque || 0}` },
+    j({ g: 'Engagement', k: 'Documents lus avant le choix', v: `${(k.docsLus || []).length} / ${c.documents.length}`,
+      ok: e.juge ? (k.docsLus || []).length >= 3 : null }),
+    j({ g: 'Engagement', k: 'Points de vue relus', v: e.comps ? String(k.povRelus || 0) : '' }),
+    j({ g: 'Engagement', k: 'Dossier relu après le verdict', v: e.juge ? ((k.relireDocs || 0) ? 'oui' : 'non') : '' }),
+    j({ g: 'Engagement', k: 'Temps sans activité (plus de 2 min d\'affilée)', v: k.inactifN ? `${enMin(inactif)}, ${k.inactifN} fois` : 'aucun',
+      ok: inactif <= 5 * 60000 }),
+    j({ g: 'Engagement', k: 'Réponses réécrites après avoir quitté leur étape', v: revisees.length ? `${revisees.length} question${revisees.length > 1 ? 's' : ''}, ${somme(k.revisions)} fois` : '0' }),
+    j({ g: 'Engagement', k: 'Aide utilisée', v: `« Où chercher » ${k.aideOu || 0} · ce qui manque ${k.aideManque || 0}` }),
     { g: 'Utilisabilité', k: 'Premier geste sur la carte', v: k.premierGeste != null ? `${Math.round(k.premierGeste / 1000)} s` : '',
       ok: k.premierGeste != null ? k.premierGeste < 60000 : null },
-    { g: 'Utilisabilité', k: 'Premier geste dans une étape (le plus long)', v: prMax ? `${Math.round(prMax[1] / 1000)} s (${nomEtape(prMax[0])})` : '',
-      ok: prMax ? prMax[1] < 60000 : null },
+    j({ g: 'Utilisabilité', k: 'Premier geste dans une étape (le plus long)', v: prMax ? `${Math.round(prMax[1] / 1000)} s (${nomEtape(prMax[0])})` : '',
+      ok: prMax ? prMax[1] < 60000 : null }),
     { g: 'Utilisabilité', k: 'Clics dans le vide sur la carte', v: String(k.clicsVides || 0), ok: (k.clicsVides || 0) <= 3 },
     { g: 'Utilisabilité', k: 'Retours en arrière', v: String(k.retours || 0), ok: (k.retours || 0) <= 2 },
-    { g: 'Utilisabilité', k: '« Suivant » touché trop tôt', v: blocs ? `${blocs} (surtout : ${nomEtape(blocPire[0])})` : '0', ok: blocs <= 3 },
-    { g: 'Utilisabilité', k: 'Hésitation au tracé', v: e.atteinte >= idx('trace') ? `${k.sansZone || 0} secteur${(k.sansZone || 0) > 1 ? 's' : ''} sans zone · ${k.changeZone || 0} zone${(k.changeZone || 0) > 1 ? 's' : ''} changée${(k.changeZone || 0) > 1 ? 's' : ''}` : '' },
-    { g: 'Utilisabilité', k: "Bulles d'aide", v: `${b.vues || 0} vue${(b.vues || 0) > 1 ? 's' : ''} · « ? » ${b.guide || 0}${b.arret ? ' · aide arrêtée' : ''}` }
+    j({ g: 'Utilisabilité', k: '« Suivant » touché trop tôt', v: blocs ? `${blocs} (surtout : ${nomEtape(blocPire[0])})` : '0', ok: blocs <= 3 }),
+    j({ g: 'Utilisabilité', k: 'Hésitation au tracé', v: e.atteinte >= idx('trace') ? `${k.sansZone || 0} secteur${(k.sansZone || 0) > 1 ? 's' : ''} sans zone · ${k.changeZone || 0} zone${(k.changeZone || 0) > 1 ? 's' : ''} changée${(k.changeZone || 0) > 1 ? 's' : ''}` : '' }),
+    j({ g: 'Utilisabilité', k: "Bulles d'aide", v: `${b.vues || 0} vue${(b.vues || 0) > 1 ? 's' : ''} · « ? » ${b.guide || 0}${b.arret ? ' · aide arrêtée' : ''}` })
   ];
 }

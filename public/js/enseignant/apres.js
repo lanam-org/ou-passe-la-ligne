@@ -14,8 +14,8 @@ export function vueMesures() {
   const eq = [...EQ].sort((a, b) => a.creeLe - b.creeLe);
   const ind = eq.map((e) => indicateursEquipe(e));
   const lignes = ind[0] || indicateursEquipe({ ...J.nouvelEtat(c, '', ''), id: '' });
-  const puce = (ok) => ok === true ? '<span class="pt pt--ok" title="repère atteint">●</span>'
-    : ok === false ? '<span class="pt pt--non" title="repère non atteint">●</span>' : '<span class="pt"></span>';
+  const puce = (ok) => ok === true ? '<span class="pt pt--ok" title="repère atteint" aria-hidden="true">●</span><span class="cache-visuel">repère atteint :</span>'
+    : ok === false ? '<span class="pt pt--non" title="repère non atteint" aria-hidden="true">●</span><span class="cache-visuel">repère non atteint :</span>' : '<span class="pt"></span>';
   return `<div class="p-tete"><h2>Données de la recherche</h2>
       <p>Ce que le site enregistre pour chaque équipe, et le plan de mesure pour étudier l'efficacité du jeu.</p></div>
     <div class="garde"><b>Vie privée.</b> Aucun prénom, aucun courriel : une équipe n'est qu'un nom d'animal.
@@ -42,9 +42,14 @@ export function vueMesures() {
     </section>`;
 }
 
+/** Les questions avant / après à exporter : celles de la séance, ou celles du contenu si des réponses existent encore. */
+const avantApresExport = (c, eq) => (J.questionsAvantApres(c).length || eq.some((e) => Object.keys(e.reponses || {}).some(J.estAvantApres))
+  ? c.avantApresTous || J.questionsAvantApres(c) : []);
+
 export function exporterCSV() {
   const { c, EQ, code, etapesJeu } = etat;
   const eq = [...EQ].sort((a, b) => a.creeLe - b.creeLe);
+  const aa = avantApresExport(c, eq);
   const lignes = eq.map((e, i) => {
     const r = J.releve(c, e);
     const o = { seance: code, equipe: i + 1, etape_atteinte: e.atteinte + 1, fini: e.fini ? 1 : 0,
@@ -57,8 +62,10 @@ export function exporterCSV() {
     etapesJeu.forEach((x) => { o[`s_${x.id}`] = Math.round(J.tempsEtape(c, e, x.id) / 1000); });
     // les mesures ajoutées après le Playtest 2 (des nombres seulement ; les textes restent dans « Exporter les réponses »)
     const k = { ...J.nouveauxCompteurs(), ...(e.compteurs || {}) };
+    const m = J.journalMesure(e);   // une fiche d'avant le journal : ses colonnes restent vides, pas 0
+    const n = (v) => (m ? v : '');
     const tx = J.analyseTextes(c, e), changee = J.ligneChangee(c, e), obs = lireObservation();
-    J.questionsAvantApres(c).forEach((q, j) => {
+    aa.forEach((q, j) => {
       for (const [p, l] of [['av', tx.avant], ['ap', tx.apres]]) {
         o[`${p}${j + 1}_mots`] = l[j] ? l[j].mots : '';
         o[`${p}${j + 1}_acteurs`] = l[j] ? l[j].acteurs.length : '';
@@ -69,17 +76,19 @@ export function exporterCSV() {
       secteurs_changes_pdv: changee ? changee.length : '', secteurs_changes_noms: changee ? changee.join(' | ') : '',
       rep_total: tx.n, mots_moyen: tx.n ? tx.motsMoy : '', rep_nombre_source: tx.nombreSource, rep_justifiees: tx.justifiees,
       cadre_spontane: tx.cadre.length ? 1 : 0, cadre_questions: tx.cadre.join(' '),
-      releves_ouverts: e.releves.length, docs_lus: k.docsLus.length, pov_relus: k.povRelus, dossier_relu: k.relireDocs,
-      inactif_s: Math.round(somme(k.inactif) / 1000), inactif_n: k.inactifN,
-      revisions: somme(k.revisions), questions_revisees: Object.values(k.revisions).filter((n) => n > 0).length,
-      aide_ou: k.aideOu, aide_manque: k.aideManque, blocages: somme(k.blocages),
-      sans_zone: k.sansZone, change_zone: k.changeZone,
-      bulles_vues: k.bulles?.vues || 0, bulles_guide: k.bulles?.guide || 0, bulles_arret: k.bulles?.arret || 0
+      releves_ouverts: e.releves.length, docs_lus: n(k.docsLus.length), pov_relus: n(k.povRelus), dossier_relu: n(k.relireDocs),
+      inactif_s: n(Math.round(somme(k.inactif) / 1000)), inactif_n: n(k.inactifN),
+      revisions: n(somme(k.revisions)), questions_revisees: n(Object.values(k.revisions).filter((x) => x > 0).length),
+      aide_ou: n(k.aideOu), aide_manque: n(k.aideManque), blocages: n(somme(k.blocages)),
+      sans_zone: n(k.sansZone), change_zone: n(k.changeZone),
+      bulles_vues: n(k.bulles?.vues || 0), bulles_guide: n(k.bulles?.guide || 0), bulles_arret: n(k.bulles?.arret || 0),
+      s_avant: Math.round((e.temps?.avant || 0) / 1000)
     });
-    // par étape : temps sans geste, « Suivant » trop tôt, premier geste (-1 : quittée sans aucun geste ; vide : pas mesuré)
-    etapesJeu.forEach((x) => {
-      o[`inactif_s_${x.id}`] = Math.round((k.inactif[x.id] || 0) / 1000);
-      o[`blocages_${x.id}`] = k.blocages[x.id] || 0;
+    // par étape (et « avant » : la question du jeu et les deux questions du début) : temps sans geste, « Suivant » trop
+    // tôt, premier geste (-1 : quittée sans aucun geste ; vide : pas mesuré)
+    [{ id: 'avant' }, ...etapesJeu].forEach((x) => {
+      o[`inactif_s_${x.id}`] = n(Math.round((k.inactif[x.id] || 0) / 1000));
+      o[`blocages_${x.id}`] = n(k.blocages[x.id] || 0);
       o[`premier_s_${x.id}`] = k.premiere[x.id] == null ? '' : k.premiere[x.id] < 0 ? -1 : Math.round(k.premiere[x.id] / 1000);
     });
     // ce que l'enseignant·e a noté et fait (gardé dans ce navigateur)
@@ -106,7 +115,7 @@ export function exporterReponses() {
   if (!eq.length) return;
   // une cellule qui commence par = + - @ serait prise pour une formule par le tableur : on la neutralise
   const cel = (v) => { let s = String(v ?? ''); if (/^[=+\-@\t\r]/.test(s)) s = `'${s}`; return `"${s.replace(/"/g, '""')}"`; };
-  const aa = J.questionsAvantApres(etat.c).flatMap((q, j) => [[J.idAvant(j), `Au début · ${q.q}`], [J.idApres(j), `À la fin · ${q.q}`]]);
+  const aa = avantApresExport(etat.c, eq).flatMap((q, j) => [[J.idAvant(j), `Au début · ${q.q}`], [J.idApres(j), `À la fin · ${q.q}`]]);
   const tete = ['Équipe', 'Étape atteinte', 'Partie terminée', ...ecrites.map((q) => `${qid(q)} · ${q.eleve || q.q || ''}`),
     ...aa.map(([id, t]) => `${id} · ${t}`)];
   const lignes = eq.map((e) => [e.nom, `${Math.min(e.atteinte, etapesJeu.length - 1) + 1} / ${etapesJeu.length}`, e.fini ? 'oui' : 'non',

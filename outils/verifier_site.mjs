@@ -403,6 +403,11 @@ dit(true, 'réglages appliqués à la séance');
   const [ap] = await Promise.all([ctxProf.waitForEvent('page'), prof.click('[data-apercu="brouillon"]')]);
   ap.on('pageerror', (e) => erreurs.push(`aperçu : ${e.message}`));
   await ap.waitForSelector('#titre');
+  // l'aperçu montre d'abord les deux questions du début, sans rien exiger, puis l'arrivée
+  dit((await ap.textContent('#titre')).includes('Avant de commencer') && !(await ap.isDisabled('#suivant')),
+    'aperçu élève : les deux questions du début, sans rien exiger');
+  await ap.click('#suivant');
+  await ap.waitForFunction(() => document.querySelector('#titre')?.textContent.includes('Arriver'));
   const equipesDeLaSeance = () => prof.evaluate(async (cd) => (await (await import('./js/donnees.js')).lireCollection(`seances/${cd}/equipes`)).length, code);
   const nEquipes = await equipesDeLaSeance();
   dit((await ap.textContent('.apercu-bande')).includes('Rien n') && (await ap.textContent('#scene')).includes('Quel animal de Forillon')
@@ -680,9 +685,9 @@ await capture(prof, '13-enseignant-questions');
 await prof.click('[data-onglet="mesures"]');
 dit(await prof.locator('.tab').first().locator('th').count() === 3, 'les mesures montrent une colonne par équipe');
 const mesures = await prof.textContent('.tab');
-const okMesures = [mesures.includes('2 → 5'), /touché trop tôt\s*●?\s*[1-9]/.test(mesures), mesures.includes('Documents lus avant le choix'),
+const okMesures = [mesures.includes('2 → 5'), /touché trop tôt\s*●?\s*(repère (non )?atteint\s*:)?\s*[1-9]/.test(mesures), mesures.includes('Documents lus avant le choix'),
   mesures.includes('Tout le monde participe'), mesures.includes('Détail de l\'équipe ouvert')];
-if (!okMesures.every(Boolean)) console.log('  · mesures :', okMesures.join(' '), mesures.replace(/\s+/g, ' ').slice(0, 1500));
+if (!okMesures.every(Boolean)) console.log('  · mesures :', okMesures.join(' '), mesures.replace(/\s+/g, ' ').replace(/^.*?(« Suivant » touché.{0,160}).*$/, '$1'));
 dit(okMesures.every(Boolean),
   'les nouvelles mesures : avant / après (acteurs 2 → 5), « Suivant » trop tôt, lecture, grille et relances');
 dit(MESURE ? !(await prof.isDisabled('[data-export]')) : await prof.isDisabled('[data-export]'),

@@ -5,7 +5,7 @@
 // le lit. Effacer la séance l'efface aussi. Un autre ordinateur repart d'une grille vide.
 
 import * as J from '../jeu.js';
-import { RETOURS } from '../seance.js';
+import { RETOURS, cleObservation } from '../seance.js';
 import { etat } from './etat.js';
 
 /** La grille : quatre cases par équipe, cochées quand on l'a vu (une case vide : pas vu, pas « non »). */
@@ -16,7 +16,7 @@ export const GRILLE = [
   ['main', 'L\'ordinateur change de main']
 ];
 
-const cle = (code) => `forillon:observation:${code}`;
+const cle = cleObservation;
 const memoire = {};   // le stockage peut être bloqué : la page garde tout en mémoire
 const vide = () => ({ grille: {}, details: {}, messages: 0 });
 

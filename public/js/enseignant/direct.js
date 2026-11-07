@@ -270,22 +270,27 @@ function ouEnEst(e) {
  */
 function observer(e) {
   const g = lireObservation().grille[e.id] || {};
-  const pt = (ok) => (ok === true ? '<span class="pt pt--ok" title="repère atteint">●</span>' : ok === false ? '<span class="pt pt--non" title="repère non atteint">●</span>' : '');
+  // la pastille dit aussi en mots ce que sa couleur dit (lecteur d'écran, daltonisme)
+  const pt = (ok) => (ok === true ? '<span class="pt pt--ok" aria-hidden="true">●</span><span class="cache-visuel">repère atteint :</span>'
+    : ok === false ? '<span class="pt pt--non" aria-hidden="true">●</span><span class="cache-visuel">repère non atteint :</span>' : '');
   const lignes = indicateursEquipe(e);
   return `<div class="obs">
     <fieldset class="obs-g"><legend class="sur">Observer l'équipe <span class="hint">· cochez ce que vous voyez ; gardé dans ce navigateur</span></legend>
       <div class="obs-l">${GRILLE.map(([k, t]) => `<label class="obs-c"><input type="checkbox" data-obs="${k}" data-pour="${esc(e.id)}" ${g[k] ? 'checked' : ''}>
         <span>${esc(t)}</span></label>`).join('')}</div></fieldset>
     <details class="obs-m" data-k="mes-${esc(e.id)}" ${ui.ouverts.has(`mes-${e.id}`) ? 'open' : ''}><summary>Ses mesures, en direct</summary>
-      <div class="tab-w"><table class="tab tab--mes"><tbody>${lignes.map((l, i) => `<tr><td>${i === 0 || lignes[i - 1].g !== l.g ? `<b>${esc(l.g)}</b> · ` : ''}${esc(l.k)}</td>
-        <td>${pt(l.ok)} ${esc(l.v)}</td></tr>`).join('')}</tbody></table></div></details>
+      <div class="tab-w"><table class="tab tab--mes"><caption class="cache-visuel">Les mesures de l'équipe ${esc(e.nom)}</caption>
+        <tbody>${lignes.map((l, i) => `<tr><th scope="row">${i === 0 || lignes[i - 1].g !== l.g ? `<b>${esc(l.g)}</b> · ` : ''}${esc(l.k)}</th>
+        <td>${pt(l.ok)} ${esc(l.v)}</td></tr>`).join('')}</tbody></table></div>
+      <p class="avert"><span class="pt pt--ok" aria-hidden="true">●</span> repère atteint · <span class="pt pt--non" aria-hidden="true">●</span> non atteint ·
+        sans pastille : pas de repère, ou pas encore mesuré. Les repères sont des hypothèses, à revoir après les essais.</p></details>
   </div>`;
 }
 
 /** Les deux questions avant / après de l'équipe, côte à côte. */
 function avantApres(e) {
-  const aa = J.questionsAvantApres(etat.c);
-  if (!aa.length || !aa.some((q, i) => J.repondu(e, J.idAvant(i)))) return '';
+  const aa = etat.c.avantApresTous || [];   // même si le réglage a été éteint depuis : ses réponses restent lisibles
+  if (!aa.some((q, i) => J.repondu(e, J.idAvant(i)))) return '';
   const r = (id) => String(e.reponses?.[id] || '').trim();
   return `<div class="aa-ens"><p class="sur">Au début, puis à la fin</p>${aa.map((q, i) => `<div class="rep">
       <p><b>${esc(q.q)}</b></p>

@@ -25,7 +25,7 @@ export const etat = {
 // est passé ; avantPasse : les deux questions du début aussi ; povVoir : le point de vue relu (null : le dernier arrivé).
 // secteurTouche, secteurDecide : le secteur choisi l'a été par l'équipe (pas le suivant proposé), et a reçu sa zone.
 const uiDepart = () => ({ secteur: null, questionLue: false, avantPasse: false, povVoir: null, effet: null, nouvelles: [], avis: {}, avisEnvoye: false,
-  secteurTouche: false, secteurDecide: false,
+  secteurTouche: false, secteurDecide: false, ecran: null,
   rendue: -1, erreur: '', lus: new Set(), compVu: 0, compNeuf: false, bravos: '{}', releveVu: null,
   rythme: undefined, attend: undefined, finFetee: false });
 export const ui = { ...uiDepart(), signalFerme: 0, bravoVu: 0 };

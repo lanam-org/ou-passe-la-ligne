@@ -278,6 +278,7 @@ export function appliquer(base, reglages) {
   c.reglages = r;
   c.tempsEquipes = r.tempsEquipes === true;
   c.avantApresQ = r.avantApres !== false ? (base.avantApres || []) : [];
+  c.avantApresTous = base.avantApres || [];   // pour relire des réponses écrites avant qu'on éteigne le réglage
   // sur mesure, dès 90 minutes (celles appliquées) : deux périodes, la coupure après le tracé, comme « Deux périodes »
   c.coupure = FORMATS[r.format]?.coupure || (r.format === 'mesure' && c.miseEnRoute.min + totalPrevu(c) >= 90 ? FORMATS.deux.coupure : null);
   return c;

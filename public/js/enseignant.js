@@ -173,7 +173,7 @@ function rendre(force = false) {
   const brouillon = $('#f-signal [name=texte]');
   const garde = brouillon && { v: brouillon.value, focus: document.activeElement === brouillon, a: brouillon.selectionStart, b: brouillon.selectionEnd };
   const fa = document.activeElement;
-  const actif = ['data-proj-prog', 'data-rythme', 'data-rythme-suivante', 'data-rythme-precedente', 'data-cmp', 'data-voir1970']
+  const actif = ['data-proj-prog', 'data-rythme', 'data-rythme-suivante', 'data-rythme-precedente', 'data-cmp', 'data-voir1970', 'data-obs']
     .find((a) => fa?.hasAttribute?.(a));
   const valeur = actif && fa.getAttribute(actif);
   $('#prof').innerHTML = typo(VUES[onglet]());
