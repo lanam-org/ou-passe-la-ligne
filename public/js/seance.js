@@ -199,13 +199,30 @@ export async function mesSeances(uid) {
   return l.sort((a, b) => (b.creeLe || 0) - (a.creeLe || 0));
 }
 
-/** Efface la séance entière : équipes, avis, réponses attendues, puis la séance elle-même. */
+/** Efface la séance entière : équipes, avis, réponses attendues, puis la séance elle-même (et sa grille d'observation). */
 export async function effacerSeance(code) {
   for (const sous of ['equipes', 'avis', 'prive']) {
     const docs = await donnees.lireCollection(`${cheminSeance(code)}/${sous}`);
     for (const d of docs) await donnees.supprimer(`${cheminSeance(code)}/${sous}/${d.id}`);
   }
   await donnees.supprimer(cheminSeance(code));
+  try { localStorage.removeItem(cleObservation(code)); } catch { /* vide */ }
+}
+
+/**
+ * La grille d'observation et les relances d'une séance (enseignant/observation.js) vivent dans le navigateur de
+ * l'enseignant·e, sous cette clé. Elles partent avec la séance ; à l'accueil, celles des séances qui ne sont plus
+ * listées (effacées ailleurs, ou au bout des 30 jours) partent aussi.
+ */
+export const cleObservation = (code) => `forillon:observation:${code}`;
+export function oublierObservations(codesGardes) {
+  try {
+    const garder = new Set(codesGardes.filter(Boolean));
+    for (let i = localStorage.length - 1; i >= 0; i--) {
+      const k = localStorage.key(i);
+      if (k?.startsWith('forillon:observation:') && !garder.has(k.slice('forillon:observation:'.length))) localStorage.removeItem(k);
+    }
+  } catch { /* stockage bloqué : rien à effacer */ }
 }
 
 /*

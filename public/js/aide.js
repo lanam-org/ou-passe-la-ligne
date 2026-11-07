@@ -44,6 +44,8 @@
   try { var l = JSON.parse(localStorage.getItem(CLE) || 'null'); if (l) etat = { vus: l.vus || [], off: !!l.off }; } catch (e) { /* vide */ }
   function garder() { try { localStorage.setItem(CLE, JSON.stringify(etat)); } catch (e) { /* cette page seulement */ } }
   function vu(id) { return etat.vus.indexOf(id) > -1; }
+  // la page qui le veut compte ce qui se passe (la page des équipes, pour l'enseignant·e) : rien ne sort d'ici
+  function signaler(type) { try { document.dispatchEvent(new CustomEvent('forillon:aide', { detail: { type: type } })); } catch (e) { /* vide */ } }
 
   /* ---- la bulle */
   var bulle = null, courante = null, attente = null, prochaine = 0;
@@ -85,7 +87,7 @@
         + '<button type="button" class="aide-stop">Arrêter l’aide</button>'
         + '<button type="button" class="aide-ok" aria-label="Continuer" title="Continuer"><span aria-hidden="true">→</span></button></div>';
       bulle.querySelector('.aide-ok').addEventListener('click', function () { fermer(true); });
-      bulle.querySelector('.aide-stop').addEventListener('click', function () { etat.off = true; garder(); fermer(true); });
+      bulle.querySelector('.aide-stop').addEventListener('click', function () { etat.off = true; garder(); signaler('arret'); fermer(true); });
       document.body.appendChild(bulle);
     }
     bulle.setAttribute('data-bulle', b[0]);
@@ -95,6 +97,7 @@
     bulle.querySelector('.aide-n').textContent = (lues + 1) + ' sur ' + liste.length;
     bulle.hidden = false;
     placer();
+    signaler('vues');
   }
 
   function fermer(marquer) {
@@ -139,6 +142,7 @@
     var ici = liste.map(function (b) { return b[0]; });
     etat.vus = etat.vus.filter(function (id) { return ici.indexOf(id) < 0; });
     etat.off = false; garder();
+    signaler('guide');
     fermer(false); prochaine = 0; plusTard(50);
   });
 

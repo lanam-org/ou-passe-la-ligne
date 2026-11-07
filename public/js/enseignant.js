@@ -20,6 +20,7 @@ import { mesure } from './config.js';
 import { $, typo, validationEnFrancais } from './outils.js';
 import * as Rg from './reglages.js';
 import { dossierHTML } from './dossierdoc.js';
+import * as Obs from './enseignant/observation.js';
 import { cheminSeance, cheminReponses, effacerSeance, reglerMinutes, reglerChrono, reglerRythme, chronoNeuf, donnerRetour, MAX_MESSAGE, ouvrirApercu } from './seance.js';
 import { base, etat, ui, page, appliquerReglages, configSeance, seanceGardee, stable, chronoDe, chronoTexte } from './enseignant/etat.js';
 import { afficherAccueil } from './enseignant/accueil.js';
@@ -172,7 +173,7 @@ function rendre(force = false) {
   const brouillon = $('#f-signal [name=texte]');
   const garde = brouillon && { v: brouillon.value, focus: document.activeElement === brouillon, a: brouillon.selectionStart, b: brouillon.selectionEnd };
   const fa = document.activeElement;
-  const actif = ['data-proj-prog', 'data-rythme', 'data-rythme-suivante', 'data-rythme-precedente', 'data-cmp', 'data-voir1970']
+  const actif = ['data-proj-prog', 'data-rythme', 'data-rythme-suivante', 'data-rythme-precedente', 'data-cmp', 'data-voir1970', 'data-obs']
     .find((a) => fa?.hasAttribute?.(a));
   const valeur = actif && fa.getAttribute(actif);
   $('#prof').innerHTML = typo(VUES[onglet]());
@@ -221,6 +222,14 @@ function allerA(vers, confirme) {
 
 document.addEventListener('change', (ev) => {
   if (ev.target.id === 'dd-pastilles') { ui.pastilles = ev.target.checked; rendre(true); }
+  // la grille d'observation d'une équipe (gardée dans ce navigateur) ; le focus reste sur la case redessinée
+  const ob = ev.target.closest?.('[data-obs]');
+  if (ob && etat.code) {
+    Obs.cocher(etat.code, ob.dataset.pour, ob.dataset.obs, ob.checked);
+    rendre();
+    document.querySelector(`[data-obs="${CSS.escape(ob.dataset.obs)}"][data-pour="${CSS.escape(ob.dataset.pour)}"]`)?.focus({ preventScroll: true });
+    return;
+  }
   // le menu déroulant des sections (fenêtre étroite) : mêmes règles que les onglets
   if (ev.target.matches('[data-onglet-menu]')) {
     const vers = ev.target.value;
@@ -241,6 +250,7 @@ document.addEventListener('submit', async (ev) => {
   const texte = champ.value.trim().replace(/\s+/g, ' ').slice(0, MAX_MESSAGE);
   if (!texte) { champ.focus(); return; }
   champ.value = '';
+  Obs.compterMessage(etat.code);
   await donnees.majPartielle(cheminSeance(etat.code), { signal: { type: 'perso', texte, t: Date.now() } });
 });
 
@@ -281,6 +291,7 @@ document.addEventListener('click', async (ev) => {
   const eqb = ev.target.closest('[data-equipe]');
   if (eqb) {
     etat.choisie = eqb.dataset.equipe && eqb.dataset.equipe !== etat.choisie ? eqb.dataset.equipe : null;
+    if (etat.choisie) Obs.compterDetail(code, etat.choisie);   // une relance possible : le détail ouvert (pour la recherche)
     rendre();
     if (etat.choisie) $('#detail')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     return;
@@ -332,6 +343,7 @@ document.addEventListener('click', async (ev) => {
   const sg = ev.target.closest('[data-signal]');
   if (sg) {
     const champs = { signal: sg.dataset.signal ? { type: sg.dataset.signal, t: Date.now() } : null };
+    if (sg.dataset.signal) Obs.compterMessage(code);
     // avancer ensemble : envoyer la classe à la rétroaction ouvre aussi cette étape (sinon l'équipe y arrive… et attend)
     const iDebrief = c.etapes.findIndex((x) => x.id === 'debrief');
     if (sg.dataset.signal === 'debrief' && S?.rythme && S.rythme.etape < iDebrief) champs.rythme = { etape: iDebrief };
@@ -346,6 +358,7 @@ document.addEventListener('click', async (ev) => {
     ef.disabled = true;
     arrets.forEach((f) => f()); arrets = [];
     await effacerSeance(code);
+    Obs.oublier(code);   // la grille et les relances de cette séance partent avec elle
     ui.effacer = false;
     return finie();
   }

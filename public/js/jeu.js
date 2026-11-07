@@ -20,10 +20,44 @@ export function nouvelEtat(c, nom, appareil) {
     zones: Object.fromEntries(c.secteurs.map((s) => [s.id, null])),
     comps: 0, gespeg: true, gespegVu: 0, historique: {}, corridorRompu: false,
     mentions: [], reponses: {}, fini: false,
-    compteurs: { retours: 0, sauts: 0, clicsVides: 0, gestesTrace: 0, gestesComp: 0,
-      apresComp: [0, 0, 0, 0], premierGeste: null, t0Trace: null }
+    compteurs: nouveauxCompteurs()
   };
 }
+
+/**
+ * Le journal de l'enseignant·e et de la recherche : des nombres, jamais de texte, jamais montrés à l'élève.
+ * Tout vit dans `compteurs` (une table dans la fiche de l'équipe) : aucune nouvelle clé dans Firestore. Une table
+ * dans une table, oui ; jamais un tableau dans un tableau.
+ *   povRelus, docsLus, relireDocs   ce que l'équipe lit (un point de vue relu, un document ouvert, le dossier relu)
+ *   inactif, inactifN               le temps sans aucun geste au-delà de 2 min, par étape, et combien de fois
+ *   envoyees, revisions             les questions laissées en quittant leur étape, puis réécrites (par question)
+ *   aideOu, aideManque              « Où chercher » et le lien de ce qui manque, touchés
+ *   blocages                        « Suivant » touché alors que l'étape n'est pas finie, par étape
+ *   sansZone, changeZone            au tracé : un secteur touché puis laissé sans zone ; une zone changée
+ *   premiere                        le temps avant le premier geste, par étape (-1 : aucun geste avant d'en partir)
+ *   bulles                          les bulles d'aide vues, le « ? » touché, « Arrêter l'aide »
+ *   ligneTrace, lignePdv            la ligne arrêtée au tracé, puis après les quatre points de vue (première fois)
+ */
+export const nouveauxCompteurs = () => ({ retours: 0, sauts: 0, clicsVides: 0, gestesTrace: 0, gestesComp: 0,
+  apresComp: [0, 0, 0, 0], premierGeste: null, t0Trace: null,
+  povRelus: 0, docsLus: [], relireDocs: 0, inactif: {}, inactifN: 0, envoyees: [], revisions: {},
+  aideOu: 0, aideManque: 0, blocages: {}, sansZone: 0, changeZone: 0, premiere: {},
+  bulles: { vues: 0, guide: 0, arret: 0 }, ligneTrace: null, lignePdv: null, depuis: Date.now() });
+
+/**
+ * Les compteurs d'une fiche, complétés : une fiche d'avant n'a pas les nouveaux. `depuis` dit quand le journal a
+ * commencé : une équipe qui reprend une partie commencée avant n'a qu'un journal partiel, et les étapes déjà
+ * commencées ne disent rien de leur premier geste (-1). Vrai si la fiche vient d'être complétée.
+ */
+export function completerCompteurs(e, c = null) {
+  const d = nouveauxCompteurs(), k = e.compteurs || {};
+  const ancienne = k.depuis == null;
+  e.compteurs = { ...d, ...k, bulles: { ...d.bulles, ...(k.bulles || {}) } };
+  if (ancienne && c) c.etapes.slice(0, (e.etape ?? 0) + 1).forEach((x) => { if (e.compteurs.premiere[x.id] == null) e.compteurs.premiere[x.id] = -1; });
+  return ancienne;
+}
+/** Le journal ajouté au Playtest 2 existe pour cette fiche (sinon : rien de mesuré, cases vides). */
+export const journalMesure = (e) => e?.compteurs?.depuis != null;
 
 export const nomZone = (c, z) => (z ? c.zones[z].nom : 'hors de la ligne');
 export const nbVillages = (c) => c.secteurs.filter((s) => s.habite).length;
@@ -103,6 +137,7 @@ export function peindre(c, e, idSecteur, outil, maintenant = Date.now()) {
   if (ici === 'trace') {
     k.gestesTrace += 1;
     if (k.premierGeste == null && k.t0Trace != null) k.premierGeste = maintenant - k.t0Trace;
+    if (!premier && !e.fini) k.changeZone = (k.changeZone || 0) + 1;   // une zone déjà donnée, changée : l'équipe hésite ou révise
   }
   if (ici === 'comp') {
     k.gestesComp += 1;
@@ -179,6 +214,9 @@ export function mentionner(e, id) {
 export function allerA(c, e, i, maintenant = Date.now()) {
   const ancienne = c.etapes[e.etape].id;
   e.temps[ancienne] = (e.temps[ancienne] || 0) + Math.max(0, maintenant - (e.entree || maintenant));
+  // une étape quittée sans aucun geste : son « premier geste » ne se mesurera plus (une visite suivante fausserait le temps)
+  const pr = e.compteurs?.premiere;
+  if (pr && !e.fini && pr[ancienne] == null && i !== e.etape) pr[ancienne] = -1;
   e.etape = i;
   e.entree = maintenant;
   e.atteinte = Math.max(e.atteinte, i);
@@ -197,6 +235,82 @@ export function tempsEtape(c, e, id, maintenant = Date.now()) {
   return (e.temps?.[id] || 0) + enCours;
 }
 
+/* ------------------------------------------------------------ avant / après */
+
+/**
+ * Les deux mêmes questions courtes, au début (après la question du jeu) et au retour sur la démarche : ce qui change
+ * entre les deux, c'est ce que la partie a fait bouger. Réponses rangées sous AV1, AV2 (avant) et AP1, AP2 (après),
+ * avec les autres réponses de l'équipe. Réglage `avantApres` de la séance (allumé par défaut).
+ */
+export const questionsAvantApres = (c) => c.avantApresQ || [];   // réglages appliqués (reglages.js) ; éteint : []
+export const idAvant = (i) => `AV${i + 1}`;
+export const idApres = (i) => `AP${i + 1}`;
+export const estAvantApres = (id) => /^A[VP]\d$/.test(id);
+/** L'équipe a répondu aux questions du début (toutes). Sans questions avant / après : vrai. */
+export const avantFait = (c, e) => questionsAvantApres(c).every((q, i) => repondu(e, idAvant(i)));
+/** Les questions de la fin se posent seulement à une équipe qui a répondu à celles du début : sinon, rien à comparer. */
+export const apresDemande = (c, e) => questionsAvantApres(c).length > 0 && questionsAvantApres(c).every((q, i) => repondu(e, idAvant(i)));
+export const apresFait = (c, e) => !apresDemande(c, e) || questionsAvantApres(c).every((q, i) => repondu(e, idApres(i)));
+
+/* ------------------------------------------------------------ ce que disent les réponses (des nombres seulement) */
+
+// Des repères automatiques, à vérifier à la main : ils comptent des mots, ils ne comprennent pas les phrases.
+// minuscules, apostrophes droites, SANS accents : « L'État » et « l'etat », « pêcheurs » et « pecheurs » se lisent pareil
+const norm = (t) => String(t || '').replace(/[’ʼ`´]/g, "'").normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+export const nbMots = (t) => (norm(t).match(/[\p{L}\p{N}'-]+/gu) || []).length;
+const NOMBRE_OU_SOURCE = /\d|selon|d'apres|document|releve|source|journal|article|temoin|recensement|point de vue|chiffre|donnees/;
+const JUSTIFIE = /parce qu|\bcar\b|puisqu|\bdonc\b|c'est pourquoi|a cause|grace a|\bmais\b|cependant|par contre|alors que|sinon/;
+const CADRE = /gespe'?gewa'?gi|mi'?gmaq|mi'?kmaq|mi'?gmaw|micmac|gespeg|autochtone|premieres? nations?/;
+// qui est touché par un parc : six familles d'acteurs (question 1 de l'avant / après)
+export const ACTEURS = {
+  habitants: /famill|habitant|resident|villag|\bgens\b|population|proprietaire|maison|exproprie|citoyen/,
+  economie: /\bpech|agricult|fermi|travail|emploi|commer|entrepr|econom|region|municipal|industr|bucheron/,
+  autochtones: CADRE,
+  gouvernement: /gouvern|\betat\b|ottawa|federal|provincial|parcs canada|ministr|politi|\belus?\b/,
+  visiteurs: /touris|visiteur|vacancier|randonn|campeur/,
+  nature: /animal|animaux|nature|faune|flore|foret|environnement|oiseau|espece|baleine|phoque|arbre|ecosyst|plante/
+};
+export const acteurs = (t) => Object.keys(ACTEURS).filter((k) => ACTEURS[k].test(norm(t)));
+
+/**
+ * Les réponses écrites de l'équipe, en nombres : mots par réponse, part qui cite un nombre ou une source, part qui
+ * justifie (parce que, donc, mais…), questions où l'équipe nomme Gespe'gewa'gi ou les Mi'gmaq sans qu'on le demande
+ * (une question qui en parle elle-même ne compte pas), et les acteurs nommés avant / après.
+ */
+export function analyseTextes(c, e) {
+  const qs = questionsEcrites(c).filter((q) => repondu(e, q.id));
+  const textes = qs.map((q) => e.reponses[q.id]);
+  // les questions du début et de la fin, même si le réglage a été éteint depuis : des réponses écrites restent lisibles
+  const aa = c.avantApresTous || questionsAvantApres(c);
+  const lAA = aa.flatMap((q, i) => [[idAvant(i), q], [idApres(i), q]]).filter(([id]) => repondu(e, id));
+  // une question qui demande le peuple ou le territoire (« demandeCadre » dans le contenu : F2.1, F5.4, F6.3), ou qui
+  // en parle elle-même (son texte) ; pas la réponse attendue : le résultat ne dépend pas du guide
+  const demandent = new Set((c.banqueTous || c.banque || []).filter((b) => b.demandeCadre).map((b) => b.id));
+  const demande = (q) => demandent.has(q.id) || CADRE.test(norm(q.eleve || q.q || ''));
+  const cadre = [...qs.map((q) => [q.id, q]), ...lAA].filter(([id, q]) => !demande(q) && CADRE.test(norm(e.reponses[id]))).map(([id]) => id);
+  const cote = (id) => (repondu(e, id) ? { mots: nbMots(e.reponses[id]), acteurs: acteurs(e.reponses[id]) } : null);
+  return {
+    n: qs.length,
+    motsMoy: qs.length ? Math.round(textes.reduce((s, t) => s + nbMots(t), 0) / qs.length) : 0,
+    nombreSource: textes.filter((t) => NOMBRE_OU_SOURCE.test(norm(t))).length,
+    justifiees: textes.filter((t) => JUSTIFIE.test(norm(t))).length,
+    cadre,
+    avant: aa.map((q, i) => cote(idAvant(i))), apres: aa.map((q, i) => cote(idApres(i)))
+  };
+}
+
+/** Les secteurs dont la zone a changé entre la ligne arrêtée au tracé et la ligne d'après les points de vue. */
+export function ligneChangee(c, e) {
+  const k = e.compteurs || {};
+  if (!k.ligneTrace) return null;
+  const fin = k.lignePdv || (e.atteinte > c.etapes.findIndex((x) => x.id === 'comp') ? e.zones : null);
+  if (!fin) return null;
+  return c.secteurs.filter((s) => (k.ligneTrace[s.id] ?? null) !== (fin[s.id] ?? null)).map((s) => s.nom);
+}
+
+const somme = (o) => Object.values(o || {}).reduce((s, v) => s + (Number(v) || 0), 0);
+const enMin = (ms) => (ms < 60000 ? `${Math.round(ms / 1000)} s` : `${Math.round(ms / 60000)} min`);
+
 /**
  * Les indicateurs d'une équipe. Un indicateur = un test fermé. Les repères
  * sont des hypothèses à ajuster après le premier essai, pas des normes.
@@ -212,7 +326,28 @@ export function indicateurs(c, e, maintenant = Date.now()) {
   const jeu = c.etapes.filter((x) => x.id !== 'avis');
   const depasse = jeu.filter((x) => tempsEtape(c, e, x.id, maintenant) > 1.5 * x.min * 60000).map((x) => x.t);
   const ecrites = questionsEcrites(c);
+  const tx = analyseTextes(c, e);
+  const aa = questionsAvantApres(c);
+  const av = tx.avant[0], ap = tx.apres[0];
+  const mvAv = tx.avant.reduce((s, x) => s + (x?.mots || 0), 0), mvAp = tx.apres.reduce((s, x) => s + (x?.mots || 0), 0);
+  const changee = ligneChangee(c, e);
+  const pr = Object.entries(k.premiere || {}).filter(([, v]) => v >= 0);
+  const prMax = pr.length ? pr.reduce((a, b) => (b[1] > a[1] ? b : a)) : null;
+  const nomEtape = (id) => (id === 'avant' ? 'Avant de commencer' : c.etapes.find((x) => x.id === id)?.t || id);
+  const blocs = somme(k.blocages);
+  const blocPire = Object.entries(k.blocages || {}).sort((a, b) => b[1] - a[1])[0];
+  const inactif = somme(k.inactif);
+  const revisees = Object.values(k.revisions || {}).filter((n) => n > 0);
+  const b = k.bulles || {};
+  const part = (n) => (tx.n ? `${n} / ${tx.n}` : '');
+  // le journal n'existe que depuis le Playtest 2 : une fiche plus ancienne laisse ces cases vides (pas « 0 ✓ »)
+  const m = journalMesure(e);
+  const j = (l) => (m ? l : { ...l, v: '', ok: null });
   return [
+    ...(aa.length ? [
+      { g: 'Apprentissage', k: 'Avant / après : acteurs nommés (question 1)', v: av && ap ? `${av.acteurs.length} → ${ap.acteurs.length}` : av ? `${av.acteurs.length} → …` : '',
+        ok: av && ap ? ap.acteurs.length > av.acteurs.length : null },
+      { g: 'Apprentissage', k: 'Avant / après : mots écrits', v: mvAv ? `${mvAv} → ${mvAp || '…'}` : '' }] : []),
     { g: 'Apprentissage', k: 'Documents utiles retenus', v: e.juge ? `${utiles} / 3` : '', ok: e.juge ? utiles >= 2 : null },
     { g: 'Apprentissage', k: 'Document « deux sources » retenu', v: e.juge ? (e.docs.includes('d5') ? 'oui' : 'non') : '' },
     { g: 'Apprentissage', k: 'Rezonage après un autre point de vue', v: e.atteinte >= idx('bilan') ? (rezone ? 'oui' : 'non') : '',
@@ -221,13 +356,33 @@ export function indicateurs(c, e, maintenant = Date.now()) {
     { g: 'Apprentissage', k: 'Zones dans la ligne', v: e.atteinte >= idx('trace') ? String(zones) : '',
       ok: e.atteinte >= idx('comp') ? zones >= 3 : null },
     { g: 'Apprentissage', k: 'Corridor', v: e.atteinte >= idx('trace') ? r.corridor : '' },
+    { g: 'Apprentissage', k: 'Secteurs changés après les points de vue', v: changee ? (changee.length ? `${changee.length} (${changee.join(', ')})` : '0') : '' },
+    { g: 'Apprentissage', k: 'Mots par réponse (moyenne)', v: tx.n ? String(tx.motsMoy) : '' },
+    { g: 'Apprentissage', k: 'Réponses qui citent un nombre ou une source', v: part(tx.nombreSource), ok: tx.n ? tx.nombreSource * 2 >= tx.n : null },
+    { g: 'Apprentissage', k: 'Réponses qui justifient (parce que, donc, mais…)', v: part(tx.justifiees), ok: tx.n ? tx.justifiees * 2 >= tx.n : null },
+    { g: 'Apprentissage', k: "Gespe'gewa'gi ou les Mi'gmaq nommés sans qu'on le demande", v: tx.cadre.length ? `oui (${tx.cadre.join(', ')})` : tx.n ? 'non' : '',
+      ok: tx.cadre.length ? true : null },
     { g: 'Engagement', k: 'Étape atteinte', v: `${e.atteinte + 1} / ${jeu.length}`, ok: e.atteinte >= idx('debrief') },
     { g: 'Engagement', k: 'Étapes > 1,5 × le temps prévu', v: depasse.length ? depasse.join(', ') : 'aucune', ok: depasse.length === 0 },
     { g: 'Engagement', k: 'Réponses écrites', v: `${ecrites.filter((q) => repondu(e, q.id)).length} / ${ecrites.length}` },
     { g: 'Engagement', k: 'Gestes reconnus', v: `${e.mentions.length} / ${Object.keys(c.mentions).length}` },
+    { g: 'Engagement', k: 'Relevés ouverts', v: `${e.releves.length} / ${c.releves.length}` },
+    j({ g: 'Engagement', k: 'Documents lus avant le choix', v: `${(k.docsLus || []).length} / ${c.documents.length}`,
+      ok: e.juge ? (k.docsLus || []).length >= 3 : null }),
+    j({ g: 'Engagement', k: 'Points de vue relus', v: e.comps ? String(k.povRelus || 0) : '' }),
+    j({ g: 'Engagement', k: 'Dossier relu après le verdict', v: e.juge ? ((k.relireDocs || 0) ? 'oui' : 'non') : '' }),
+    j({ g: 'Engagement', k: 'Temps sans activité (plus de 2 min d\'affilée)', v: k.inactifN ? `${enMin(inactif)}, ${k.inactifN} fois` : 'aucun',
+      ok: inactif <= 5 * 60000 }),
+    j({ g: 'Engagement', k: 'Réponses réécrites après avoir quitté leur étape', v: revisees.length ? `${revisees.length} question${revisees.length > 1 ? 's' : ''}, ${somme(k.revisions)} fois` : '0' }),
+    j({ g: 'Engagement', k: 'Aide utilisée', v: `« Où chercher » ${k.aideOu || 0} · ce qui manque ${k.aideManque || 0}` }),
     { g: 'Utilisabilité', k: 'Premier geste sur la carte', v: k.premierGeste != null ? `${Math.round(k.premierGeste / 1000)} s` : '',
       ok: k.premierGeste != null ? k.premierGeste < 60000 : null },
+    j({ g: 'Utilisabilité', k: 'Premier geste dans une étape (le plus long)', v: prMax ? `${Math.round(prMax[1] / 1000)} s (${nomEtape(prMax[0])})` : '',
+      ok: prMax ? prMax[1] < 60000 : null }),
     { g: 'Utilisabilité', k: 'Clics dans le vide sur la carte', v: String(k.clicsVides || 0), ok: (k.clicsVides || 0) <= 3 },
-    { g: 'Utilisabilité', k: 'Retours en arrière', v: String(k.retours || 0), ok: (k.retours || 0) <= 2 }
+    { g: 'Utilisabilité', k: 'Retours en arrière', v: String(k.retours || 0), ok: (k.retours || 0) <= 2 },
+    j({ g: 'Utilisabilité', k: '« Suivant » touché trop tôt', v: blocs ? `${blocs} (surtout : ${nomEtape(blocPire[0])})` : '0', ok: blocs <= 3 }),
+    j({ g: 'Utilisabilité', k: 'Hésitation au tracé', v: e.atteinte >= idx('trace') ? `${k.sansZone || 0} secteur${(k.sansZone || 0) > 1 ? 's' : ''} sans zone · ${k.changeZone || 0} zone${(k.changeZone || 0) > 1 ? 's' : ''} changée${(k.changeZone || 0) > 1 ? 's' : ''}` : '' }),
+    j({ g: 'Utilisabilité', k: "Bulles d'aide", v: `${b.vues || 0} vue${(b.vues || 0) > 1 ? 's' : ''} · « ? » ${b.guide || 0}${b.arret ? ' · aide arrêtée' : ''}` })
   ];
 }

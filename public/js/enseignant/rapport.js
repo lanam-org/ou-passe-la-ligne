@@ -12,6 +12,7 @@ import { carte } from '../carte.js';
 import { retourDe, RETOURS } from '../seance.js';
 import { tableauArrimage, grilleCompetences } from './pfeq.js';
 import { base, etat, qid, autresReponses } from './etat.js';
+import { indicateursEquipe, lire as lireObservation } from './observation.js';
 
 export function rapportHTML() {
   const { c, S, EQ, AV, code, ecrites, etapesJeu } = etat;
@@ -23,7 +24,7 @@ export function rapportHTML() {
   const compte = (f) => rsT.filter(f).length;
   const rezone = eq.filter((e) => (e.compteurs?.apresComp || []).some((x) => x > 0)).length;
   const moyenne = (l) => l.length ? l.reduce((a, b) => a + b, 0) / l.length : 0;
-  const ind = eq.map((e) => J.indicateurs(c, e));
+  const ind = eq.map((e) => indicateursEquipe(e));
   const lignes = ind[0] || [];
   const ok = (v) => v === true ? ' ✓' : v === false ? ' ✗' : '';
   const temps = etapesJeu.map((x) => {
@@ -48,6 +49,7 @@ export function rapportHTML() {
       <tr><td>Gardent le corridor continu</td><td>${compte((r) => r.corridor === 'continu')}</td></tr>
       <tr><td>Ont rezoné après un autre point de vue</td><td>${rezone}</td></tr>
       <tr><td>Ont terminé la partie</td><td>${eq.filter((e) => e.fini).length}</td></tr>
+      <tr><td>Messages envoyés à la classe <span class="r-note">(compté sur cet ordinateur)</span></td><td>${lireObservation().messages}</td></tr>
     </tbody></table>
     <h2>Lien avec le programme</h2>
     ${tableauArrimage(c)}
@@ -77,7 +79,10 @@ export function rapportHTML() {
         </div></div>
         <dl class="r-rep">${ecrites.map((q) => `<dt>${esc(qid(q))} · ${esc(q.eleve)}${q.requise ? '' : ' (facultative)'}</dt>
           <dd>${String(e.reponses?.[q.id] || '').trim() ? esc(e.reponses[q.id]) + (retourDe(S, e.id, q.id) ? ` <b>${RETOURS[retourDe(S, e.id, q.id).k].s} ${esc(RETOURS[retourDe(S, e.id, q.id).k].court)}</b>` : '') : '<i>pas de réponse</i>'}</dd>`).join('')}${
-          autresReponses(e).map((x) => `<dt>${esc(x.t)} (${esc(x.k)})</dt><dd>${esc(x.r)}</dd>`).join('')}</dl>
+          autresReponses(e).map((x) => `<dt>${esc(x.t)} (${esc(x.k)})</dt><dd>${esc(x.r)}</dd>`).join('')}${
+          ((c.avantApresTous || []).some((q, j) => J.repondu(e, J.idAvant(j))) ? c.avantApresTous : []).map((q, j) => `<dt>Avant / après ${j + 1} · ${esc(q.q)}</dt>
+            <dd><span class="r-k">Au début :</span> ${esc(String(e.reponses?.[J.idAvant(j)] || '').trim()) || '<i>pas de réponse</i>'}</dd>
+            <dd><span class="r-k">À la fin :</span> ${esc(String(e.reponses?.[J.idApres(j)] || '').trim()) || '<i>pas de réponse</i>'}</dd>`).join('')}</dl>
         ${grilleCompetences()}
       </section>`;
     }).join('')}`;

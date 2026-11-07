@@ -47,6 +47,11 @@ await el.click('button[type=submit]');
 await el.waitForSelector('#titre');
 await el.waitForTimeout(1800);
 if (await el.locator('.grande-q').count()) { await cap(el, 'question'); await el.click('#suivant'); await el.waitForTimeout(300); }
+if (await el.locator('[data-rep="AV1"]').count()) {   // les deux questions du début (avant / après)
+  await cap(el, 'avant');
+  await el.fill('[data-rep="AV1"]', 'Les animaux et les touristes.'); await el.fill('[data-rep="AV2"]', 'Non, il faut choisir.');
+  await el.click('#suivant'); await el.waitForTimeout(300);
+}
 await cap(el, 'arrivee');
 await cap(el, 'arrivee-pleine', true);
 const S = async () => { await el.click('#suivant'); await el.waitForTimeout(1600); };
@@ -82,6 +87,8 @@ await S();
 await cap(el, 'bilan'); await cap(el, 'bilan-plein', true);
 await fill('F6.1', 'Ils ont tout pris.');
 await S();
+await fill('AP1', "Les familles, les pêcheurs, les Mi'gmaq, le gouvernement et les animaux."); await fill('AP2', 'Oui, si on garde des villages.');
+await el.waitForTimeout(200);
 await cap(el, 'debrief'); await cap(el, 'debrief-plein', true);
 await S();
 await cap(el, 'fin'); await cap(el, 'fin-pleine', true);
@@ -90,7 +97,11 @@ await prof.bringToFront();
 await prof.waitForTimeout(800);
 await cap(prof, 'prof-direct', true);
 const eq = prof.locator('[data-equipe="orignal"]');
-if (await eq.count()) { await eq.click(); await prof.waitForTimeout(500); await cap(prof, 'prof-detail', true); }
+if (await eq.count()) {
+  await eq.click(); await prof.waitForTimeout(500);
+  await prof.check('#detail [data-obs="participe"]'); await prof.click('#detail .obs-m summary'); await prof.waitForTimeout(300);
+  await cap(prof, 'prof-detail', true);
+}
 // la démonstration : quatre équipes à des étapes différentes ; le détail d'une équipe bloquée
 await prof.click('[data-retour="1"]');
 await prof.waitForSelector('[data-demo]');
@@ -98,6 +109,11 @@ await prof.click('[data-demo]');
 await prof.waitForFunction(() => document.querySelectorAll('[data-equipe]').length >= 4, null, { timeout: 8000 });
 await prof.click('input[data-rythme]'); await prof.waitForTimeout(500);
 await prof.locator('.rythme').scrollIntoViewIfNeeded(); await cap(prof, 'prof-rythme');
+if (await prof.locator('[data-bascule-groupe][aria-expanded="false"]').count()) await prof.click('[data-bascule-groupe]');
+await prof.click('[data-onglet="mesures"]', { timeout: 3000 }).catch(() => {});
+await prof.waitForTimeout(400); await cap(prof, 'prof-mesures', true);
+await prof.click('[data-onglet="direct"]', { timeout: 3000 }).catch(() => {});
+await prof.waitForTimeout(300);
 for (const id of ['orignal', 'phoque-gris']) {
   await prof.click(`[data-equipe="${id}"]`); await prof.waitForSelector('#detail');
   await prof.locator('#detail').scrollIntoViewIfNeeded(); await prof.evaluate(() => document.querySelector('#detail').scrollIntoView({ block: 'start' }));

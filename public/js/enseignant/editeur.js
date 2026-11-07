@@ -158,6 +158,10 @@ function editeur() {
           aria-describedby="rg-temps-d"><span class="bascule-p" aria-hidden="true"></span>
         <span>Montrer le temps qui reste aux équipes<br><span class="hint" id="rg-temps-d">Éteint par défaut : un compte à rebours stresse
           les élèves. Vous gardez le chrono ; les équipes voient seulement « En pause » quand vous l'arrêtez.</span></span></label>
+      <label class="bascule rg-temps"><input type="checkbox" role="switch" data-avant-apres ${r.avantApres !== false ? 'checked' : ''}
+          aria-describedby="rg-aa-d"><span class="bascule-p" aria-hidden="true"></span>
+        <span>Deux questions au début, les mêmes à la fin<br><span class="hint" id="rg-aa-d">Allumé par défaut, environ deux minutes en tout.
+          L'équipe y répond avant l'arrivée, puis au retour sur la démarche : vous voyez ce que la partie a changé.</span></span></label>
     </section>
 
     <details class="rg-avance" data-k="rg-avance" ${ouvert('rg-avance')}>
@@ -291,7 +295,8 @@ function lireReglages(texte) {
   for (const [id, v] of Object.entries(o.minutes || {})) if (etapes.has(id) && Number.isFinite(Number(v))) minutes[id] = Math.max(1, Math.min(90, Math.round(v)));
   return Rg.completer(base, { format: Rg.FORMATS[o.format] ? o.format : 'standard',
     miseEnRoute: Number.isFinite(Number(o.miseEnRoute)) ? Math.max(0, Math.min(60, Math.round(o.miseEnRoute))) : undefined,
-    minutes, questions, ajouts, corrections, options: o.options, tempsEquipes: o.tempsEquipes === true });
+    minutes, questions, ajouts, corrections, options: o.options, tempsEquipes: o.tempsEquipes === true,
+    avantApres: o.avantApres !== false });
 }
 
 /** Une question ajoutée, nettoyée : longueurs bornées, identifiant sûr. */
@@ -372,6 +377,7 @@ document.addEventListener('change', async (ev) => {
   const eq = ev.target.closest('[data-etatq]');
   if (eq) { ui.ed.r.questions[eq.dataset.etatq] = eq.value; modifie(); return; }
   if (ev.target.closest('[data-temps-equipes]')) { ui.ed.r.tempsEquipes = ev.target.checked; modifie(); return; }
+  if (ev.target.closest('[data-avant-apres]')) { ui.ed.r.avantApres = ev.target.checked; modifie(); return; }
   const op = ev.target.closest('[data-option]');
   if (op) {
     Rg.choisirOption(base, ui.ed.r, op.dataset.option, op.checked);
@@ -415,7 +421,7 @@ document.addEventListener('click', (ev) => {
   if (fm) {
     // « Sur mesure » garde les minutes et les questions déjà choisies ; un format prêt les remplace
     if (fm.dataset.format === 'mesure') ui.ed.r.format = 'mesure';
-    else ui.ed.r = Rg.reglagesDuFormat(base, fm.dataset.format, { ajouts: ui.ed.r.ajouts, corrections: ui.ed.r.corrections, options: ui.ed.r.options, tempsEquipes: ui.ed.r.tempsEquipes });
+    else ui.ed.r = Rg.reglagesDuFormat(base, fm.dataset.format, { ajouts: ui.ed.r.ajouts, corrections: ui.ed.r.corrections, options: ui.ed.r.options, tempsEquipes: ui.ed.r.tempsEquipes, avantApres: ui.ed.r.avantApres });
     ui.ed.modifie = true; ui.ed.msg = '';
     return rendreEditeur();
   }

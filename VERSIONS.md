@@ -61,6 +61,31 @@ préparation est le titre « … · en préparation » ci-dessous : `…/dev/` l
     des phrases pour relancer, et « Ouvrir cette étape en aperçu (sans ses réponses) ». Le dossier complet ajoute le verdict de chaque
     document et la décision de 1970 jusqu'en 1975 : il ne ressemble plus au dossier élève ;
   - « un seul Chromebook par équipe, les autres restent fermés » dans la mise en route.
+- **Plus de mesures** (7 novembre 2026), toutes en nombres, sans nom ni texte exporté :
+  - **avant / après** : deux questions courtes après la question du jeu, les mêmes au retour sur la démarche
+    (« Qui est touché quand on crée un parc national ? », « Peut-on protéger la nature et laisser des gens vivre au
+    même endroit ? ») ; le site compte les acteurs nommés au début et à la fin ; l'équipe relit ce qu'elle pensait au
+    début. Réglage « Deux questions au début, les mêmes à la fin », allumé par défaut (environ deux minutes) ;
+  - **apprentissage** : les secteurs changés entre la ligne arrêtée et la ligne d'après les points de vue ; mots par
+    réponse ; réponses qui citent un nombre ou une source, qui justifient (parce que, donc, mais…) ;
+    Gespe'gewa'gi ou les Mi'gmaq nommés sans qu'on le demande (les questions qui le demandent, F2.1, F5.4, F6.3, ou
+    qui en parlent dans leur texte ne comptent pas) ; ces repères comptent des mots, sans accents : à vérifier en lisant ;
+  - **engagement** : relevés ouverts, documents lus avant le choix, points de vue relus, dossier relu après le
+    verdict ; le temps sans aucun geste (au-delà de 2 minutes, pause et attente du signal exclues) ; les réponses
+    réécrites après avoir quitté leur étape ; « Où chercher » et le lien de ce qui manque ;
+  - **utilisabilité** : « Suivant » touché trop tôt (par étape) ; au tracé, les secteurs touchés puis laissés sans
+    zone et les zones changées ; le premier geste dans chaque étape ; les bulles d'aide vues, le « ? », « Arrêter
+    l'aide ». La question du jeu et les deux questions du début ont leur propre temps (« avant ») : l'arrivée garde
+    son temps prévu ;
+  - **côté enseignant·e** : une grille d'observation dans le détail de l'équipe (tout le monde participe, discussion,
+    lecture à voix haute, l'ordinateur change de main), les détails ouverts, les retours donnés et les messages à la
+    classe. Gardés dans ce navigateur, effacés avec la séance ;
+  - visibles en direct (« Ses mesures, en direct », dans le détail d'une équipe), dans l'onglet Données, le rapport
+    imprimé et l'export CSV (une colonne par mesure, et par étape pour le temps sans geste, « Suivant » trop tôt et le
+    premier geste : -1 = étape quittée sans geste) ; le plan de mesure les décrit. Une fiche d'avant ce journal
+    laisse ces cases vides. L'export pour la recherche reste verrouillé (`mesure = false`) jusqu'au certificat
+    d'éthique ; les réponses avant / après et les compteurs s'enregistrent pourtant, comme les autres réponses, dans
+    la séance (effacée au plus tard 30 jours après) : le protocole déposé au CÉR doit les nommer.
 
 ## Playtest 1 — avec les professeurs · 29 octobre 2026
 

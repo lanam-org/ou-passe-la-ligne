@@ -138,7 +138,9 @@ export function reglagesDuFormat(base, format = 'standard', garder = {}) {
     format, miseEnRoute: f.miseEnRoute, minutes: { ...f.minutes }, questions,
     ajouts: garder.ajouts || [], corrections: garder.corrections || {}, options,
     // le temps qui reste, à l'écran des équipes : éteint par défaut (stressant, retours des enseignant·es)
-    tempsEquipes: garder.tempsEquipes === true
+    tempsEquipes: garder.tempsEquipes === true,
+    // les deux questions avant / après (la mesure de ce que la partie change) : allumées par défaut
+    avantApres: garder.avantApres !== false
   };
 }
 
@@ -154,7 +156,8 @@ export function completer(base, r) {
     ajouts: Array.isArray(r.ajouts) ? r.ajouts : [],
     corrections: r.corrections || {},
     options: optionsConnues(r.options),
-    tempsEquipes: r.tempsEquipes === true
+    tempsEquipes: r.tempsEquipes === true,
+    avantApres: r.avantApres !== false
   };
 }
 
@@ -274,6 +277,8 @@ export function appliquer(base, reglages) {
   c.q = { ecrites, orales };
   c.reglages = r;
   c.tempsEquipes = r.tempsEquipes === true;
+  c.avantApresQ = r.avantApres !== false ? (base.avantApres || []) : [];
+  c.avantApresTous = base.avantApres || [];   // pour relire des réponses écrites avant qu'on éteigne le réglage
   // sur mesure, dès 90 minutes (celles appliquées) : deux périodes, la coupure après le tracé, comme « Deux périodes »
   c.coupure = FORMATS[r.format]?.coupure || (r.format === 'mesure' && c.miseEnRoute.min + totalPrevu(c) >= 90 ? FORMATS.deux.coupure : null);
   return c;

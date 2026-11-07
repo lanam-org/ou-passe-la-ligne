@@ -8,6 +8,7 @@ import { carte, blocReleve } from '../carte.js';
 import { SIGNAUX, texteSignal, MAX_MESSAGE, aUnBravo, retourDe, RETOURS, EMOJIS_EQUIPES } from '../seance.js';
 import { encode } from '../vendor/uqr.js';
 import { etat, ui, qid, etapeDe, chronoDe, chronoTexte, autresReponses } from './etat.js';
+import { GRILLE, lire as lireObservation, indicateursEquipe } from './observation.js';
 
 const lienEleve = () => new URL(`eleve.html?code=${etat.code}`, document.baseURI).href;
 
@@ -263,11 +264,46 @@ function ouEnEst(e) {
   </div>`;
 }
 
+/**
+ * Observer l'équipe : la grille à cocher (pour la recherche, gardée dans ce navigateur), puis ses mesures, en direct.
+ * Une case vide veut dire « pas vu », pas « non ».
+ */
+function observer(e) {
+  const g = lireObservation().grille[e.id] || {};
+  // la pastille dit aussi en mots ce que sa couleur dit (lecteur d'écran, daltonisme)
+  const pt = (ok) => (ok === true ? '<span class="pt pt--ok" aria-hidden="true">●</span><span class="cache-visuel">repère atteint :</span>'
+    : ok === false ? '<span class="pt pt--non" aria-hidden="true">●</span><span class="cache-visuel">repère non atteint :</span>' : '');
+  const lignes = indicateursEquipe(e);
+  return `<div class="obs">
+    <fieldset class="obs-g"><legend class="sur">Observer l'équipe <span class="hint">· cochez ce que vous voyez ; gardé dans ce navigateur</span></legend>
+      <div class="obs-l">${GRILLE.map(([k, t]) => `<label class="obs-c"><input type="checkbox" data-obs="${k}" data-pour="${esc(e.id)}" ${g[k] ? 'checked' : ''}>
+        <span>${esc(t)}</span></label>`).join('')}</div></fieldset>
+    <details class="obs-m" data-k="mes-${esc(e.id)}" ${ui.ouverts.has(`mes-${e.id}`) ? 'open' : ''}><summary>Ses mesures, en direct</summary>
+      <div class="tab-w"><table class="tab tab--mes"><caption class="cache-visuel">Les mesures de l'équipe ${esc(e.nom)}</caption>
+        <tbody>${lignes.map((l, i) => `<tr><th scope="row">${i === 0 || lignes[i - 1].g !== l.g ? `<b>${esc(l.g)}</b> · ` : ''}${esc(l.k)}</th>
+        <td>${pt(l.ok)} ${esc(l.v)}</td></tr>`).join('')}</tbody></table></div>
+      <p class="avert"><span class="pt pt--ok" aria-hidden="true">●</span> repère atteint · <span class="pt pt--non" aria-hidden="true">●</span> non atteint ·
+        sans pastille : pas de repère, ou pas encore mesuré. Les repères sont des hypothèses, à revoir après les essais.</p></details>
+  </div>`;
+}
+
+/** Les deux questions avant / après de l'équipe, côte à côte. */
+function avantApres(e) {
+  const aa = etat.c.avantApresTous || [];   // même si le réglage a été éteint depuis : ses réponses restent lisibles
+  if (!aa.some((q, i) => J.repondu(e, J.idAvant(i)))) return '';
+  const r = (id) => String(e.reponses?.[id] || '').trim();
+  return `<div class="aa-ens"><p class="sur">Au début, puis à la fin</p>${aa.map((q, i) => `<div class="rep">
+      <p><b>${esc(q.q)}</b></p>
+      <p><span class="k">Au début :</span> ${r(J.idAvant(i)) ? esc(r(J.idAvant(i))) : 'pas de réponse'}</p>
+      <p><span class="k">À la fin :</span> ${r(J.idApres(i)) ? esc(r(J.idApres(i))) : 'pas encore'}</p></div>`).join('')}</div>`;
+}
+
 function vueDetail(e) {
   const { c, S, ecrites } = etat;
   return `<section class="p-sect detail" id="detail">
     <div class="p-sect-h"><h3>Équipe ${esc(e.nom)}</h3><button class="lien" data-equipe="">${icone('croix')} Fermer</button></div>
     ${ouEnEst(e)}
+    ${observer(e)}
     <h4 class="detail-tout">Toute sa partie</h4>
     <div class="detail-g">
       <div>${carte(c, e, { cliquable: false })}<div style="margin-top:12px">${blocReleve(c, e, true)}</div>
@@ -283,6 +319,6 @@ function vueDetail(e) {
             `<button class="btn btn--f btn--s retour-b${x.positif ? '' : ' retour-b--piste'}" data-bravo="${esc(q.id)}" data-pour="${esc(e.id)}"
               data-k="${k}" aria-pressed="${ret?.k === k}" title="${esc(x.long)}"><span aria-hidden="true">${x.s}</span> ${esc(x.court)}</button>`).join('')}</div>` : ''}
           ${q.reponse ? `<details data-k="${esc(e.id)}-${esc(q.id)}" ${ui.ouverts.has(`${e.id}-${q.id}`) ? 'open' : ''}><summary class="hint">Réponse attendue</summary><p class="att">${esc(q.reponse)}</p></details>` : ''}</div>`;
-      }).join('')}${autresReponses(e).map((x) => `<div class="rep"><p class="k">${esc(x.k)}</p><p><b>${esc(x.t)}</b></p><p>${esc(x.r)}</p></div>`).join('')}</div>
+      }).join('')}${autresReponses(e).map((x) => `<div class="rep"><p class="k">${esc(x.k)}</p><p><b>${esc(x.t)}</b></p><p>${esc(x.r)}</p></div>`).join('')}${avantApres(e)}</div>
     </div></section>`;
 }

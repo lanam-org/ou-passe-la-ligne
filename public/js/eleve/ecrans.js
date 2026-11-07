@@ -61,14 +61,29 @@ function minimum(c, E) {
 export const ECRANS = {
   arrivee: () => {
     const { c, E } = etat;
+    const aa = J.questionsAvantApres(c);
+    const debut = E.atteinte === 0 && !R('F1.2') && !etat.apercu;
     // La question du jeu, AVANT l'arrivée (Playtest 2) : lue à voix haute, en équipe, puis on entre.
-    if (!ui.questionLue && E.atteinte === 0 && !R('F1.2') && !etat.apercu) return {
-      titre: 'La question du jeu', sansBandeau: true,
+    if (debut && !ui.questionLue && !(aa.length && R(J.idAvant(0)))) return {
+      ecran: 'question', titre: 'La question du jeu', sansBandeau: true,
       guide: 'Avant de commencer, <b>lisez cette question à voix haute, en équipe.</b> Tout le jeu sert à y répondre.',
       h: `<div class="grande-q"><p class="grande-q-t">${esc(c.question)}</p>
         <p class="hint">Elle reviendra en haut de l'écran, à chaque étape.</p></div>`,
       btn: 'Nous avons lu la question', peut: true, hint: ''
     };
+    // Puis les deux questions du début (avant / après) : ce que l'équipe pense AVANT de jouer. Les mêmes reviennent
+    // au retour sur la démarche ; la différence, c'est ce que la partie a changé. Passé une fois (« Commencer »), il ne
+    // revient plus, même après un rafraîchissement. L'aperçu de l'enseignant·e le montre, sans rien exiger.
+    const passe = ui.avantPasse || (E.compteurs?.envoyees || []).includes(J.idAvant(0));
+    if (aa.length && !passe && (debut || (etat.apercu && E.etape === 0))) {
+      const fait = J.avantFait(c, E) || etat.apercu;
+      return {
+        ecran: 'avant', titre: 'Avant de commencer',
+        guide: 'Deux questions courtes, <b>avant de jouer.</b> Il n\'y a pas de bonne réponse : écrivez ce que vous pensez maintenant. Les mêmes questions reviendront à la fin.',
+        h: aa.map((q, i) => blocQuestion({ id: J.idAvant(i), eleve: q.q, requise: true })).join(''),
+        btn: 'Commencer', peut: fait, hint: fait ? '' : 'Répondez aux deux questions.', lien: false
+      };
+    }
     return {
       guide: `Bienvenue à Forillon, en Gaspésie. <b>Tout est réel ici</b> : le territoire, les chiffres, les documents.
         Votre équipe va tracer la limite d'un parc. <b>D'abord, écrivez une hypothèse.</b>`,
@@ -266,10 +281,19 @@ export const ECRANS = {
     const ecrites = J.questionsEcrites(c).filter((q) => q.etape !== 'debrief' && R(q.id));
     const orales = c.q?.orales || [];
     const restent = Rg.aRattraper(c, E).filter((q) => q.requise).length;
-    const pret = ok('debrief') && !restent;
+    // les deux questions du début, encore une fois : seulement pour une équipe qui y a répondu au début
+    // (l'aperçu de l'enseignant·e les montre aussi, pour voir ce que les équipes verront)
+    const aa = J.apresDemande(c, E) || etat.apercu ? J.questionsAvantApres(c) : [];
+    const apresOk = J.apresFait(c, E);
+    const pret = ok('debrief') && !restent && apresOk;
+    const blocApres = aa.length ? `<div class="aa-fin"><h3 class="sous" style="margin-top:0;padding-top:0;border:0">Les deux questions du début</h3>
+        <p class="hint">Les mêmes qu'au début de la partie. Répondez avec ce que vous savez maintenant.</p>
+        ${aa.map((q, i) => blocQuestion({ id: J.idApres(i), eleve: q.q, requise: true })).join('')}
+        ${apresOk ? `<details class="d-sources"><summary>Ce que vous pensiez au début</summary>
+          <dl class="vos-rep">${aa.map((q, i) => `<dt>${esc(q.q)}</dt><dd>${esc(E.reponses[J.idAvant(i)])}</dd>`).join('')}</dl></details>` : ''}</div>` : '';
     return {
       guide: `On range les cartes. <b>Ce qui reste, c'est ce que vous direz en classe.</b> Rappel de la question : ${esc(c.question)}`,
-      h: `${orales.length ? `<h3 class="sous" style="margin-top:0;padding-top:0;border:0">Les questions, en classe entière</h3>
+      h: `${blocApres}${orales.length ? `<h3 class="sous"${aa.length ? '' : ' style="margin-top:0;padding-top:0;border:0"'}>Les questions, en classe entière</h3>
         <ol class="qlist">${orales.map((q) => `<li>${esc(q.eleve)}</li>`).join('')}</ol>` : ''}
         ${blocQuestions('debrief')}
         <details class="d-sources"><summary>Ce que votre équipe a écrit <span class="hint">(pour en parler)</span></summary>
@@ -280,7 +304,8 @@ export const ECRANS = {
           ${c.sources.map((s) => `<p class="src"><b>${esc(s.t)}</b><br>${esc(s.x)}</p>`).join('')}
         </details>`,
       btn: avis ? 'Donner mon avis' : 'Terminer la partie', peut: pret,
-      hint: pret ? '' : restent ? 'Une question d\'une étape précédente attend votre réponse.' : PAS_FINI
+      hint: pret ? '' : restent ? 'Une question d\'une étape précédente attend votre réponse.'
+        : !apresOk ? 'Répondez aux deux questions du début.' : PAS_FINI
     };
   },
 
@@ -360,6 +385,9 @@ export function rendreFin() {
           <span><b>${esc(c.mentions[id].nom)}</b><span>${esc(c.mentions[id].court)}</span></span></div>`).join('')}</div>` : ''}
       ${ecrites.length ? `<h3 class="sous">Vos réponses</h3><dl class="vos-rep">${ecrites.map((q) => `<dt>${esc(q.eleve)}</dt>
         <dd>${esc(E.reponses[q.id])}${aUnBravo(S, idEq, q.id) ? ` <span class="vos-bravo">✦ ${esc(texteRetour(retourDe(S, idEq, q.id).k, true))}</span>` : ''}</dd>`).join('')}</dl>` : ''}
+      ${J.apresDemande(c, E) ? `<h3 class="sous">Au début, puis à la fin</h3><dl class="vos-rep">${J.questionsAvantApres(c).map((q, i) => `<dt>${esc(q.q)}</dt>
+        <dd><span class="aa-k">Au début :</span> ${esc(E.reponses[J.idAvant(i)])}</dd>
+        <dd><span class="aa-k">À la fin :</span> ${R(J.idApres(i)) ? esc(E.reponses[J.idApres(i)]) : '<i>pas de réponse</i>'}</dd>`).join('')}</dl>` : ''}
     </div></section>`);
 }
 

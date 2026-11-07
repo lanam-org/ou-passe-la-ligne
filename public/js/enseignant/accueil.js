@@ -7,7 +7,7 @@ import { $, esc, typo, messageErreur, icone } from '../outils.js';
 import * as Rg from '../reglages.js';
 import { dossierHTML } from '../dossierdoc.js';
 import { creerSeanceDemo } from '../demo.js';
-import { creerSeance, effacerSeance, mesSeances, lireMaVersion, effacerMaVersion, JOURS_CONSERVATION, ouvrirApercu } from '../seance.js';
+import { creerSeance, effacerSeance, mesSeances, lireMaVersion, effacerMaVersion, JOURS_CONSERVATION, ouvrirApercu, oublierObservations } from '../seance.js';
 import { base, etat, ui, page, seanceGardee } from './etat.js';
 import { resumeReglages, ouvrirEditeur, rendreEditeur } from './editeur.js';
 import { imprimer } from './rapport.js';
@@ -26,7 +26,10 @@ const dateCourte = (t) => new Date(t).toLocaleString('fr-CA', { dateStyle: 'medi
 export async function afficherAccueil(erreur = '') {
   const { MOI } = etat;
   let liste = [];
-  try { liste = MOI ? await mesSeances(MOI.uid) : []; } catch (e) { console.warn('Liste des séances indisponible', e); }
+  try {
+    liste = MOI ? await mesSeances(MOI.uid) : [];
+    if (MOI) oublierObservations(liste.map((s) => s.code || s.id));   // effacées (à la main ou à 30 jours) : leur grille aussi
+  } catch (e) { console.warn('Liste des séances indisponible', e); }
   ui.maVersion = MOI ? await lireMaVersion(MOI.uid) : null;
   const v = ui.maVersion ? Rg.completer(base, ui.maVersion) : null;
   const fmt = v?.format || 'standard';
@@ -115,7 +118,8 @@ export async function afficherAccueil(erreur = '') {
 function reglagesChoisis() {
   const fmt = document.querySelector('input[name=format]:checked')?.value || 'standard';
   const v = ui.maVersion ? Rg.completer(base, ui.maVersion) : null;
-  const garder = { ajouts: v?.ajouts, corrections: v?.corrections, options: v?.options };
+  // la version de l'enseignant·e garde aussi ses deux interrupteurs (temps des équipes, avant / après)
+  const garder = { ajouts: v?.ajouts, corrections: v?.corrections, options: v?.options, tempsEquipes: v?.tempsEquipes, avantApres: v?.avantApres };
   if (fmt !== 'mesure') return v && v.format === fmt ? v : Rg.reglagesDuFormat(base, fmt, garder);
   // sur mesure : la durée totale tapée ; les questions de sa version sur mesure, si elle est de la même tranche de durée
   const reglages = Rg.reglagesSurMesure(base, Number($('#duree-mesure')?.value), garder);
@@ -141,7 +145,8 @@ async function creer() {
 async function demarrageRapide() {
   const v = ui.maVersion ? Rg.completer(base, ui.maVersion) : null;
   const reglages = v?.format === 'standard' ? v
-    : Rg.reglagesDuFormat(base, 'standard', { ajouts: v?.ajouts, corrections: v?.corrections, options: v?.options });
+    : Rg.reglagesDuFormat(base, 'standard', { ajouts: v?.ajouts, corrections: v?.corrections, options: v?.options,
+      tempsEquipes: v?.tempsEquipes, avantApres: v?.avantApres });
   const cd = await creerSeance({ questionnaire: !!$('#opt-avis')?.checked, reglages });
   etat.MOI = await donnees.attendreUtilisateur();
   page.ouvrir(cd);

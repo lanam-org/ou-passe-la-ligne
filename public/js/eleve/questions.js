@@ -65,5 +65,7 @@ export function rattrapage() {
 export function reponseManquante() {
   const { c, E } = etat;
   const ici = c.etapes[E.etape].id;
-  return [...Rg.aRattraper(c, E), ...Rg.questionsVisibles(c, E, ici)].find((q) => q.requise && !R(q.id));
+  // au retour sur la démarche, les deux questions du début (avant / après) passent avant celles de l'étape
+  const apres = ici === 'debrief' && J.apresDemande(c, E) ? J.questionsAvantApres(c).map((q, i) => ({ id: J.idApres(i), requise: true })) : [];
+  return [...Rg.aRattraper(c, E), ...apres, ...Rg.questionsVisibles(c, E, ici)].find((q) => q.requise && !R(q.id));
 }

@@ -1712,3 +1712,24 @@ body:has(.prog-proj) .page{padding:0}
 .dd-verdict b{display:block}
 .dd-chrono{margin:10px 0 0;padding-left:18px;font-size:14px;line-height:1.5}
 @media print{.dd-verdict{background:none;border:.75pt solid #999;color:#000}}
+
+/* Les mesures ajoutées (Playtest 2) : les deux questions avant / après, la grille d'observation, les mesures en direct */
+.aa-fin{margin-bottom:8px}
+.aa-fin .d-sources{margin-top:10px}
+.aa-k{font-weight:700;color:var(--doux)}
+.vos-rep dd + dd{margin-top:2px}
+.obs{margin-bottom:18px;display:flex;flex-direction:column;gap:10px}
+.obs-g{border:1px solid var(--trait);border-radius:var(--r-s);padding:10px 14px 12px;margin:0}
+.obs-g legend{padding:0 4px}
+.obs-l{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:6px 16px;margin-top:4px}
+.obs-c{display:flex;gap:8px;align-items:flex-start;font-size:15px;line-height:1.4;cursor:pointer;min-height:28px}
+.obs-c input{width:18px;height:18px;margin-top:2px;flex:none;accent-color:var(--primaire)}
+.obs-m summary{cursor:pointer;font-weight:700}
+.tab--mes{margin-top:8px;font-size:14px}
+.tab--mes td:last-child{white-space:nowrap}
+@media (max-width:700px){.tab--mes td:last-child{white-space:normal}}
+.aa-ens{margin-top:16px}
+.aa-ens .rep .k{display:inline;font-weight:700;color:var(--doux)}
+.tab--mes th[scope="row"]{white-space:normal;font-size:14px;font-weight:400;color:var(--encre);border-bottom:1px solid var(--trait);vertical-align:top;
+  text-transform:none;letter-spacing:0;background:none}
+.tab--mes th[scope="row"] b{font-weight:700}
