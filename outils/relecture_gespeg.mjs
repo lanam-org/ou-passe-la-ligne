@@ -1,4 +1,4 @@
-// relecture_gespeg.mjs — le dossier de relecture pour la Nation Micmac de Gespeg.
+// relecture_gespeg.mjs — le dossier de relecture pour la Nation Micmac de Gespeg (nom officiel ; le jeu écrit « la nation mi'gmaq de Gespeg »).
 //
 //   node outils/relecture_gespeg.mjs      (ou : npm run relecture)
 //
@@ -74,11 +74,11 @@ const mentions = Object.values(c.mentions).filter(touche).map((m) => passage({
 // telle quelle dans son fichier : sinon le générateur le dit, et ce passage est à revoir ici.
 const INTERFACE = [
   { ou: `${etape('arrivee')} · l'écran d'accueil de l'équipe`, fichier: 'js/eleve/ecrans.js',
-    texte: 'Le lieu est réel : parc national Forillon, en Gaspésie, créé le 8 juin 1970, sur Gespe\'gewa\'gi. La limite que vous tracerez est la vôtre, pas la sienne.',
-    preuves: ['sur Gespe\'gewa\'gi. La limite que vous tracerez est la vôtre, pas la sienne.'] },
+    texte: 'Le lieu est réel : le parc national Forillon, en Gaspésie, créé le 8 juin 1970, sur Gespe\'gewa\'gi. La limite que vous tracerez est la vôtre.',
+    preuves: ['sur Gespe\'gewa\'gi. La limite que vous tracerez est la vôtre.'] },
   { ou: 'La carte, étapes 2 à 5 : la couche Gespe\'gewa\'gi, affichée au départ', fichier: 'js/carte.js',
-    texte: 'Sur la carte dessinée : « GESPE\'GEWA\'GI — territoire mi\'gmaq · depuis des temps immémoriaux », un trait qui entoure les sept secteurs. Tant que la carte est à venir : « Gespe\'gewa\'gi couvre les sept secteurs, dedans comme dehors de la ligne. » Un bouton l\'affiche ou la masque : « Gespe\'gewa\'gi : affiché » / « masqué ».',
-    preuves: ['GESPE\'GEWA\'GI', 'territoire mi\'gmaq · depuis des temps immémoriaux', 'Gespe\'gewa\'gi couvre les sept secteurs, dedans comme dehors de la ligne.', 'Gespe\'gewa\'gi : '] },
+    texte: 'Sur la carte dessinée : « GESPE\'GEWA\'GI — territoire mi\'gmaq · depuis des temps immémoriaux », un trait qui entoure les sept secteurs, dedans comme dehors de la ligne de l\'équipe. Un bouton l\'affiche ou la masque : « Gespe\'gewa\'gi : affiché » / « masqué ».',
+    preuves: ['GESPE\'GEWA\'GI', 'territoire mi\'gmaq · depuis des temps immémoriaux', 'Gespe\'gewa\'gi : '] },
   { ou: 'Le relevé de la ligne, à côté de la carte (étapes 4 et 5)', fichier: 'js/carte.js',
     texte: 'Une ligne du relevé : « Territoire ancestral mi\'gmaq : non découpé ». Dessous : « La dernière ligne ne bouge jamais : Gespe\'gewa\'gi couvre les sept secteurs, dedans comme dehors. »',
     preuves: ['Territoire ancestral mi\'gmaq', 'Gespe\'gewa\'gi couvre les sept secteurs, dedans comme dehors.'] }

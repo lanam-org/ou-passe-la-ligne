@@ -1563,3 +1563,152 @@ body:has(.prog-proj) .page{padding:0}
 /* « Réponse attendue », sous les boutons de retour : une cible d'au moins 24 px, un peu détachée */
 .rep > details{margin-top:8px}
 .rep > details > summary{min-height:24px;display:list-item;padding-block:2px}
+
+/* =============================================================================
+   Playtest 2 : retours des enseignant·es (6 novembre 2026)
+   La question d'abord ; lire avant de répondre ; une carte qui change à chaque choix ; le secteur d'abord, puis
+   sa zone ; le vert réservé aux bonnes réponses et aux bravos ; pas de compte à rebours chez les équipes.
+   ========================================================================== */
+
+/* la mission de l'étape : plus de portrait à côté (la vignette ne disait rien de ce qu'il faut faire) ;
+   le gras en encre, pas en vert : le vert dit « bon choix » ou « bravo », et rien d'autre */
+.guide,.guide--temp{grid-template-columns:minmax(0,1fr)}
+.guide .bulle{border-radius:var(--r-s);border-left:4px solid var(--primaire)}
+.guide b{color:inherit}
+.qe-l .sur,.trouve .sur{color:var(--doux)}
+
+/* la question du jeu, avant l'arrivée, puis rappelée sur la carte de chaque étape */
+.grande-q{padding:28px 24px;border-radius:var(--r);background:var(--primaire-doux);border:2px solid var(--primaire);text-align:center}
+.grande-q-t{font-size:clamp(24px,3.4vw,34px);font-weight:800;line-height:1.25;max-width:28ch;margin:0 auto 14px}
+.anim-q{margin:12px auto 0;max-width:30ch;font-size:clamp(16px,2vw,20px);font-weight:600;line-height:1.35;opacity:.92}
+
+/* chaque question : ce qu'on attend, et où chercher */
+.qe-att{font-size:14.5px;line-height:1.5;margin:-2px 0 8px;color:var(--encre)}
+.qe-att span{font-weight:700}
+.qe-ou{font-size:14px;line-height:1.5;margin:0 0 8px;color:var(--doux)}
+.lien-ou{padding:2px 4px;font-size:14px;text-decoration:underline}
+.qe--court{margin-top:14px;padding:12px 13px}
+.qe--court .qe-l{font-size:15.5px}
+.q-autres{margin-top:18px}
+.q-autres > .sur{display:block;margin-bottom:-8px}
+
+/* étape 2 : le relevé à droite de la carte, sa question dessous ; la liste des six relevés */
+.bloc .trouve{margin-top:0}
+.releves-l{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px}
+.releves-l .lien{display:flex;gap:9px;align-items:center;width:100%;font-weight:600;color:var(--encre);padding:6px 8px}
+.releves-l .lien--ici{background:var(--primaire-doux)}
+.rl-i{flex:0 0 24px;height:24px;border-radius:999px;display:grid;place-items:center;font-size:12.5px;font-weight:800;
+  background:var(--fond-2);color:var(--doux)}
+
+/* la carte : maisons, corridor, secteur choisi, à décider */
+.trace-carte .carte,.scene-c > .carte{max-height:max(300px,min(calc(100vh - 400px),430px))}
+.maison path{fill:var(--surface);stroke:var(--encre);stroke-width:1.6;stroke-linejoin:round}
+.maison--decider path{stroke:var(--doux)}
+.maison--vide path:first-child{fill:var(--fond-2);stroke:var(--action);stroke-dasharray:2.5 2}
+.maison-x{fill:none;stroke:var(--action);stroke-width:2.4;stroke-linecap:round}
+.carte-corr{font-family:var(--f);font-size:9.5px;font-weight:700;fill:var(--encre);pointer-events:none;
+  paint-order:stroke;stroke:var(--surface);stroke-width:3px;stroke-linejoin:round}
+.sect--choisi{opacity:1 !important}
+.leg-decider{display:inline-block;width:16px;height:12px;border-radius:3px;border:1px solid var(--fort);
+  background:repeating-linear-gradient(-45deg,var(--fort) 0 2px,var(--terre) 2px 6px)}
+
+/* le tracé : la carte et le panneau de choix côte à côte, la question à droite, sans défiler */
+.trace-g{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(230px,1fr);gap:16px;align-items:start}
+@media (max-width:760px){.trace-g{grid-template-columns:1fr}}
+.panneau-s{border:1px solid var(--trait);border-radius:var(--r-s);padding:12px 13px;background:var(--surface)}
+.choix-sur{font-size:12.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--doux)}
+.choix-t{font-size:19px;margin:2px 0 3px}
+.choix-h{font-size:14px;line-height:1.45;color:var(--doux);margin-bottom:9px}
+.choix-vide{font-size:15px;font-weight:700;margin:6px 0 10px}
+.choix-g{display:flex;flex-direction:column;gap:6px}
+.choix-z{display:grid;grid-template-columns:22px minmax(0,1fr);gap:4px 9px;align-items:center;padding:7px 10px;min-height:44px;
+  border:1px solid var(--bord);border-radius:var(--r-s);background:var(--surface);line-height:1.2}
+.choix-z:hover{border-color:var(--primaire)}
+.choix-z--on{border-color:var(--primaire);box-shadow:inset 0 0 0 2px var(--primaire);background:var(--primaire-doux)}
+.choix-z svg{display:block}
+.choix-z b{display:block;font-size:14.5px}
+.choix-z small{display:block;font-size:12.5px;color:var(--doux)}
+.choix-suite{grid-column:2;font-style:normal;font-size:12.5px;font-weight:700;color:var(--env)}
+.choix-suite--vide{color:var(--action)}
+.choix-fait{font-size:13.5px;line-height:1.5;color:var(--doux);margin-top:10px}
+.choix-autres{margin-top:8px}
+.choix-autres summary{cursor:pointer;font-size:13.5px;font-weight:700;color:var(--primaire);padding:4px 0}
+.choix-liste{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px;margin-top:6px}
+.choix-sect{padding:6px 8px;border:1px solid var(--bord);border-radius:8px;background:var(--surface);line-height:1.2;min-height:44px}
+.choix-sect b{display:block;font-size:13.5px}
+.choix-sect small{display:block;font-size:12.5px;color:var(--doux)}
+.choix-sect--decider{border-style:dashed}
+.choix-sect[aria-pressed="true"]{border-color:var(--primaire);box-shadow:inset 0 0 0 2px var(--primaire)}
+.minimum{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:7px;font-size:14.5px}
+.minimum li{display:flex;gap:9px;align-items:baseline}
+.minimum-i{flex:0 0 18px;font-weight:800;color:var(--doux);text-align:center}
+.minimum li.fait .minimum-i{color:var(--env)}
+.minimum small{color:var(--doux)}
+.trace-effet{margin-top:10px;padding:10px 12px}
+.trace-effet .effet{margin-top:0;padding:0;background:none}
+.trace-effet .avert{margin-top:0}
+.avert--court{margin-top:4px}
+.trace-carte .legende{margin-top:8px;font-size:13px;gap:6px 12px}
+
+/* étape 3 : un verdict net ; le vert pour « bon choix », le rouge pour « pas utile » */
+.verdict{display:block}
+.verdict-m{font-size:14.5px;font-weight:800;margin-bottom:4px}
+.verdict--util .verdict-m{color:var(--env)}
+.verdict--hors{border-left-color:var(--action)}
+.verdict--hors .verdict-m{color:var(--action)}
+.verdict-t{font-weight:800;margin-bottom:3px}
+.verdict-t small{font-weight:600;color:var(--doux)}
+.verdict-v{margin-top:6px;color:var(--doux)}
+.manques{font-size:15px;line-height:1.55;margin:-4px 0 4px}
+.d-tous{margin-top:16px}
+.verdicts--tous{margin-top:12px}
+.verdicts--tous .verdict{font-size:14px}
+
+/* étape 5 : relire un point de vue */
+.pov-nav{display:flex;gap:6px;margin-bottom:10px}
+.pov-b{width:36px;height:36px;border-radius:999px;border:1px solid var(--action);color:var(--action);font-weight:800;
+  display:grid;place-items:center;background:var(--surface)}
+.pov-b[aria-pressed="true"]{background:var(--action);color:var(--surface)}
+
+/* étape 6 : votre ligne et celle de 1970, côte à côte ; 1970, mois par mois */
+.deux-cartes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+@media (max-width:700px){.deux-cartes{grid-template-columns:1fr}}
+.deux-cartes figure{margin:0}
+.deux-cartes figcaption{font-size:16px;font-weight:800;margin-bottom:6px}
+.deux-cartes .texte{font-size:14.5px;line-height:1.55;margin-top:8px}
+.chrono{list-style:none;margin:12px 0 0;padding:0;display:flex;flex-direction:column;gap:0;border-left:3px solid var(--trait)}
+.chrono li{display:grid;grid-template-columns:130px minmax(0,1fr);gap:10px;padding:6px 0 6px 14px;position:relative;font-size:15px;line-height:1.45}
+.chrono li::before{content:"";position:absolute;left:-7px;top:12px;width:11px;height:11px;border-radius:999px;background:var(--action)}
+.chrono-d{font-weight:800;font-variant-numeric:tabular-nums}
+@media (max-width:560px){.chrono li{grid-template-columns:1fr;gap:0}}
+
+/* la fin : quitter la séance, pour libérer l'ordinateur */
+.rappel-fin{margin:18px auto 4px;max-width:46ch;padding:14px 16px;border-radius:var(--r-s);background:var(--primaire-doux);
+  border:2px solid var(--primaire);display:flex;flex-direction:column;gap:10px;align-items:center}
+
+/* avancer ensemble : l'équipe qui attend le voit en grand dans la barre du bas */
+.pied--attend{background:color-mix(in srgb,var(--eco) 10%,var(--fond))}
+.pied--attend .attend{font-size:15px}
+
+/* espace enseignant : avancer ensemble, dit en clair ; le détail d'une équipe commence par où elle en est */
+.rythme-d{margin:-8px 0 14px}
+.badge--attend{color:var(--eco);border-color:var(--eco);font-weight:700;margin-left:4px}
+.ou-en-est{border:2px solid var(--primaire);border-radius:var(--r-s);padding:14px 16px;margin-bottom:18px;
+  background:var(--primaire-doux)}
+.ou-h{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.ou-etape{font-size:17px;margin:4px 0 10px;display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+.ou-l{display:grid;grid-template-columns:170px minmax(0,1fr);gap:6px 14px;margin:0 0 6px;font-size:15px;line-height:1.5}
+.ou-l dt{font-weight:700;color:var(--doux)}
+.ou-l dd{margin:0}
+.ou-l ul{margin:0;padding-left:18px}
+@media (max-width:700px){.ou-l{grid-template-columns:1fr}}
+.rep--ici{margin-top:12px;background:var(--surface);border-radius:8px;padding:10px 12px;border-left-color:var(--primaire)}
+.rep--ici .att{font-size:14.5px;color:var(--encre)}
+.rep--ici .att .sur{display:block}
+.detail-tout{font-size:15px;margin:4px 0 12px;color:var(--doux)}
+
+/* dossier complet (enseignant·e) : le verdict de chaque document, 1970 mois par mois */
+.dd-verdict{margin-top:10px;padding:8px 10px;border-radius:8px;background:var(--fond-2);font-size:14px;line-height:1.5}
+.dd-verdict b{display:block}
+.dd-chrono{margin:10px 0 0;padding-left:18px;font-size:14px;line-height:1.5}
+@media print{.dd-verdict{background:none;border:.75pt solid #999;color:#000}}

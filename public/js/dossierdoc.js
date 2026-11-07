@@ -68,7 +68,11 @@ function article(c, item, o) {
     <h3>${esc(t)}</h3>
     <p class="dd-x">${brut ? x : esc(x)}</p>
     ${item.s ? `<p class="dd-s">${esc(item.s)}</p>` : ''}
+    ${o.complet && item.chrono ? `<ol class="dd-chrono">${item.chrono.map((x) => `<li><b>${esc(x.d)}</b> ${esc(x.t)}</li>`).join('')}</ol>` : ''}
     ${copie(item)}
+    ${o.complet && item.chrono ? copie({ copie: item.chrono.map((x) => x.copie).filter(Boolean) }) : ''}
+    ${o.complet && typeof item.utile === 'boolean' && item.v ? `<p class="dd-verdict"><b>${item.utile ? '✓ Verdict : utile' : '✗ Verdict : ne sert pas à cette question'}</b>
+      ${esc(item.v)}</p>` : ''}
     ${item.surprise && o.enseignant ? '<p class="dd-surprise">Surprise : absent du dossier élève.</p>' : ''}
     ${o.corriger && cle ? `<p class="dd-corriger"><button class="btn btn--f btn--s" type="button" data-aller-reglage="c:${esc(cle)}">Mettre à jour ce texte</button></p>` : ''}
   </article>`;
@@ -86,7 +90,8 @@ export function dossierHTML(c, { version = 'devoir', pastilles: avec = true, ens
   const complet = version === 'complet';
   const garde = (x) => complet || !x.surprise;
   const actives = questionsActives(c, complet);
-  const o = { pastilles: avec, actives, enseignant, corriger };
+  // la version complète ajoute ce que le dossier élève ne dit pas : le verdict de chaque document, de 1970 à 1975
+  const o = { pastilles: avec, actives, enseignant, corriger, complet };
   const etape = (id) => c.etapes.find((e) => e.id === id)?.t || id;
   const fam = c.dossier?.questions || {};
   const familles = c.dossier?.familles || [];
@@ -119,7 +124,7 @@ export function dossierHTML(c, { version = 'devoir', pastilles: avec = true, ens
       <h1>Où passe la ligne&nbsp;? · dossier documentaire</h1>
       <p class="dd-question"><span>La question de départ</span> ${esc(c.question)}</p>
       <p class="dd-aide">${complet
-        ? 'Tout ce que le jeu montre, dans l\'ordre des étapes. Les documents marqués « surprise » ne sont pas dans le dossier élève : ils servent à contredire ce que l\'équipe croyait.'
+        ? 'Tout ce que le jeu montre, dans l\'ordre des étapes, avec ce que le dossier élève ne dit pas : le verdict de chaque document, les points de vue, et la décision de 1970 avec ses suites, jusqu\'en 1975. Les documents marqués « surprise » ne sont pas dans le dossier élève : ils servent à contredire ce que l\'équipe croyait.'
         : 'Le territoire tel qu\'on pouvait le connaître, et des documents à trier. Certains sont vrais mais ne servent pas à la question : à vous de voir lesquels. Sous chaque document, la phrase exacte de sa source et le lien pour la lire.'}
         ${esc(c.dossier?.releve || '')}</p>
       <p class="dd-aide">Deux sortes de documents : les <b>documents de terrain</b> (les relevés), que l'équipe découvre en

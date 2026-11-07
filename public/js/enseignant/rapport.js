@@ -68,7 +68,7 @@ export function rapportHTML() {
           // motifs renommés : les identifiants SVG doivent être uniques dans la page
           .replace(/id="m-/g, `id="r${k}-m-`).replace(/url\(#m-/g, `url(#r${k}-m-`)}</div>
         <div><p><span class="r-k">Étape atteinte :</span> ${e.atteinte + 1} / ${etapesJeu.length}${e.fini ? ' · partie terminée' : ''}</p>
-          <p><span class="r-k">Villages à vider :</span> ${r.vides.length} / ${J.nbVillages(c)}${r.vides.length ? ` (${r.vides.map(esc).join(', ')})` : ''}</p>
+          <p><span class="r-k">Villages vidés :</span> ${r.vides.length} / ${J.nbVillages(c)}${r.vides.length ? ` (${r.vides.map(esc).join(', ')})` : ''}</p>
           <p><span class="r-k">Villages gardés :</span> ${r.gardes.length}${r.gardes.length ? ` (${r.gardes.map(esc).join(', ')})` : ''}</p>
           <p><span class="r-k">Corridor :</span> ${r.corridor} · <span class="r-k">Zones :</span> ${new Set(Object.values(e.zones).filter(Boolean)).size}</p>
           ${e.juge ? `<p><span class="r-k">Documents retenus :</span> ${e.docs.map((id) => { const d = J.docParId(c, id);

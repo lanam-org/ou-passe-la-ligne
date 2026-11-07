@@ -23,9 +23,10 @@ function carte(html, cls, ms) {
 export const carteEntree = (emoji, nom) =>
   carte(`<p class="anim-e">${emoji || ''}</p><p class="anim-t">C'est parti</p><p class="anim-s">Équipe ${esc(nom)}</p>`, 'anim-carte--entree', 2700);
 
-/** Une nouvelle étape : son numéro et son titre, le temps d'un coup d'œil. */
-export const carteEtape = (n, titre) =>
-  carte(`<p class="anim-n">Étape ${esc(n)}</p><p class="anim-t">${esc(titre)}</p>`, 'anim-carte--etape', 1600);
+/** Une nouvelle étape : son numéro, son titre et, dessous, la question du jeu (on la répète tout au long du parcours). */
+export const carteEtape = (n, titre, question = '') =>
+  carte(`<p class="anim-n">Étape ${esc(n)}</p><p class="anim-t">${esc(titre)}</p>${question
+    ? `<p class="anim-q">${esc(question)}</p>` : ''}`, 'anim-carte--etape', question ? 2600 : 1600);
 
 /** Des confettis, pour un bravo (couleurs des tuiles de réponse). */
 export function confettis(n = 60) {
