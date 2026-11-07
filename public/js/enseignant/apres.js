@@ -5,14 +5,15 @@ import { mesure } from '../config.js';
 import { esc, dec, telecharger, icone } from '../outils.js';
 import * as J from '../jeu.js';
 import { etat, qid } from './etat.js';
+import { indicateursEquipe, lire as lireObservation, GRILLE, retoursDonnes } from './observation.js';
 
 /* ------------------------------------------------------------ mesures */
 
 export function vueMesures() {
   const { c, EQ } = etat;
   const eq = [...EQ].sort((a, b) => a.creeLe - b.creeLe);
-  const ind = eq.map((e) => J.indicateurs(c, e));
-  const lignes = ind[0] || J.indicateurs(c, J.nouvelEtat(c, '', ''));
+  const ind = eq.map((e) => indicateursEquipe(e));
+  const lignes = ind[0] || indicateursEquipe({ ...J.nouvelEtat(c, '', ''), id: '' });
   const puce = (ok) => ok === true ? '<span class="pt pt--ok" title="repère atteint">●</span>'
     : ok === false ? '<span class="pt pt--non" title="repère non atteint">●</span>' : '<span class="pt"></span>';
   return `<div class="p-tete"><h2>Données de la recherche</h2>
@@ -33,8 +34,11 @@ export function vueMesures() {
         <tbody>${c.plan.map((p, i) => `<tr><td>${i === 0 || c.plan[i - 1].g !== p.g ? `<b>${p.g}</b>` : ''}</td>
           <td>${esc(p.c)}</td><td>${esc(p.test)}</td><td><span class="src-t src-t--${p.src.split(' ')[0]}">${esc(p.src)}</span></td></tr>`).join('')}</tbody></table></div>
       <div class="limite"><b>Ce que ces mesures ne disent pas.</b> Elles décrivent ce que l'équipe fait sur le site, pas ce
-        qu'elle a appris. Pour parler d'apprentissage, il faut une mesure avant / après : les mêmes deux questions courtes
-        au début de la période et à la rétroaction, codées à la main par équipe.</div>
+        qu'elle a appris. Les deux questions avant / après (réglage allumé par défaut) en donnent une première idée : le
+        site compte les acteurs nommés au début et à la fin ; la nuance se code à la main, par équipe. Les repères tirés
+        des réponses (mots, nombres, « parce que », Gespe'gewa'gi nommé) comptent des mots : à vérifier en lisant. Un
+        temps sans geste peut aussi être une bonne discussion. La grille d'observation et les relances restent dans ce
+        navigateur.</div>
     </section>`;
 }
 
@@ -51,6 +55,37 @@ export function exporterCSV() {
       clics_vides: e.compteurs?.clicsVides || 0, retours: e.compteurs?.retours || 0, sauts: e.compteurs?.sauts || 0,
       mentions: e.mentions.length };
     etapesJeu.forEach((x) => { o[`s_${x.id}`] = Math.round(J.tempsEtape(c, e, x.id) / 1000); });
+    // les mesures ajoutées après le Playtest 2 (des nombres seulement ; les textes restent dans « Exporter les réponses »)
+    const k = { ...J.nouveauxCompteurs(), ...(e.compteurs || {}) };
+    const tx = J.analyseTextes(c, e), changee = J.ligneChangee(c, e), obs = lireObservation();
+    J.questionsAvantApres(c).forEach((q, j) => {
+      for (const [p, l] of [['av', tx.avant], ['ap', tx.apres]]) {
+        o[`${p}${j + 1}_mots`] = l[j] ? l[j].mots : '';
+        o[`${p}${j + 1}_acteurs`] = l[j] ? l[j].acteurs.length : '';
+      }
+    });
+    const somme = (x) => Object.values(x || {}).reduce((a, b) => a + (Number(b) || 0), 0);
+    Object.assign(o, {
+      secteurs_changes_pdv: changee ? changee.length : '', secteurs_changes_noms: changee ? changee.join(' | ') : '',
+      rep_total: tx.n, mots_moyen: tx.n ? tx.motsMoy : '', rep_nombre_source: tx.nombreSource, rep_justifiees: tx.justifiees,
+      cadre_spontane: tx.cadre.length ? 1 : 0, cadre_questions: tx.cadre.join(' '),
+      releves_ouverts: e.releves.length, docs_lus: k.docsLus.length, pov_relus: k.povRelus, dossier_relu: k.relireDocs,
+      inactif_s: Math.round(somme(k.inactif) / 1000), inactif_n: k.inactifN,
+      revisions: somme(k.revisions), questions_revisees: Object.values(k.revisions).filter((n) => n > 0).length,
+      aide_ou: k.aideOu, aide_manque: k.aideManque, blocages: somme(k.blocages),
+      sans_zone: k.sansZone, change_zone: k.changeZone,
+      bulles_vues: k.bulles?.vues || 0, bulles_guide: k.bulles?.guide || 0, bulles_arret: k.bulles?.arret || 0
+    });
+    // par étape : temps sans geste, « Suivant » trop tôt, premier geste (-1 : quittée sans aucun geste ; vide : pas mesuré)
+    etapesJeu.forEach((x) => {
+      o[`inactif_s_${x.id}`] = Math.round((k.inactif[x.id] || 0) / 1000);
+      o[`blocages_${x.id}`] = k.blocages[x.id] || 0;
+      o[`premier_s_${x.id}`] = k.premiere[x.id] == null ? '' : k.premiere[x.id] < 0 ? -1 : Math.round(k.premiere[x.id] / 1000);
+    });
+    // ce que l'enseignant·e a noté et fait (gardé dans ce navigateur)
+    const g = obs.grille[e.id];
+    GRILLE.forEach(([cle]) => { o[`obs_${cle}`] = g ? (g[cle] ? 1 : 0) : ''; });
+    Object.assign(o, { details_ouverts: obs.details[e.id] || 0, retours_donnes: retoursDonnes(etat.S, e.id), messages_classe: obs.messages });
     // les réponses écrites ne sont PAS exportées : texte libre, à coder à la main dans l'espace enseignant
     return o;
   });
@@ -71,9 +106,11 @@ export function exporterReponses() {
   if (!eq.length) return;
   // une cellule qui commence par = + - @ serait prise pour une formule par le tableur : on la neutralise
   const cel = (v) => { let s = String(v ?? ''); if (/^[=+\-@\t\r]/.test(s)) s = `'${s}`; return `"${s.replace(/"/g, '""')}"`; };
-  const tete = ['Équipe', 'Étape atteinte', 'Partie terminée', ...ecrites.map((q) => `${qid(q)} · ${q.eleve || q.q || ''}`)];
+  const aa = J.questionsAvantApres(etat.c).flatMap((q, j) => [[J.idAvant(j), `Au début · ${q.q}`], [J.idApres(j), `À la fin · ${q.q}`]]);
+  const tete = ['Équipe', 'Étape atteinte', 'Partie terminée', ...ecrites.map((q) => `${qid(q)} · ${q.eleve || q.q || ''}`),
+    ...aa.map(([id, t]) => `${id} · ${t}`)];
   const lignes = eq.map((e) => [e.nom, `${Math.min(e.atteinte, etapesJeu.length - 1) + 1} / ${etapesJeu.length}`, e.fini ? 'oui' : 'non',
-    ...ecrites.map((q) => String(e.reponses?.[q.id] || '').trim())]);
+    ...ecrites.map((q) => String(e.reponses?.[q.id] || '').trim()), ...aa.map(([id]) => String(e.reponses?.[id] || '').trim())]);
   telecharger(`forillon_${code}_reponses.csv`, '\uFEFF' + [tete, ...lignes].map((l) => l.map(cel).join(';')).join('\r\n'),
     'text/csv;charset=utf-8');
 }

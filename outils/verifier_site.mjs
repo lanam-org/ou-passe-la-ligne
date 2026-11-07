@@ -160,6 +160,8 @@ dit((await prof.textContent('.pied-site [data-version]')) === 'Version locale' &
   'le pied de page dit la version du site (ici : locale)');
 
 // ---------------------------------------------------------------- une équipe rejoint
+const suivant = async (p) => { await p.click('#suivant'); await p.waitForTimeout(120); };
+const ecrire = async (p, id, texte) => { await p.fill(`[data-rep="${id}"]`, texte); await p.waitForTimeout(60); };
 const eleve = await page(ctxEleve, `/eleve.html?code=${code}`, 'équipe');
 await eleve.waitForSelector('#f-rejoindre');
 dit(await eleve.inputValue('#code') === code, 'le code est prérempli depuis le lien');
@@ -173,8 +175,19 @@ dit((await eleve.textContent('#titre')).includes('La question du jeu') && (await
 await capture(eleve, '02b-question');
 await auditer(eleve, 'équipe · la question du jeu');
 await eleve.click('#suivant');
+await eleve.waitForFunction(() => document.querySelector('#titre')?.textContent.includes('Avant de commencer'));
+dit(await eleve.locator('[data-rep="AV1"]').count() === 1 && await eleve.locator('[data-rep="AV2"]').count() === 1 && await eleve.isDisabled('#suivant'),
+  'puis les deux questions du début (avant / après) : on ne commence pas sans y répondre');
+// « Suivant » touché trop tôt : un bouton désactivé reçoit quand même le pointeur, et le journal le compte
+const bSuiv = await eleve.locator('#suivant').boundingBox();
+await eleve.mouse.click(bSuiv.x + bSuiv.width / 2, bSuiv.y + bSuiv.height / 2);
+await capture(eleve, '02c-avant');
+await auditer(eleve, 'équipe · les deux questions du début');
+await ecrire(eleve, 'AV1', 'Les animaux et les touristes.');
+await ecrire(eleve, 'AV2', 'Non, il faut choisir.');
+await eleve.click('#suivant');
 await eleve.waitForFunction(() => document.querySelector('#titre')?.textContent.includes('Arriver'));
-dit(await eleve.isVisible('#bandeau-q'), "« Nous avons lu la question » ouvre l'arrivée ; la question reste rappelée en haut");
+dit(await eleve.isVisible('#bandeau-q'), "« Commencer » ouvre l'arrivée ; la question reste rappelée en haut");
 dit((await eleve.textContent('#minutes')) === '' && await eleve.isHidden('.temps-barre'), 'par défaut, aucun compte à rebours chez les équipes (stressant)');
 dit(!(await eleve.locator('.guide img, .guide svg').count()), 'la mission de l’étape, sans portrait à côté');
 
@@ -194,12 +207,14 @@ await autre.check('input[name=nom][value="Phoque gris"]');
 await autre.click('button[type=submit]');
 await autre.waitForSelector('#titre');
 await autre.click('#suivant');   // la question du jeu, lue
+await autre.waitForSelector('[data-rep="AV2"]');
+await ecrire(autre, 'AV1', 'La nature.');
+await ecrire(autre, 'AV2', 'Oui.');
+await autre.click('#suivant');   // les deux questions du début
 await autre.waitForFunction(() => document.querySelector('#titre')?.textContent.includes('Arriver'));
 dit(true, 'la deuxième équipe entre sous un autre nom');
 
 // ---------------------------------------------------------------- étape 1
-const suivant = async (p) => { await p.click('#suivant'); await p.waitForTimeout(120); };
-const ecrire = async (p, id, texte) => { await p.fill(`[data-rep="${id}"]`, texte); await p.waitForTimeout(60); };
 // L'action toujours visible : en haut de la page, sans défiler, au-dessus de la barre « Continuer ».
 const sansDefiler = (p, sel) => p.evaluate((s) => {
   window.scrollTo(0, 0);
@@ -313,6 +328,15 @@ const detail = await prof.textContent('#detail');
 dit(detail.includes('la route coupe les passages'), "l'enseignant·e lit les réponses de l'équipe en direct");
 await capture(prof, '08-enseignant-direct');
 await auditer(prof, 'enseignant · en direct, détail d’une équipe');
+// la grille d'observation (gardée dans ce navigateur) et les mesures de l'équipe, en direct
+await prof.check('#detail [data-obs="participe"][data-pour="orignal"]');
+await prof.waitForTimeout(150);
+dit(await prof.isChecked('#detail [data-obs="participe"]') && await prof.evaluate(() => document.activeElement?.matches('[data-obs="participe"]')),
+  'la grille d’observation se coche dans le détail de l’équipe, et la case garde le focus');
+await prof.click('#detail .obs-m summary');
+const mesDetail = await prof.textContent('#detail .obs-m');
+dit(mesDetail.includes('Tout le monde participe') && /Points de vue relus\s*[1-9]/.test(mesDetail) && mesDetail.includes('Avant / après'),
+  'le détail montre ses mesures, en direct : la grille, les points de vue relus, l’avant / après');
 // le « bravo » : l'enseignant·e salue une réponse, l'équipe le voit tout de suite, sans score
 await prof.click('#detail [data-bravo="F5.4"]');
 await eleve.waitForSelector('.bravo--ens', { timeout: 5000 });
@@ -478,6 +502,7 @@ const [dlRep] = await Promise.all([prof.waitForEvent('download'), prof.click('[d
 const csvRep = await (await import('node:fs/promises')).readFile(await dlRep.path(), 'utf8');
 dit(csvRep.includes('"Équipe"') && csvRep.includes('"Orignal"') && csvRep.includes('Q1.2'),
   'l’enseignant·e exporte les réponses en tableur : une ligne par équipe, une colonne par question');
+dit(csvRep.includes('AV1 · Au début') && csvRep.includes('Les animaux et les touristes.'), 'avec les réponses du début (avant / après)');
 await capture(prof, '09d-chrono');
 
 // ---------------------------------------------------------------- le dossier documentaire
@@ -598,6 +623,12 @@ await eleve.click('#d-sources summary');
 await eleve.waitForTimeout(150);
 await capture(eleve, '11-debrief');
 await auditer(eleve, 'équipe · étape 7, retour sur la démarche');
+dit(await eleve.locator('.aa-fin [data-rep="AP1"]').count() === 1 && await eleve.isDisabled('#suivant')
+  && (await eleve.textContent('#hint')).includes('deux questions du début'),
+  'au retour sur la démarche, les deux questions du début reviennent : on ne termine pas sans y répondre');
+await ecrire(eleve, 'AP1', "Les familles, les pêcheurs, les Mi'gmaq, le gouvernement et les animaux.");
+await ecrire(eleve, 'AP2', 'Oui, si on garde des villages et la forêt.');
+await eleve.waitForTimeout(150);
 await suivant(eleve);
 if (MESURE) {
   await eleve.waitForSelector('[data-avis="q1"]');
@@ -648,12 +679,20 @@ dit(ongletQuestions.includes('Toute réponse justifiée') && ongletQuestions.inc
 await capture(prof, '13-enseignant-questions');
 await prof.click('[data-onglet="mesures"]');
 dit(await prof.locator('.tab').first().locator('th').count() === 3, 'les mesures montrent une colonne par équipe');
+const mesures = await prof.textContent('.tab');
+const okMesures = [mesures.includes('2 → 5'), /touché trop tôt\s*●?\s*[1-9]/.test(mesures), mesures.includes('Documents lus avant le choix'),
+  mesures.includes('Tout le monde participe'), mesures.includes('Détail de l\'équipe ouvert')];
+if (!okMesures.every(Boolean)) console.log('  · mesures :', okMesures.join(' '), mesures.replace(/\s+/g, ' ').slice(0, 1500));
+dit(okMesures.every(Boolean),
+  'les nouvelles mesures : avant / après (acteurs 2 → 5), « Suivant » trop tôt, lecture, grille et relances');
 dit(MESURE ? !(await prof.isDisabled('[data-export]')) : await prof.isDisabled('[data-export]'),
   MESURE ? 'export CSV disponible' : 'export CSV verrouillé tant que la collecte est éteinte');
 if (MESURE) {
   const [dl] = await Promise.all([prof.waitForEvent('download'), prof.click('[data-export]')]);
   const csv = await (await import('node:fs/promises')).readFile(await dl.path(), 'utf8');
   dit(csv.split('\n').length === 3 && !/Orignal|Phoque/.test(csv), 'le CSV a une ligne par équipe et aucun nom');
+  dit(['av1_acteurs', 'ap1_acteurs', 'secteurs_changes_pdv', 'cadre_spontane', 'inactif_s', 'blocages_arrivee', 'premier_s_marche', 'obs_participe', 'messages_classe']
+    .every((k) => csv.includes(`"${k}"`) || csv.split('\n')[0].includes(k)), 'le CSV porte les nouvelles mesures, en nombres');
   await prof.click('[data-onglet="questionnaire"]');
   await prof.waitForTimeout(300);
   dit((await prof.textContent('#prof')).includes('4,0 / 4 (1)'), 'l’enseignant·e voit le résultat du questionnaire');

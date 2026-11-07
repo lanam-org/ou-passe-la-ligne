@@ -343,7 +343,7 @@ On peut aussi tout héberger chez Firebase (`firebase deploy`).
 | `public/js/eleve/` | `ecrans.js` (une fonction par étape, l'écran de fin), `questions.js` (questions écrites, « À rattraper »), `annonces.js` (gestes reconnus, « bravos », message de l'enseignant·e, lecteur d'écran), `envoi.js` (l'enregistrement et le voyant « Enregistré ») ; `etat.js`, l'état qu'ils partagent |
 | `public/js/vendor/uqr.js` | L'encodeur de codes QR (uqr 0.1.3, licence MIT), copié tel quel : aucun service extérieur |
 | `public/js/enseignant.js` | L'espace enseignant·e : ouvrir une séance, l'écouter en direct, choisir l'onglet, les gestes en séance |
-| `public/js/enseignant/` | Un fichier par écran de l'espace : `accueil.js` (Vos séances), `direct.js`, `debrief.js`, `editeur.js` (Réglages, Votre version du jeu), `preparer.js` (Questions, Dossier, Déroulement), `apres.js` (Mesures, Questionnaire), `rapport.js` (rapport, impression), `trousse.js` (la trousse d'essai) ; `etat.js`, l'état qu'ils partagent |
+| `public/js/enseignant/` | Un fichier par écran de l'espace : `accueil.js` (Vos séances), `direct.js`, `debrief.js`, `editeur.js` (Réglages, Votre version du jeu), `preparer.js` (Questions, Dossier, Déroulement), `apres.js` (Mesures, Questionnaire), `rapport.js` (rapport, impression), `trousse.js` (la trousse d'essai), `observation.js` (la grille d'observation et les relances, gardées dans le navigateur) ; `etat.js`, l'état qu'ils partagent |
 | `public/js/seance.js` | Créer, rejoindre, effacer une séance ; ses réponses attendues, à part ; la version du jeu de l'enseignant·e |
 | `public/js/dossierdoc.js` | Le dossier documentaire, à l'écran et sur papier ; le lien de source dans le jeu |
 | `public/js/dossier.js` | La page du dossier élève |
@@ -394,6 +394,13 @@ identifiant que la question (`F2.1`…). Une question ajoutée à la banque pren
 - « Effacer la séance » supprime ensuite les équipes, leurs réponses et la séance.
 - `mesure = false` dans `config.js` : pas de questionnaire à l'écran, pas d'export CSV.
   À passer à `true` seulement avec le certificat d'éthique et les autorisations en main.
+- Les mesures (onglet Données, détail d'une équipe, rapport, export) sont des **nombres** tirés des gestes de
+  l'équipe : ce qu'elle lit, le temps sans geste, les réponses réécrites, l'aide utilisée, « Suivant » touché trop
+  tôt, le premier geste par étape, les bulles d'aide. Ils vivent dans `compteurs`, dans la fiche de l'équipe
+  (aucune nouvelle clé dans Firestore). Les repères tirés des réponses (mots, nombres, « parce que »,
+  Gespe'gewa'gi nommé, acteurs de l'avant / après) se calculent chez l'enseignant·e et comptent des mots : à
+  vérifier en lisant. La grille d'observation et les relances restent dans le navigateur de l'enseignant·e
+  (`forillon:observation:<code>`) et partent avec « Effacer la séance ».
 - **Effacement automatique** (Loi 25 : on ne garde pas plus longtemps que nécessaire) : chaque séance, fiche
   d'équipe, avis et document de réponses attendues porte un champ `expireLe` (création + `conservationJours`,
   30 par défaut, dans `config.js`).

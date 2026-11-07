@@ -91,6 +91,7 @@ export const chronoTexte = (ch) => {
 /** Les réponses à des questions qui ne sont plus posées (retirées en cours de séance) : rien ne se perd. */
 export function autresReponses(e) {
   const posees = new Set(etat.ecrites.map((q) => q.id));
-  return Object.entries(e.reponses || {}).filter(([id, r]) => !posees.has(id) && String(r || '').trim())
+  // les réponses avant / après (AV1, AP1…) ont leur propre place : elles ne sont pas des questions retirées
+  return Object.entries(e.reponses || {}).filter(([id, r]) => !posees.has(id) && !J.estAvantApres(id) && String(r || '').trim())
     .map(([id, r]) => ({ id, k: 'question retirée depuis', t: etat.B[id]?.eleve || 'Question ajoutée puis retirée', r: String(r).trim() }));
 }

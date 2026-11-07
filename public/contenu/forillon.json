@@ -791,6 +791,7 @@
   },
   {
    "id": "F2.1",
+   "demandeCadre": true,
    "forme": "Carte · point 1",
    "q": "Avant le parc, quel était le nom de ce territoire ? Quel peuple l'occupe ?",
    "sources": [
@@ -997,6 +998,7 @@
   },
   {
    "id": "F5.4",
+   "demandeCadre": true,
    "forme": "Ouverte",
    "q": "Ce territoire a déjà un nom. Qui l'occupe depuis le plus longtemps ?",
    "sources": [
@@ -1307,6 +1309,16 @@
   "Assez",
   "Tout à fait"
  ],
+ "avantApres": [
+  {
+   "q": "Qui est touché quand on crée un parc national ? Nommez tous ceux auxquels vous pensez.",
+   "mesure": "Les acteurs que l'équipe voit : habitants, économie, Premières Nations, gouvernement, visiteurs, nature."
+  },
+  {
+   "q": "Peut-on protéger la nature et laisser des gens vivre au même endroit ? Expliquez votre idée.",
+   "mesure": "La nuance : un « oui, si… » ou un « non, parce que… » plutôt qu'un oui ou un non seul. À coder à la main."
+  }
+ ],
  "avis": [
   {
    "id": "q1",
@@ -1375,6 +1387,12 @@
  "plan": [
   {
    "g": "Apprentissage",
+   "c": "Avant / après",
+   "test": "À la fin, la question 1 nomme plus d'acteurs qu'au début (habitants, économie, Premières Nations, gouvernement, visiteurs, nature). La question 2 se code à la main.",
+   "src": "auto + à la main"
+  },
+  {
+   "g": "Apprentissage",
    "c": "Trier l'information",
    "test": "Au moins 2 des 3 documents retenus sont utiles.",
    "src": "auto"
@@ -1383,6 +1401,12 @@
    "g": "Apprentissage",
    "c": "Réviser devant un fait nouveau",
    "test": "L'équipe rezone au moins une fois après un autre point de vue.",
+   "src": "auto"
+  },
+  {
+   "g": "Apprentissage",
+   "c": "Ce que les points de vue changent",
+   "test": "Le nombre de secteurs dont la zone change entre la ligne arrêtée et la ligne d'après les quatre points de vue (sans repère).",
    "src": "auto"
   },
   {
@@ -1399,9 +1423,15 @@
   },
   {
    "g": "Apprentissage",
+   "c": "Justifier",
+   "test": "Au moins la moitié des réponses citent un nombre ou une source, et au moins la moitié disent pourquoi (parce que, donc, mais…). Repéré seul, à vérifier.",
+   "src": "auto"
+  },
+  {
+   "g": "Apprentissage",
    "c": "Élargir le cadre",
-   "test": "Un élève nomme Gespe'gewa'gi ou les Mi'gmaq sans qu'on le demande.",
-   "src": "observation"
+   "test": "Gespe'gewa'gi ou les Mi'gmaq sont nommés sans qu'on le demande : dans une réponse écrite (repéré seul, à vérifier) ou à voix haute.",
+   "src": "auto + observation"
   },
   {
    "g": "Apprentissage",
@@ -1419,6 +1449,24 @@
    "g": "Engagement",
    "c": "Rythme",
    "test": "Aucune étape ne dépasse 1,5 fois son temps prévu.",
+   "src": "auto"
+  },
+  {
+   "g": "Engagement",
+   "c": "Lire avant d'agir",
+   "test": "Les six relevés ouverts ; au moins trois documents lus avant le choix ; les points de vue relus (compté).",
+   "src": "auto"
+  },
+  {
+   "g": "Engagement",
+   "c": "Rester actif",
+   "test": "Moins de 5 minutes sans aucun geste en tout (au-delà de 2 minutes d'affilée ; pauses et attentes exclues).",
+   "src": "auto"
+  },
+  {
+   "g": "Engagement",
+   "c": "Revenir sur ses réponses",
+   "test": "Les réponses réécrites après avoir quitté leur étape, et l'aide utilisée (« Où chercher », ce qui manque) : comptées, sans repère.",
    "src": "auto"
   },
   {
@@ -1447,6 +1495,24 @@
   },
   {
    "g": "Utilisabilité",
+   "c": "Savoir quand continuer",
+   "test": "« Suivant » touché trop tôt 3 fois ou moins (attente de l'enseignant·e exclue).",
+   "src": "auto"
+  },
+  {
+   "g": "Utilisabilité",
+   "c": "Démarrer chaque étape",
+   "test": "Le premier geste vient en moins de 60 s dans chaque étape.",
+   "src": "auto"
+  },
+  {
+   "g": "Utilisabilité",
+   "c": "Tracer sans hésiter",
+   "test": "Les secteurs touchés puis laissés sans zone, les zones changées, et les bulles d'aide vues : comptés, sans repère.",
+   "src": "auto"
+  },
+  {
+   "g": "Utilisabilité",
    "c": "Clarté et charge",
    "test": "Q1 et Q2 ≥ 3 ; Q3 ≤ 2.",
    "src": "questionnaire"
@@ -1454,8 +1520,14 @@
   {
    "g": "Collaboration",
    "c": "Tout le monde participe",
-   "test": "Le Chromebook change de main au moins 2 fois ; Q5 ≥ 3.",
+   "test": "Cochés dans la grille d'observation : tout le monde participe, l'équipe discute, lit à voix haute, l'ordinateur change de main ; Q5 ≥ 3.",
    "src": "observation + questionnaire"
+  },
+  {
+   "g": "Collaboration",
+   "c": "Relances",
+   "test": "Combien de fois l'enseignant·e ouvre le détail de l'équipe et lui donne un retour ; les messages à la classe (comptés).",
+   "src": "auto (enseignant·e)"
   }
  ],
  "bilan": [

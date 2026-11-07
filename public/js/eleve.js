@@ -104,7 +104,7 @@ let arretSeance = () => {};
 function entrer(cd, id, fiche) {
   Object.assign(etat, { code: cd, idEq: id, E: fiche });
   const { E } = etat;
-  E.compteurs ||= J.nouvelEtat(etat.c, E.nom, E.appareil).compteurs;
+  J.completerCompteurs(E);   // une fiche d'avant n'a pas les nouveaux compteurs
   relireAnnonces();
   $('#etat-envoi').hidden = false;
   $('#retour-accueil').hidden = true;    // en jeu, pas de sortie par erreur : « Quitter la séance » demande confirmation
@@ -187,6 +187,7 @@ function rendre() {
   if (ui.rendue !== E.etape) {
     if (ui.rendue !== -1) { window.scrollTo({ top: 0 }); focusTitre = true; }
     ui.rendue = E.etape; ui.secteur = null; ui.povVoir = null;   // une nouvelle étape repart sans secteur choisi
+    ui.secteurTouche = false; ui.secteurDecide = false;
   }
   ui.compNeuf = E.comps > ui.compVu; ui.compVu = E.comps;   // un point de vue qui vient d'arriver se signale, une fois
   const v = ECRANS[e.id]();
@@ -242,7 +243,7 @@ function retenue() {
   if (!r || etat.apercu || !E || E.fini || S.etat === 'fermee') return false;
   const e = c.etapes[E.etape];
   if (e.id === 'avis' || (e.id === 'dossier' && !E.juge) || (e.id === 'comp' && E.comps < c.complications.length)) return false;
-  if (e.id === 'arrivee' && ECRANS.arrivee().titre) return false;   // « La question du jeu » fait partie de l'arrivée
+  if (e.id === 'arrivee' && ECRANS.arrivee().ecran) return false;   // « La question du jeu » et l'avant font partie de l'arrivée
   return E.etape >= r.etape;
 }
 
@@ -301,10 +302,82 @@ Object.assign(page, { rendre, majPied });
 
 function apres(nouvelles = []) { ui.nouvelles.push(...nouvelles); sauver(); rendre(); }
 
+/* ------------------------------------------------------------ le journal (des nombres, pour l'enseignant·e) */
+// Rien ne s'affiche chez l'équipe ; rien n'est compté dans l'aperçu de l'enseignant·e. Voir nouveauxCompteurs (jeu.js).
+
+const journal = () => (etat.E && !etat.apercu && !etat.E.fini ? etat.E.compteurs : null);
+const etapeIci = () => etat.c.etapes[etat.E.etape].id;
+
+/** Le premier geste dans une étape (un relevé, un secteur, une case, un document…) : combien de temps après y être entré. */
+function premierGeste() {
+  const k = journal();
+  if (!k) return;
+  const id = etapeIci();
+  if (k.premiere[id] == null) { k.premiere[id] = Math.max(0, Date.now() - (etat.E.entree || Date.now())); sauver(); }
+}
+
+/** Quitter une étape : ses réponses écrites sont « envoyées » ; les réécrire ensuite compte comme une révision. */
+function marquerEnvoyees() {
+  const k = journal();
+  if (!k) return;
+  const { c, E } = etat;
+  const ids = [...Rg.questionsVisibles(c, E, etapeIci()).map((q) => q.id),
+    ...(etapeIci() === 'arrivee' ? J.questionsAvantApres(c).map((q, i) => J.idAvant(i)) : [])];
+  const neuves = ids.filter((id) => J.repondu(E, id) && !k.envoyees.includes(id));
+  if (neuves.length) k.envoyees = [...k.envoyees, ...neuves];
+}
+
+// Le temps sans aucun geste : un écart de plus de 2 min entre deux gestes s'ajoute à l'étape (une discussion orale
+// y ressemble aussi : c'est un repère, pas un jugement). La pause de l'enseignant·e et l'attente de son signal ne comptent pas.
+const INACTIF = 120000;
+let dernierGeste = Date.now(), horsJeu = false;
+function geste() {
+  const k = journal(), t = Date.now();
+  if (k && t - dernierGeste >= INACTIF && !horsJeu) {
+    const id = etapeIci();
+    k.inactif = { ...k.inactif, [id]: (k.inactif[id] || 0) + (t - dernierGeste) };
+    k.inactifN += 1;
+    sauver();
+  }
+  dernierGeste = t; horsJeu = false;
+}
+for (const t of ['pointerdown', 'keydown', 'input', 'wheel', 'touchmove']) document.addEventListener(t, geste, { capture: true, passive: true });
+setInterval(() => { if (etat.S?.chrono?.pause || ui.attend) horsJeu = true; }, 5000);
+
+// « Suivant » touché alors que l'étape n'est pas finie (un bouton désactivé ne reçoit pas de clic, mais reçoit le
+// pointeur) ; l'attente du signal de l'enseignant·e ne compte pas.
+document.addEventListener('pointerdown', (ev) => {
+  const bt = ev.target.closest?.('#suivant'), k = journal();
+  if (!bt || !bt.disabled || !k || ui.attend) return;
+  const id = etapeIci();
+  k.blocages = { ...k.blocages, [id]: (k.blocages[id] || 0) + 1 };
+  sauver();
+}, true);
+
+// les bulles d'aide (aide.js) : vues, « ? » touché, « Arrêter l'aide »
+document.addEventListener('forillon:aide', (ev) => {
+  const k = journal(), t = ev.detail?.type;
+  if (!k || !['vues', 'guide', 'arret'].includes(t)) return;
+  k.bulles = { ...k.bulles, [t]: (k.bulles[t] || 0) + 1 };
+  sauver();
+});
+
+// une réponse réécrite après avoir quitté son étape (« change » : à la sortie de la case, si le texte a changé)
+document.addEventListener('change', (ev) => {
+  const t = ev.target.closest?.('[data-rep]'), k = journal();
+  if (!t || !k || !k.envoyees.includes(t.dataset.rep)) return;
+  k.revisions = { ...k.revisions, [t.dataset.rep]: (k.revisions[t.dataset.rep] || 0) + 1 };
+  sauver();
+});
+
 document.addEventListener('input', (ev) => {
   const t = ev.target.closest('[data-rep]');
   if (t && etat.E) {
+    premierGeste();
+    const apresAvant = J.apresFait(etat.c, etat.E);
     etat.E.reponses[t.dataset.rep] = t.value.slice(0, MAX_REPONSE);
+    // les deux questions de la fin, tout juste répondues : « Ce que vous pensiez au début » s'ouvre à la relecture
+    if (/^AP\d$/.test(t.dataset.rep) && J.apresFait(etat.c, etat.E) !== apresAvant) { sauver(); return rendre(); }
     const k = document.querySelector(`[data-compte="${CSS.escape(t.dataset.rep)}"]`);
     if (k) k.textContent = `${t.value.length} / ${MAX_REPONSE}`;
     sauver(); majPied(); return;
@@ -316,6 +389,9 @@ document.addEventListener('input', (ev) => {
 document.addEventListener('click', async (ev) => {
   const { c, E, S, code } = etat;
   if (!E) return;
+  // le journal : un geste dans l'étape (la scène ou le carnet ; pas la barre du bas), l'aide « Où chercher »
+  if (ev.target.closest('#scene :is(button, textarea, summary, [data-sect], [data-releve]), #carnet :is(button, textarea, summary)')) premierGeste();
+  if (ev.target.closest('.lien-ou') && journal()) E.compteurs.aideOu += 1;
   if (ev.target.closest('[data-fermer-bravo]')) return fermerBravo();
   // fermer l'onglet de l'aperçu ; si le navigateur refuse, revenir à l'espace enseignant
   if (ev.target.closest('[data-fermer-apercu]')) { window.close(); setTimeout(() => { location.href = 'enseignant.html'; }, 300); return; }
@@ -323,6 +399,7 @@ document.addEventListener('click', async (ev) => {
   if (ev.target.closest('[data-quitter-demander]')) { const d = $('#d-quitter'); d.returnValue = ''; return d.showModal(); }
   const al = ev.target.closest('[data-aller]');
   if (al) {
+    if (journal()) { E.compteurs.aideManque += 1; sauver(); }
     const t = document.querySelector(`[data-rep="${CSS.escape(al.dataset.aller)}"]`);
     if (t) { t.scrollIntoView({ block: 'center', behavior: 'smooth' }); t.focus({ preventScroll: true }); }
     return;
@@ -331,6 +408,7 @@ document.addEventListener('click', async (ev) => {
   if (fs) { signalLu(Number(fs.dataset.fermerSignal)); return rendreSignal(); }
   if (ev.target.closest('[data-vers-debrief]')) {
     signalLu(S?.signal?.t || Date.now());
+    marquerEnvoyees();
     J.allerA(c, E, idx('debrief'));
     rendreSignal(); sauverTout(); return rendre();
   }
@@ -340,7 +418,7 @@ document.addEventListener('click', async (ev) => {
   const et = ev.target.closest('[data-etape]');
   if (et && !et.disabled) {
     const i = Number(et.dataset.etape);
-    if (i !== E.etape && i <= E.atteinte) { E.compteurs.sauts += 1; J.allerA(c, E, i); sauverTout(); }
+    if (i !== E.etape && i <= E.atteinte) { E.compteurs.sauts += 1; marquerEnvoyees(); J.allerA(c, E, i); sauverTout(); }
     return rendre();
   }
   const rl = ev.target.closest('[data-releve]');
@@ -356,7 +434,11 @@ document.addEventListener('click', async (ev) => {
   // la carte : on touche un secteur, puis on choisit sa zone (Playtest 2 : le secteur d'abord, plus de rangée d'outils)
   const sect = ev.target.closest('[data-sect]');
   if (sect) {
-    ui.secteur = sect.dataset.sect;
+    // au tracé, un secteur touché par l'équipe puis laissé sans zone pour un autre : une hésitation (le journal)
+    if (etapeIci() === 'trace' && ui.secteur && ui.secteurTouche && !ui.secteurDecide && ui.secteur !== sect.dataset.sect && journal()) {
+      E.compteurs.sansZone += 1; sauver();
+    }
+    ui.secteur = sect.dataset.sect; ui.secteurTouche = true; ui.secteurDecide = false;
     const s = c.secteurs.find((x) => x.id === ui.secteur);
     dire(`${s.nom} choisi. ${J.decide(E, s.id) ? `Zone actuelle : ${J.nomZone(c, E.zones[s.id])}.` : 'Pas encore décidé.'} Choisissez sa zone.`);
     rendre();
@@ -375,7 +457,8 @@ document.addEventListener('click', async (ev) => {
     if (r) { ui.effet = r.effet; direEffet(r.effet); }
     // au tracé, un secteur tout juste décidé : on passe au suivant à décider (et on le dit)
     const suivant = r && premier && c.etapes[E.etape].id === 'trace' ? J.aDecider(c, E)[0] : null;
-    if (suivant) ui.secteur = suivant.id;
+    ui.secteurDecide = true;
+    if (suivant) { ui.secteur = suivant.id; ui.secteurTouche = false; }   // proposé par le jeu, pas touché par l'équipe
     apres(r ? r.nouvelles : []);
     if (suivant) setTimeout(() => dire(`Secteur suivant à décider : ${suivant.nom}.`), 900);
     (document.querySelector('.choix-z[aria-pressed="true"]') || document.querySelector('.choix-z'))?.focus({ preventScroll: true });
@@ -383,7 +466,9 @@ document.addEventListener('click', async (ev) => {
   }
   const pov = ev.target.closest('[data-pov]');
   if (pov) {
-    ui.povVoir = Number(pov.dataset.pov); ui.compNeuf = false; rendre();
+    ui.povVoir = Number(pov.dataset.pov); ui.compNeuf = false;
+    if (journal()) { E.compteurs.povRelus += 1; sauver(); }
+    rendre();
     const x = c.complications[ui.povVoir];
     if (x) dire(`Point de vue ${ui.povVoir + 1} : ${x.t}. ${sansBalises(x.x)}`);
     document.querySelector(`.pov-b[data-pov="${ui.povVoir}"]`)?.focus({ preventScroll: true });
@@ -392,26 +477,35 @@ document.addEventListener('click', async (ev) => {
   if (ev.target.closest('.carte')) { E.compteurs.clicsVides += 1; sauver(); return; }
 
   if (ev.target.closest('#retour')) {
-    if (E.etape > 0) { E.compteurs.retours += 1; J.allerA(c, E, E.etape - 1); sauverTout(); }
+    if (E.etape > 0) { E.compteurs.retours += 1; marquerEnvoyees(); J.allerA(c, E, E.etape - 1); sauverTout(); }
     return rendre();
   }
 
   if (ev.target.closest('#suivant')) {
     const e = c.etapes[E.etape];
-    if (e.id === 'arrivee' && ECRANS.arrivee().titre) {   // « La question du jeu » lue : l'arrivée, comme une nouvelle étape
-      ui.questionLue = true; rendre();
+    // « La question du jeu » lue, puis les deux questions du début : l'écran suivant, comme une nouvelle étape
+    const ecran = e.id === 'arrivee' ? ECRANS.arrivee() : null;
+    if (ecran?.ecran) {
+      if (!ecran.peut) return;
+      if (ecran.ecran === 'question') ui.questionLue = true;
+      if (ecran.ecran === 'avant') { ui.avantPasse = true; marquerEnvoyees(); sauver(); }
+      rendre();
       window.scrollTo({ top: 0 }); $('#titre').focus({ preventScroll: true });
       return;
     }
     if (!ECRANS[e.id]().peut || retenue()) return;
     if (e.id === 'dossier' && !E.juge) return apres(J.juger(c, E));
     if (e.id === 'trace' && J.releve(c, E).corridor === 'continu') ui.nouvelles.push(...J.mentionner(E, 'corridor'));
+    // la ligne arrêtée, puis la ligne d'après les quatre points de vue (la première fois) : ce que les points de vue changent
+    if (e.id === 'trace' && !E.compteurs.ligneTrace) E.compteurs.ligneTrace = { ...E.zones };
     if (e.id === 'comp' && E.comps < c.complications.length) {
       E.comps += 1; ui.povVoir = null; ui.effet = null;
       const x = c.complications[E.comps - 1];
       dire(`Point de vue ${E.comps} sur ${c.complications.length}, ${x.t} : ${sansBalises(x.x)} ${sansBalises(x.quoi)}`);
       return apres();
     }
+    if (e.id === 'comp' && !E.compteurs.lignePdv) E.compteurs.lignePdv = { ...E.zones };
+    marquerEnvoyees();
     if (e.id === 'debrief') {
       if (avisActif()) { J.allerA(c, E, idx('avis')); }
       else { J.allerA(c, E, E.etape); E.fini = true; }
@@ -438,7 +532,14 @@ document.addEventListener('click', async (ev) => {
 document.addEventListener('toggle', (ev) => {
   // un document ouvert avec « Lire » le reste quand l'écran se redessine (un autre document coché)
   const lu = ev.target.dataset?.lire;
-  if (lu) { if (ev.target.open) ui.lus.add(lu); else ui.lus.delete(lu); return; }
+  const k = journal();
+  if (lu) {
+    if (ev.target.open) ui.lus.add(lu); else ui.lus.delete(lu);
+    // un document ouvert avec « Lire », avant le choix (le journal)
+    if (ev.target.open && k && !etat.E.juge && !k.docsLus.includes(lu)) { k.docsLus = [...k.docsLus, lu]; sauver(); }
+    return;
+  }
+  if (ev.target.classList?.contains('d-tous') && ev.target.open && k) { k.relireDocs += 1; sauver(); }
   const { E } = etat;
   if (ev.target.id === 'd-sources' && ev.target.open && E && !E.mentions.includes('origine')) apres(J.mentionner(E, 'origine'));
 }, true);
